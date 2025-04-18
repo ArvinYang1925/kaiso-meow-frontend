@@ -1,3 +1,4 @@
+/* 這三行就是 Tailwind 的核心，會注入所有內建的樣式。 */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
