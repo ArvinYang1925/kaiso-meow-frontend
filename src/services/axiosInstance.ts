@@ -5,7 +5,8 @@ interface APIErrorResponse {
   status: string;
 }
 
-const baseURL = 'https://express-ts-todolist.onrender.com/api/'
+//判定開發環境或正式環境可加在這
+const baseURL = '/api'
 
 const axiosInstance = axios.create({
   baseURL, // 所有請求都會自動加上這個 baseURL 開頭
