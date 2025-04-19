@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 // import { useNavigate } from "react-router-dom";
 import "./index.css";
-import { Button } from "./components/ui/Button";
+import { Button } from "./components/ui/button/Button";
 
 interface LoginForm {
   email: string;
@@ -101,18 +101,6 @@ export const LoginPage: React.FC = () => {
 
   return (
     <>
-      {/* 按鈕測試區 */}
-      <div className="flex">
-        {/* shadcn btn */}
-        <Button>Default</Button>
-        <Button variant="secondary" className="ml-2">
-          Secondary
-        </Button>
-        <Button variant="outline" className="ml-2">
-          Outline
-        </Button>
-      </div>
-
       <div className="flex flex-col justify-center items-center gap-6 p-7 md:flex-row shadow-md hover:bg-gray-100">
         <div className="bg-white rounded-2xl p-7 shadow-md min-w-[40vw]">
           <div>
@@ -173,17 +161,18 @@ export const LoginPage: React.FC = () => {
             )}
 
             <div>
-              <button
+              <Button
                 type="submit"
+                className="w-full"
+                // className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
+                //   isLoading
+                //     ? "bg-indigo-400 cursor-not-allowed"
+                //     : "bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                // }`}
                 disabled={isLoading}
-                className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
-                  isLoading
-                    ? "bg-indigo-400 cursor-not-allowed"
-                    : "bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                }`}
               >
                 {isLoading ? "登入中..." : "登入"}
-              </button>
+              </Button>
             </div>
           </form>
         </div>

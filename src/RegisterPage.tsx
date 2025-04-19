@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./index.css";
-import { Button } from "./components/ui/Button";
+import { Button } from "./components/ui/button/Button";
 
 interface RegisterForm {
   name: string;
@@ -121,7 +121,6 @@ export const RegisterPage: React.FC = () => {
               <p className="text-sm text-red-500 mt-1">{errors.name}</p>
             )}
           </div>
-
           {/* email */}
           <div>
             <input
@@ -139,7 +138,6 @@ export const RegisterPage: React.FC = () => {
               <p className="text-sm text-red-500 mt-1">{errors.email}</p>
             )}
           </div>
-
           {/* password */}
           <div>
             <input
@@ -157,7 +155,6 @@ export const RegisterPage: React.FC = () => {
               <p className="text-sm text-red-500 mt-1">{errors.password}</p>
             )}
           </div>
-
           {/* confirmPassword */}
           <div>
             <input
@@ -177,27 +174,26 @@ export const RegisterPage: React.FC = () => {
               </p>
             )}
           </div>
-
           {/* error message */}
           {errorMessage && (
             <div className="text-red-500 text-sm text-center">
               {errorMessage}
             </div>
           )}
-
           {/* submit */}
           <div>
-            <button
+            <Button
               type="submit"
+              className="w-full"
+              // className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
+              //   isLoading
+              //     ? "bg-indigo-400 cursor-not-allowed"
+              //     : "bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              // }`}
               disabled={isLoading}
-              className={`w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
-                isLoading
-                  ? "bg-indigo-400 cursor-not-allowed"
-                  : "bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              }`}
             >
               {isLoading ? "註冊中..." : "註冊帳號"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
