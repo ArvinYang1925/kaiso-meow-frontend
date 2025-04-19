@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./index.css";
 import { Button } from "./components/ui/button/Button";
+import { registerUser } from "./services/auth.service";
 
 interface RegisterForm {
   name: string;
@@ -64,19 +65,24 @@ export const RegisterPage: React.FC = () => {
     setErrorMessage("");
 
     try {
-      // 模擬 API 註冊邏輯
       console.log("送出註冊資料", formData);
+      const requestData: { email: string; name: string; password: string } = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+      };
 
-      // 模擬延遲
-      await new Promise((res) => setTimeout(res, 1000));
+      const response = await registerUser(requestData);
+      console.log("查看response", response);
 
-      // 模擬成功註冊後儲存 token
-      localStorage.setItem("token", "mock_register_token");
+      // 假設後端會回傳一個 token
+      const token = response.data.data.token;
+      localStorage.setItem("token", token);
 
-      // 顯示成功訊息或導向其他頁面
       alert("註冊成功！");
-    } catch (error) {
-      setErrorMessage("註冊失敗，請稍後再試");
+    } catch (error: any) {
+      console.error("註冊錯誤", error);
+      setErrorMessage(error.response?.data?.message || "註冊失敗，請稍後再試");
     } finally {
       setIsLoading(false);
     }
