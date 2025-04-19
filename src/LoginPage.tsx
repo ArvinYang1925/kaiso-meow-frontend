@@ -117,7 +117,7 @@ export const LoginPage: React.FC = () => {
         <div className="bg-white rounded-2xl p-7 shadow-md min-w-[40vw]">
           <div>
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-              登入您的帳號
+              會員登入
             </h2>
           </div>
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
