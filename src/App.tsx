@@ -1,15 +1,17 @@
-import { useState } from 'react'
-import './App.css'
-import { Button } from './components/ui/Button'
+import { useState } from "react";
+import "./App.css";
+import { Button } from "./components/ui/Button";
+import LoginPage from "./LoginPage";
+import { Route, Routes } from "react-router-dom";
 
 function App() {
-  const [title, setTitle] = useState('Hello Tailwind!')
-
   return (
     <>
-      <h1 className="text-3xl font-bold text-blue-500">{title}</h1>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+      </Routes>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
