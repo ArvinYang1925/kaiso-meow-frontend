@@ -2,6 +2,8 @@ import React, { useState } from "react";
 // import { useNavigate } from "react-router-dom";
 import "./index.css";
 import { Button } from "./components/ui/button/Button";
+import { loginUser } from "./services/auth.service";
+import { useNavigate } from "react-router-dom";
 
 interface LoginForm {
   email: string;
@@ -14,7 +16,7 @@ interface FormErrors {
 }
 
 export const LoginPage: React.FC = () => {
-  //   const navigate = useNavigate();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<LoginForm>({
     email: "",
     password: "",
@@ -53,29 +55,18 @@ export const LoginPage: React.FC = () => {
     setErrorMessage("");
 
     try {
-      // 硬編碼驗證
-      if (
-        formData.email === "123@gmail.com" &&
-        formData.password === "abcd123"
-      ) {
-        // 模擬用戶數據
-        const mockUser = {
-          id: "1",
-          email: formData.email,
-          name: "小明",
-        };
+      const response = await loginUser(formData);
+      console.log("查看response", response);
 
-        // 儲存 token（這裡使用模擬的 token）
-        localStorage.setItem("token", "mock_token");
+      // 假設後端會回傳一個 token
+      const token = response.data.data.token;
+      const userInfo = response.data.data.userInfo;
 
-        // 更新 store 中的用戶狀態
-        // useAuthStore.getState().setUser(mockUser);
+      localStorage.setItem("token", token);
+      localStorage.setItem("userInfo", JSON.stringify(userInfo));
 
-        // 導航到首頁
-        // navigate("/profile");
-      } else {
-        setErrorMessage("電子郵件或密碼錯誤");
-      }
+      alert("登入成功！");
+      navigate("/home");
     } catch (error) {
       setErrorMessage("登入失敗，請稍後再試");
       console.error("Login error:", error);

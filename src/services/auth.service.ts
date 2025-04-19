@@ -9,8 +9,8 @@ type RegisterUserDataModel = {
 
 /** 使用者登入 */
 type LoginUserDataModel = {
-    name: string;
     email: string;
+    password: string;
 }
 
 export const registerUser = (data: RegisterUserDataModel) => {
