@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 // import { useNavigate } from "react-router-dom";
-import "./index.css";
-import { Button } from "./components/ui/button/Button";
-import { loginUser } from "./services/auth.service";
+import "@/index.css";
+import { Button } from "@/components/ui/button";
+import { loginUser } from "@/services/auth.service";
 import { useNavigate } from "react-router-dom";
 
 interface LoginForm {
