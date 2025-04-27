@@ -11,11 +11,6 @@
       │    ├── FormFieldGroup.tsx
       │    └── ...
       │
-      ├── layout/     ← 跟排版或版面有關的 (Header, Footer, Sidebar)
-      │    ├── Header.tsx
-      │    ├── Footer.tsx
-      │    └── Sidebar.tsx
-      │
       ├── features/   ← 專案功能相關的組件（分功能域，例如 Blog、User、Dashboard）
       │    ├── blog/
       │    │    ├── BlogCard.tsx
@@ -38,9 +33,6 @@ ui/
 
 common/
 如果有些 shadcn 的基礎組件你常常需要加一點通用樣式（比如一個 always uppercase 的 CustomizedButton），可以包起來放這裡。
-
-layout/
-這邊放整頁結構有關的元件，比如 Header、Footer、Sidebar、Breadcrumbs。
 
 features/
 跟你的實際業務邏輯有關的組件，每個 feature（Blog、User、Admin Panel 等）一個資料夾，保持清楚。
