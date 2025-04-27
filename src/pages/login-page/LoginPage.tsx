@@ -2,7 +2,7 @@ import React, { useState } from "react";
 // import { useNavigate } from "react-router-dom";
 import "@/index.css";
 import { Button } from "@/components/ui/button";
-import { loginUser } from "@/services/auth.service";
+import { loginUser } from './login.service'
 import { useNavigate } from "react-router-dom";
 
 interface LoginForm {
@@ -92,7 +92,7 @@ export const LoginPage: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-col justify-center items-center gap-6 p-7 md:flex-row shadow-md hover:bg-gray-100">
+      <div className="flex flex-col justify-center items-center gap-6 md:flex-row shadow-md">
         <div className="bg-white rounded-2xl p-7 shadow-md min-w-[40vw]">
           <div>
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">

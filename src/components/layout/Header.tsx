@@ -9,7 +9,7 @@ import {
 
 export const Header = () => {
   return (
-    <nav className="flex items-center justify-between px-6 py-2 shadow bg-white">
+    <nav className="fixed top-0 left-0 w-full flex items-center justify-between px-6 py-2 shadow bg-white z-50">
       {/* 左logo：程式喵學院 */}
       <div className="text-xl font-bold text-orange-600">
         <Link to="/">程式喵學院</Link>
