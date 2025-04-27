@@ -101,7 +101,12 @@ export const Header = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <Button>登入/註冊</Button>
+          <>
+            <Button className="me-2" onClick={() => navigate("/register")}>
+              註冊
+            </Button>
+            <Button onClick={() => navigate("/login")}>登入</Button>
+          </>
         )}
       </div>
     </nav>

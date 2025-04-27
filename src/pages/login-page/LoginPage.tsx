@@ -1,26 +1,29 @@
 import React, { useState } from "react";
-// import { useNavigate } from "react-router-dom";
 import "@/index.css";
 import { Button } from "@/components/ui/button";
-import { loginUser } from './login.service'
+import { loginUser } from "./login.service";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/stores/AuthStore";
 
-interface LoginForm {
+type FormData = {
   email: string;
   password: string;
-}
+};
 
-interface FormErrors {
+type FormErrors = {
   email?: string;
   password?: string;
-}
+};
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState<LoginForm>({
+  const login = useAuthStore((state) => state.login); // 抓 login 方法
+
+  const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
   });
+
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -62,11 +65,20 @@ export const LoginPage: React.FC = () => {
       const token = response.data.data.token;
       const userInfo = response.data.data.userInfo;
 
+      login(token, userInfo); // 這邊用 authStore 的 login 方法
+
       localStorage.setItem("token", token);
       localStorage.setItem("userInfo", JSON.stringify(userInfo));
 
       alert("登入成功！");
-      navigate("/home");
+
+      const { role } = userInfo;
+
+      if (role == "student") {
+        navigate("/home"); // 前台首頁
+      } else if (role == "instructor") {
+        navigate("/admin"); // 後台首頁
+      }
     } catch (error) {
       setErrorMessage("登入失敗，請稍後再試");
       console.error("Login error:", error);
