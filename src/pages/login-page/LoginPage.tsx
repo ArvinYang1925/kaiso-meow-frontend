@@ -166,7 +166,7 @@ export const LoginPage: React.FC = () => {
             <div>
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full bg-orange-600 hover:bg-orange-500 border-none"
                 // className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
                 //   isLoading
                 //     ? "bg-indigo-400 cursor-not-allowed"
