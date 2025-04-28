@@ -2,6 +2,7 @@
 import { Outlet } from "react-router-dom";
 import { Header } from "./components/Header";
 import { Toaster } from "@/components/ui/toaster"; // shadcn 的 toast
+import { CommonDialog } from "@/components/common/Dialog";
 
 export const ClientLayout = () => {
   return (
@@ -11,6 +12,7 @@ export const ClientLayout = () => {
       <main className=""> 
         <Outlet />
         <Toaster />
+        <CommonDialog/>
       </main>
     </>
   );
