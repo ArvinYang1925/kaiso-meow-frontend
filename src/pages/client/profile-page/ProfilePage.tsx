@@ -3,9 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/hooks/use-toast";
-// import { fetchProfile, updateProfile } from "./profile.service";
 import { useProfileStore } from "./ProfileStore";
+import { useDialogStore } from "@/stores/CommonDialogStore";
 
 export type FormData = {
   email: string;
@@ -24,6 +23,8 @@ export default function ProfilePage() {
     updateFormData,
   } = useProfileStore();
 
+  const { showCommonDialog } = useDialogStore();
+
   /** 初始載入資料 */
   useEffect(() => {
     fetchProfile();
@@ -31,24 +32,21 @@ export default function ProfilePage() {
 
   const validateProfile = () => {
     if (!profile.email.trim()) {
-      toast({
-        variant: "destructive",
+      showCommonDialog({
         title: "驗證錯誤",
         description: "Email 不可為空白。",
       });
       return false;
     }
     if (!profile.name.trim()) {
-      toast({
-        variant: "destructive",
+      showCommonDialog({
         title: "驗證錯誤",
         description: "姓名 不可為空白。",
       });
       return false;
     }
     if (!profile.phoneNumber.trim()) {
-      toast({
-        variant: "destructive",
+      showCommonDialog({
         title: "驗證錯誤",
         description: "電話號碼 不可為空白。",
       });
@@ -67,15 +65,14 @@ export default function ProfilePage() {
         phoneNumber: profile.phoneNumber,
       };
       updateProfile(data);
-      toast({
+      showCommonDialog({
         title: "儲存成功",
         description: "個人資料已更新。",
       });
       setIsEditing(false);
     } catch (error) {
       console.error("Failed to save profile", error);
-      toast({
-        variant: "destructive",
+      showCommonDialog({
         title: "儲存失敗",
         description: "無法儲存個人資料，請稍後再試。",
       });

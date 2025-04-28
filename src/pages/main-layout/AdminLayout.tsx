@@ -2,6 +2,7 @@ import { useState } from "react";
 import AdminSidebar from "./components/AdminSidebar";
 import { Outlet } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
+import { CommonDialog } from "@/components/common/Dialog";
 
 export const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -36,6 +37,7 @@ export const AdminLayout = () => {
         <main className="flex-1 ml-0 md:ml-64 p-4">
           <Outlet />
           <Toaster />
+          <CommonDialog />
         </main>
       </div>
     </>
