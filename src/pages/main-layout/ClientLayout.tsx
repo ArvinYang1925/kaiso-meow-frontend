@@ -1,15 +1,17 @@
-import { ReactNode } from "react";
+// import { ReactNode } from "react";
+import { Outlet } from "react-router-dom";
 import { Header } from "./components/Header";
+import { Toaster } from "@/components/ui/toaster"; // shadcn 的 toast
 
-interface ClientLayoutProps {
-  children: ReactNode; // children 是 React 的內建型別
-}
-
-export const ClientLayout = ({ children }: ClientLayoutProps) => {
+export const ClientLayout = () => {
   return (
     <>
       <Header />
-      <main className="pt-16">{children}</main> {/* 給內容留出 Header 高度 */}
+      {/* 給內容留出 Header 高度 pt-16 */}
+      <main className=""> 
+        <Outlet />
+        <Toaster />
+      </main>
     </>
   );
 };

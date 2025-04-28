@@ -1,11 +1,9 @@
-import { ReactNode, useState } from "react";
+import { useState } from "react";
 import AdminSidebar from "./components/AdminSidebar";
+import { Outlet } from "react-router-dom";
+import { Toaster } from "@/components/ui/toaster";
 
-interface AdminLayoutProps {
-  children: ReactNode;
-}
-
-export const AdminLayout = ({ children }: AdminLayoutProps) => {
+export const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -36,7 +34,8 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
 
         {/* Main 區塊 */}
         <main className="flex-1 ml-0 md:ml-64 p-4">
-          {children}
+          <Outlet />
+          <Toaster />
         </main>
       </div>
     </>

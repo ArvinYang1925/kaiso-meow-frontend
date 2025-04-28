@@ -69,7 +69,7 @@ export const Header = () => {
         {/* 課程列表 */}
         <div className="space-x-6 me-4">
           <Link
-            to="/courses"
+            to="/client/courses"
             className="text-base text-gray-700 hover:text-orange-600"
           >
             課程列表
@@ -87,13 +87,13 @@ export const Header = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem>
-                <Link to="/learning">我的學習</Link>
+                <Link to="/client/learning">我的學習</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Link to="/profile">個人資料</Link>
+                <Link to="/client/profile">個人資料</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Link to="/settings">購買紀錄</Link>
+                <Link to="/client/order">購買紀錄</Link>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handleLogout}>
                 <Link to="/logout">登出</Link>
