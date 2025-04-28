@@ -1,7 +1,14 @@
 {
+  "compilerOptions": {
+    "baseUrl": ".", // 設定 baseUrl 為 src 資料夾
+    "paths": {
+      "@/*": ["src/*"] // 設定 @ 代表 src 目錄
+    }
+  },
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
-  ]
+  ],
+  
 }

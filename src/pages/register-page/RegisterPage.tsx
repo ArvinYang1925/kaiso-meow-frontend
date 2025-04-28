@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import "./index.css";
-import { Button } from "./components/ui/button/Button";
-import { registerUser } from "./services/auth.service";
+import "@/index.css";
+import { Button } from "@/components/ui/button";
+import { registerUser } from "./register.service";
 
 interface RegisterForm {
   name: string;
