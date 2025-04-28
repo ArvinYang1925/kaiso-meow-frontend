@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import "@/index.css";
 import { Button } from "@/components/ui/button";
-import { registerUser } from "./register.service";
+import { registerUser } from "@/services/auth.service";
 
-interface RegisterForm {
+type FormData = {
   name: string;
   email: string;
   password: string;
   confirmPassword: string;
-}
+};
 
 interface FormErrors {
   name?: string;
@@ -18,7 +18,7 @@ interface FormErrors {
 }
 
 export const RegisterPage: React.FC = () => {
-  const [formData, setFormData] = useState<RegisterForm>({
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
     password: "",
