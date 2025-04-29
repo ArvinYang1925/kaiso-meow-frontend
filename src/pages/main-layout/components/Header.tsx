@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -7,36 +7,33 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { useEffect, useState } from "react";
-import { Button } from "../../../components/ui/button";
-import { logoutUser } from "../auth.service";
+import { Button } from "@/components/ui/button";
+// import { LoginResponseData } from "@/services/types";
+import { useAuthStore } from "@/stores/AuthStore";
+import { useDialogStore } from "@/stores/CommonDialogStore";
 import { LoginResponseData } from "@/services/types";
 
 export const Header = () => {
-  const [isLogin, setIsLogin] = useState(false);
   const navigate = useNavigate(); // <-- 用來登出後跳轉
-  // 從 localStorage 取出資料並解析
-  const userInfoString = localStorage.getItem("userInfo");
-  const userInfo: LoginResponseData = userInfoString
-    ? JSON.parse(userInfoString)
-    : null;
+
+  const { isLogin, token, logout, userInfo, setIsLogin } = useAuthStore();
+  const { showCommonDialog } = useDialogStore();
+
+  const [userName, setUserName] = useState(userInfo?.name);
 
   // 登出功能
   const handleLogout = async () => {
     try {
-      const token = localStorage.getItem("token");
-
       if (!token) {
-        console.error("No token found.");
+        showCommonDialog({
+          title: "身份驗證錯誤",
+          description: "找不到 token",
+        });
         return;
       }
 
       // 發送 logout 請求
-      const response = await logoutUser();
-      console.log("logout response", response);
-
-      alert(response.data.message);
-
-      // 清除 localStorage
+      logout();
       localStorage.removeItem("token");
       localStorage.removeItem("userInfo");
 
@@ -52,9 +49,9 @@ export const Header = () => {
 
   useEffect(() => {
     if (userInfo) {
-      setIsLogin(true);
+      setUserName(userInfo?.name.charAt(0));
     } else {
-      setIsLogin(false);
+      setUserName("");
     }
   }, [userInfo]);
 
@@ -81,8 +78,8 @@ export const Header = () => {
           <DropdownMenu>
             <DropdownMenuTrigger>
               <Avatar className="cursor-pointer">
-                <AvatarImage src="https://github.com/shadcn.png" />
-                <AvatarFallback>喵</AvatarFallback>
+                {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
+                <AvatarFallback>{userName}</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -96,7 +93,7 @@ export const Header = () => {
                 <Link to="/client/order">購買紀錄</Link>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handleLogout}>
-                <Link to="/logout">登出</Link>
+                <Link to="/login">登出</Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

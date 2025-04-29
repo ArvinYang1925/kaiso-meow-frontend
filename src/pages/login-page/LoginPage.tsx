@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import "@/index.css";
 import { Button } from "@/components/ui/button";
-import { loginUser } from "./login.service";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/AuthStore";
+import { useDialogStore } from "@/stores/CommonDialogStore";
 
 type FormData = {
   email: string;
@@ -17,7 +17,8 @@ type FormErrors = {
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const login = useAuthStore((state) => state.login); // 抓 login 方法
+  const { userInfo, login } = useAuthStore();
+  const { showCommonDialog } = useDialogStore();
 
   const [formData, setFormData] = useState<FormData>({
     email: "",
@@ -58,29 +59,18 @@ export const LoginPage: React.FC = () => {
     setErrorMessage("");
 
     try {
-      const response = await loginUser(formData);
-      console.log("查看response", response);
+      login(formData); // 這邊用 authStore 的 login 方法
 
-      // 假設後端會回傳一個 token
-      const token = response.data.data.token;
-      const userInfo = response.data.data.userInfo;
-
-      login(token, userInfo); // 這邊用 authStore 的 login 方法
-
-      localStorage.setItem("token", token);
-      localStorage.setItem("userInfo", JSON.stringify(userInfo));
-
-      alert("登入成功！");
-
-      const { role } = userInfo;
-
-      if (role == "student") {
-        navigate("/home"); // 前台首頁
-      } else if (role == "instructor") {
-        navigate("/admin"); // 後台首頁
+      if (userInfo) {
+        const { role } = userInfo;
+        if (role == "student") navigate("/client"); // 前台首頁
+        if (role == "instructor") navigate("/admin"); // 後台首頁
       }
     } catch (error) {
-      setErrorMessage("登入失敗，請稍後再試");
+      showCommonDialog({
+        title: "登入失敗",
+        description: "請稍後再試",
+      });
       console.error("Login error:", error);
     } finally {
       setIsLoading(false);
@@ -166,7 +156,7 @@ export const LoginPage: React.FC = () => {
             <div>
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full bg-orange-600 hover:bg-orange-500 border-none"
                 // className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
                 //   isLoading
                 //     ? "bg-indigo-400 cursor-not-allowed"

@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import "@/index.css";
 import { Button } from "@/components/ui/button";
-import { registerUser } from "./register.service";
+import { registerUser } from "@/services/auth.service";
 
-interface RegisterForm {
+type FormData = {
   name: string;
   email: string;
   password: string;
   confirmPassword: string;
-}
+};
 
 interface FormErrors {
   name?: string;
@@ -18,7 +18,7 @@ interface FormErrors {
 }
 
 export const RegisterPage: React.FC = () => {
-  const [formData, setFormData] = useState<RegisterForm>({
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
     password: "",
@@ -190,7 +190,7 @@ export const RegisterPage: React.FC = () => {
           <div>
             <Button
               type="submit"
-              className="w-full"
+              className="w-full bg-orange-600 hover:bg-orange-500 border-none"
               // className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
               //   isLoading
               //     ? "bg-indigo-400 cursor-not-allowed"
