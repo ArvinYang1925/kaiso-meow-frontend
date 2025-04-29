@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 // import { LoginResponseData } from "@/services/types";
 import { useAuthStore } from "@/stores/AuthStore";
 import { useDialogStore } from "@/stores/CommonDialogStore";
-import { LoginResponseData } from "@/services/types";
+//import { LoginResponseData } from "@/services/types";
 
 export const Header = () => {
   const navigate = useNavigate(); // <-- 用來登出後跳轉
