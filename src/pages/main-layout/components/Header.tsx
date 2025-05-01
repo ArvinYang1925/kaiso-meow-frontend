@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { CLIENT_ROUTES, PUBLIC_ROUTES } from "@/app/route-path";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -32,11 +33,9 @@ export const Header = () => {
 
       // 發送 logout 請求
       logout();
-      localStorage.removeItem("token");
-      localStorage.removeItem("userInfo");
 
       // 導回登入頁面
-      navigate("/login");
+      navigate(PUBLIC_ROUTES.LOGIN);
     } catch (error) {
       console.error("Logout failed:", error);
     }
@@ -79,25 +78,28 @@ export const Header = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem>
-                <Link to="/client/learning">我的學習</Link>
+                <Link to={CLIENT_ROUTES.LEARNING}>我的學習</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Link to="/client/profile">個人資料</Link>
+                <Link to={CLIENT_ROUTES.PROFILE}>個人資料</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Link to="/client/order">購買紀錄</Link>
+                <Link to={CLIENT_ROUTES.ORDER}>購買紀錄</Link>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handleLogout}>
-                <Link to="/login">登出</Link>
+                <Link to={PUBLIC_ROUTES.LOGOUT}>登出</Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
           <>
-            <Button className="me-2" onClick={() => navigate("/register")}>
+            <Button
+              className="me-2"
+              onClick={() => navigate(PUBLIC_ROUTES.REGISTER)}
+            >
               註冊
             </Button>
-            <Button onClick={() => navigate("/login")}>登入</Button>
+            <Button onClick={() => navigate(PUBLIC_ROUTES.LOGIN)}>登入</Button>
           </>
         )}
       </div>
