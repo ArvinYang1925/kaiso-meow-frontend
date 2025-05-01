@@ -2,6 +2,8 @@
 export const CLIENT_ROUTES = {
     /** 首頁 */
     HOME: '/',
+    /** 課程列表 */
+    COURSES: '/courses',
     /** 我的學習 */
     LEARNING: '/learning',
     /** 個人資料 */

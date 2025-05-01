@@ -60,7 +60,7 @@ export const Header = () => {
         {/* 課程列表 */}
         <div className="space-x-6 me-4">
           <Link
-            to="/client/courses"
+            to={CLIENT_ROUTES.COURSES}
             className="text-base text-gray-700 hover:text-orange-600"
           >
             課程列表
