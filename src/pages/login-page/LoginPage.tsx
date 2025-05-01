@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "@/index.css";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -17,8 +17,8 @@ type FormErrors = {
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { userInfo, login } = useAuthStore();
   const { showCommonDialog } = useDialogStore();
+  const { login, isLoading, isAuthenticated, getHomeRedirect } = useAuthStore();
 
   const [formData, setFormData] = useState<FormData>({
     email: "",
@@ -26,7 +26,6 @@ export const LoginPage: React.FC = () => {
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
-  const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const validateForm = (): boolean => {
@@ -40,8 +39,8 @@ export const LoginPage: React.FC = () => {
 
     if (!formData.password) {
       newErrors.password = "請輸入密碼";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "密碼長度至少為6個字符";
+    } else if (formData.password.length < 8) {
+      newErrors.password = "密碼長度至少為8個字符";
     }
 
     setErrors(newErrors);
@@ -54,26 +53,18 @@ export const LoginPage: React.FC = () => {
     if (!validateForm()) {
       return;
     }
-
-    setIsLoading(true);
     setErrorMessage("");
 
     try {
-      login(formData); // 這邊用 authStore 的 login 方法
+      const result = await login(formData); // 這邊用 authStore 的 login 方法
 
-      if (userInfo) {
-        const { role } = userInfo;
-        if (role == "student") navigate("/client"); // 前台首頁
-        if (role == "instructor") navigate("/admin"); // 後台首頁
-      }
+      if (result.success) navigate(getHomeRedirect());
     } catch (error) {
       showCommonDialog({
         title: "登入失敗",
         description: "請稍後再試",
       });
       console.error("Login error:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -91,6 +82,13 @@ export const LoginPage: React.FC = () => {
       }));
     }
   };
+
+  // 已登入的用戶直接導航到首頁
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(getHomeRedirect());
+    }
+  }, []);
 
   return (
     <>
