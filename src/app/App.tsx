@@ -21,6 +21,7 @@ import HomePage from "../pages/student/home-page/HomePage";
 import AdminHomePage from "../pages/admin/admin-home-page/AdminHomePage";
 /** 前台個人資料頁面 */
 import ProfilePage from "../pages/student/profile-page/ProfilePage";
+import AuthPage from "@/pages/auth-page/AuthPage";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -59,6 +60,8 @@ function App() {
         <Route path={CLIENT_ROUTES.HOME} element={<StudentLayout />} />
         <Route path={PUBLIC_ROUTES.LOGIN} element={<LoginPage />} />
         <Route path={PUBLIC_ROUTES.REGISTER} element={<RegisterPage />} />
+        <Route path={PUBLIC_ROUTES.AUTH} element={<AuthPage />} />
+        {/* AuthPage */}
 
         {/* 根據角色導向 */}
         <Route

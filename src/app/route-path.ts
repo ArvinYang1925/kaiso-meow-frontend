@@ -23,6 +23,7 @@ export const ADMIN_ROUTES = {
 /** 公共權限頁面 */
 export const PUBLIC_ROUTES = {
     LOGIN: '/login',
+    AUTH: '/auth',
     LOGOUT: '/logout',
     REGISTER: '/register',
     PERMISSION_DENIED: '/permission-denied',
