@@ -9,7 +9,7 @@ export const StudentLayout = () => {
     <>
       <Header />
       {/* 給內容留出 Header 高度 pt-16 */}
-      <main className=""> 
+      <main className="mt-32"> 
         <Outlet />
         <Toaster />
         <CommonDialog/>

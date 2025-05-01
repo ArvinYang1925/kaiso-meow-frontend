@@ -93,8 +93,8 @@ export const RegisterForm: React.FC = () => {
   };
 
   return (
-    <div className="w-full flex flex-col justify-center items-center p-7">
-      <div className="bg-white rounded-2xl p-7 shadow-md min-w-[40vw]">
+    <div className="bg-white rounded-2xl p-4 w-full ">
+      <div className="w-full max-w-md px-4">
         <h2 className="text-center text-3xl font-extrabold text-gray-900 mb-6">
           加入會員
         </h2>

@@ -92,8 +92,8 @@ export const LoginForm: React.FC = () => {
 
   return (
     <>
-      <div className="w-full flex flex-col justify-center items-center gap-6 md:flex-row shadow-md">
-        <div className="bg-white rounded-2xl p-7 shadow-md min-w-[40vw]">
+      <div className="bg-white rounded-2xl p-4 w-full">
+        <div className="w-full max-w-md px-4">
           <div>
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
               會員登入

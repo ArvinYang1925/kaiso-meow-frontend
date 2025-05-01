@@ -30,7 +30,7 @@ export default function AdminSidebar() {
 
   const handleLogout = () => {
     logout();
-    navigate(PUBLIC_ROUTES.LOGIN);
+    navigate(PUBLIC_ROUTES.AUTH);
   };
 
   return (
