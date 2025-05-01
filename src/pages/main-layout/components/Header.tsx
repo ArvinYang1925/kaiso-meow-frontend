@@ -16,7 +16,7 @@ import { LoginResponseData } from "@/services/types";
 export const Header = () => {
   const navigate = useNavigate(); // <-- 用來登出後跳轉
 
-  const { isLogin, token, logout, userInfo, setIsLogin } = useAuthStore();
+  const { isAuthenticated, token, userInfo, logout } = useAuthStore();
   const { showCommonDialog } = useDialogStore();
 
   const [userName, setUserName] = useState(userInfo?.name);
@@ -36,9 +36,6 @@ export const Header = () => {
       logout();
       localStorage.removeItem("token");
       localStorage.removeItem("userInfo");
-
-      // 可以清空登入狀態（如果有管理 isLogin 之類）
-      setIsLogin(false);
 
       // 導回登入頁面
       navigate("/login");
@@ -74,7 +71,7 @@ export const Header = () => {
         </div>
 
         {/* Avatar + DropdownMenu */}
-        {isLogin == true ? (
+        {isAuthenticated == true ? (
           <DropdownMenu>
             <DropdownMenuTrigger>
               <Avatar className="cursor-pointer">
