@@ -21,7 +21,7 @@ export const useProfileStore = create<ProfilePageState & ProfilePageAction>()(
         profile: {
             name: '',
             phoneNumber: '',
-            email: 'test@example.com',
+            email: '',
         },
         isLoading: false,
         fetchProfile: async () => {
@@ -31,7 +31,7 @@ export const useProfileStore = create<ProfilePageState & ProfilePageAction>()(
             try {
                 const response = await fetchProfile();
                 set((state) => {
-                    state.profile = response;
+                    state.profile = response.data;
                 });
             } catch (error) {
                 console.error('Failed to fetch profile', error);
