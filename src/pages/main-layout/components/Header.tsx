@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { CLIENT_ROUTES, PUBLIC_ROUTES } from "@/app/route-path";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -8,15 +9,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-// import { LoginResponseData } from "@/services/types";
 import { useAuthStore } from "@/stores/AuthStore";
 import { useDialogStore } from "@/stores/CommonDialogStore";
-//import { LoginResponseData } from "@/services/types";
 
 export const Header = () => {
   const navigate = useNavigate(); // <-- 用來登出後跳轉
 
-  const { isLogin, token, logout, userInfo, setIsLogin } = useAuthStore();
+  const { isAuthenticated, token, userInfo, logout } = useAuthStore();
   const { showCommonDialog } = useDialogStore();
 
   const [userName, setUserName] = useState(userInfo?.name);
@@ -34,14 +33,9 @@ export const Header = () => {
 
       // 發送 logout 請求
       logout();
-      localStorage.removeItem("token");
-      localStorage.removeItem("userInfo");
-
-      // 可以清空登入狀態（如果有管理 isLogin 之類）
-      setIsLogin(false);
 
       // 導回登入頁面
-      navigate("/login");
+      navigate(PUBLIC_ROUTES.AUTH);
     } catch (error) {
       console.error("Logout failed:", error);
     }
@@ -56,55 +50,59 @@ export const Header = () => {
   }, [userInfo]);
 
   return (
-    <nav className="fixed top-0 left-0 w-full flex items-center justify-between px-6 py-2 shadow bg-white z-50">
-      {/* 左logo：程式喵學院 */}
-      <div className="text-xl font-bold text-orange-600">
-        <Link to="/">程式喵學院</Link>
-      </div>
-
-      <div className="flex items-center">
-        {/* 課程列表 */}
-        <div className="space-x-6 me-4">
-          <Link
-            to="/client/courses"
-            className="text-base text-gray-700 hover:text-orange-600"
-          >
-            課程列表
-          </Link>
+    <nav className="shadow flex justify-content-center z-50">
+      <div className="container fixed top-0 left-0  flex items-center justify-between py-4">
+        {/* 左logo：程式喵學院 */}
+        <div className="text-xl font-bold text-orange-600">
+          <Link to="/">程式喵學院</Link>
         </div>
 
-        {/* Avatar + DropdownMenu */}
-        {isLogin == true ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Avatar className="cursor-pointer">
-                {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
-                <AvatarFallback>{userName}</AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <Link to="/client/learning">我的學習</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link to="/client/profile">個人資料</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link to="/client/order">購買紀錄</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleLogout}>
-                <Link to="/login">登出</Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <>
-            <Button className="me-2" onClick={() => navigate("/register")}>
-              註冊
-            </Button>
-            <Button onClick={() => navigate("/login")}>登入</Button>
-          </>
-        )}
+        <div className="flex items-center">
+          {/* 課程列表 */}
+          <div className="space-x-6 me-4">
+            <Link
+              to={CLIENT_ROUTES.COURSES}
+              className="text-base text-gray-700 hover:text-orange-600"
+            >
+              課程列表
+            </Link>
+          </div>
+
+          {/* Avatar + DropdownMenu */}
+          {isAuthenticated == true ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <Avatar className="cursor-pointer">
+                  {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
+                  <AvatarFallback>{userName}</AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem>
+                  <Link to={CLIENT_ROUTES.LEARNING}>我的學習</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link to={CLIENT_ROUTES.PROFILE}>個人資料</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link to={CLIENT_ROUTES.ORDER}>購買紀錄</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
+                  <Link to={PUBLIC_ROUTES.LOGOUT}>登出</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button
+                className="me-2 bg-orange-600"
+                onClick={() => navigate(PUBLIC_ROUTES.AUTH)}
+              >
+                登入 / 註冊
+              </Button>
+            </>
+          )}
+        </div>
       </div>
     </nav>
   );

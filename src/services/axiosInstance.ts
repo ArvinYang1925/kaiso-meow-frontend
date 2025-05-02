@@ -43,9 +43,6 @@ axiosInstance.interceptors.response.use(
       switch (status) {
         case 401:
           console.warn('未授權，請重新登入');
-          // 例如清掉 token 並導回登入頁
-          // localStorage.removeItem('token');
-          // window.location.href = '/login';
           break;
         case 403:
           console.warn('權限不足');

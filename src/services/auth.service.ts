@@ -1,8 +1,8 @@
 import axios from '@/services/axiosInstance'; //很重要，這邊必須確認呼叫到的是 axiosInstance!!
-import { LogoutResponseData, LoginUserModel, RegisterUserModel } from '@/services/types';
+import { LogoutResponseData, LoginFormData, RegisterFormData } from '@/services/types';
 
 /** 使用者登入 API */
-export const loginUser = (data: LoginUserModel) => {
+export const loginUser = (data: LoginFormData) => {
     return axios.post('/api/v1/auth/login', data);
 };
 
@@ -12,7 +12,7 @@ export const logoutUser = () => {
 };
 
 /** 使用者註冊 API */
-export const registerUser = (data: RegisterUserModel) => {
+export const registerUser = (data: RegisterFormData) => {
     return axios.post('/api/v1/auth/register', data);
 };
 

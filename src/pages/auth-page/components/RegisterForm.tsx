@@ -1,15 +1,10 @@
 import React, { useState } from "react";
 import "@/index.css";
 import { Button } from "@/components/ui/button";
-import { registerUser } from "@/services/auth.service";
-
-type FormData = {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-};
-
+import { useAuthStore } from "@/stores/AuthStore";
+import { RegisterFormData } from "@/services/types";
+import { useNavigate } from "react-router-dom";
+import { useDialogStore } from "@/stores/CommonDialogStore";
 interface FormErrors {
   name?: string;
   email?: string;
@@ -17,8 +12,10 @@ interface FormErrors {
   confirmPassword?: string;
 }
 
-export const RegisterPage: React.FC = () => {
-  const [formData, setFormData] = useState<FormData>({
+export const RegisterForm: React.FC = () => {
+  const navigate = useNavigate();
+  const { showCommonDialog } = useDialogStore();
+  const [formData, setFormData] = useState<RegisterFormData>({
     name: "",
     email: "",
     password: "",
@@ -26,8 +23,8 @@ export const RegisterPage: React.FC = () => {
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
-  const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const { isLoading, getHomeRedirect, register } = useAuthStore();
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -44,8 +41,8 @@ export const RegisterPage: React.FC = () => {
 
     if (!formData.password) {
       newErrors.password = "請輸入密碼";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "密碼長度至少為6個字符";
+    } else if (formData.password.length < 8) {
+      newErrors.password = "密碼長度至少為8個字符";
     }
 
     if (formData.confirmPassword !== formData.password) {
@@ -61,30 +58,22 @@ export const RegisterPage: React.FC = () => {
 
     if (!validateForm()) return;
 
-    setIsLoading(true);
     setErrorMessage("");
-
     try {
-      console.log("送出註冊資料", formData);
       const requestData: { email: string; name: string; password: string } = {
         name: formData.name,
         email: formData.email,
         password: formData.password,
       };
 
-      const response = await registerUser(requestData);
-      console.log("查看response", response);
-
-      // 假設後端會回傳一個 token
-      const token = response.data.data.token;
-      localStorage.setItem("token", token);
-
-      alert("註冊成功！");
+      const result = await register(requestData);
+      if (result.success) navigate(getHomeRedirect());
     } catch (error: any) {
-      console.error("註冊錯誤", error);
-      setErrorMessage(error.response?.data?.message || "註冊失敗，請稍後再試");
-    } finally {
-      setIsLoading(false);
+      showCommonDialog({
+        title: "註冊失敗",
+        description: "請稍後再試",
+      });
+      console.error("Register error:", error);
     }
   };
 
@@ -104,8 +93,8 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center p-7">
-      <div className="bg-white rounded-2xl p-7 shadow-md min-w-[40vw]">
+    <div className="bg-white rounded-2xl p-4 w-full ">
+      <div className="w-full max-w-md px-4">
         <h2 className="text-center text-3xl font-extrabold text-gray-900 mb-6">
           加入會員
         </h2>
@@ -207,4 +196,4 @@ export const RegisterPage: React.FC = () => {
   );
 };
 
-export default RegisterPage;
+export default RegisterForm;

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PUBLIC_ROUTES } from "@/app/route-path";
 import {
   ChevronDown,
   LayoutDashboard,
@@ -29,7 +30,7 @@ export default function AdminSidebar() {
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate(PUBLIC_ROUTES.AUTH);
   };
 
   return (
@@ -131,56 +132,3 @@ function SidebarItem({ icon: Icon, label }: { icon: any; label: string }) {
 function SidebarSubItem({ label }: { label: string }) {
   return <Button className="w-full gap-2">{label}</Button>;
 }
-
-// import {
-//   Sidebar,
-//   SidebarHeader,
-//   SidebarMenu,
-//   SidebarMenuItem,
-//   SidebarTrigger,
-//   SidebarContent,
-//   SidebarProvider,
-//   SidebarMenuSubButton,
-//   SidebarMenuSub,
-//   SidebarMenuSubItem,
-// } from "@/components/ui/sidebar";
-// import { useNavigate } from "react-router-dom";
-
-// export function AdminSidebar() {
-//   const navigate = useNavigate();
-
-//   return (
-//     <SidebarProvider>
-//       <Sidebar className="border-r">
-//         <SidebarHeader>
-//           <h1 className="text-lg font-bold">程式喵學院</h1>
-//         </SidebarHeader>
-
-//         <SidebarContent>
-//           <SidebarMenu>
-//             <SidebarMenuItem onClick={() => navigate("/admin/admin-home")}>
-//               數據儀表板
-//             </SidebarMenuItem>
-//             <SidebarMenuSub>
-//               <SidebarMenuSubButton>課程管理</SidebarMenuSubButton>
-//               <SidebarMenuSubItem onClick={() => navigate("/admin/courses/info")}>
-//                 課程資訊
-//               </SidebarMenuSubItem>
-//               <SidebarMenuSubItem onClick={() => navigate("/admin/courses/chapters")}>
-//                 章節管理
-//               </SidebarMenuSubItem>
-//               <SidebarMenuSubItem onClick={() => navigate("/admin/courses/archived")}>
-//                 下架課程
-//               </SidebarMenuSubItem>
-//             </SidebarMenuSub>
-//             <SidebarMenuItem onClick={() => navigate("/admin/student-list")}>
-//               學生列表
-//             </SidebarMenuItem>
-//           </SidebarMenu>
-//         </SidebarContent>
-
-//         <SidebarTrigger />
-//       </Sidebar>
-//     </SidebarProvider>
-//   );
-// }
