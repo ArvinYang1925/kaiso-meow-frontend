@@ -1,5 +1,5 @@
 /** 前台 */
-export const CLIENT_ROUTES = {
+export const CLIENT_ROUTES = Object.freeze({
     /** 首頁 */
     HOME: '/',
     /** 課程列表 */
@@ -10,19 +10,19 @@ export const CLIENT_ROUTES = {
     PROFILE: '/profile',
     /** 購買紀錄 */
     ORDER: '/order'
-};
+});
 
 /** 後台 */
-export const ADMIN_ROUTES = {
+export const ADMIN_ROUTES = Object.freeze({
     /** 首頁 */
     HOME: '/admin',
     /** 優惠券 */
     COUPONS: '/admin/coupons',
-};
+});
 
 /** 公共權限頁面 */
-export const PUBLIC_ROUTES = {
+export const PUBLIC_ROUTES = Object.freeze({
     AUTH: '/auth',
     LOGOUT: '/logout',
     PERMISSION_DENIED: '/permission-denied',
-}
+});
