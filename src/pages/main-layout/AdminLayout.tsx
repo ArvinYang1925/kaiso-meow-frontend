@@ -2,7 +2,7 @@ import { useState } from "react";
 import AdminSidebar from "./components/AdminSidebar";
 import { Outlet } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
-import { CommonDialog } from "@/components/common/Dialog";
+import { CommonDialog } from "@/components/common/CommonDialog";
 
 export const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);

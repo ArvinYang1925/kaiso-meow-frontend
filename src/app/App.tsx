@@ -38,7 +38,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to={CLIENT_ROUTES.HOME} />;
   }
 
-  //Instructor 可以進入 /admin, Student 想進 /admin → 被導回首頁
+  //Instructor 可以進入 /admin, Student 想進 /admin → 被導到查無權限頁面
   if (requiredRole && getRole() !== requiredRole) {
     // 顯示無權限頁面
     return <Navigate to={PUBLIC_ROUTES.PERMISSION_DENIED} replace />;
@@ -56,8 +56,6 @@ function App() {
         {/* 公共頁面 (不需要權限也可進入的頁面) */}
         <Route path={CLIENT_ROUTES.HOME} element={<StudentLayout />} />
         <Route path={PUBLIC_ROUTES.AUTH} element={<AuthPage />} />
-        <Route path={PUBLIC_ROUTES.AUTH} element={<AuthPage />} />
-        {/* AuthPage */}
 
         {/* 根據角色導向 */}
         <Route

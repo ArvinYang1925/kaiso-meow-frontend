@@ -1,74 +1,40 @@
-import React, { useState } from "react";
-import "@/index.css";
-import { Button } from "@/components/ui/button";
-import { useAuthStore } from "@/stores/AuthStore";
+import { useForm } from "react-hook-form";
 import { RegisterFormData } from "@/services/types";
+import { useAuthStore } from "@/stores/AuthStore";
 import { useNavigate } from "react-router-dom";
 import { useDialogStore } from "@/stores/CommonDialogStore";
-interface FormErrors {
-  name?: string;
-  email?: string;
-  password?: string;
-  confirmPassword?: string;
-}
+import { Button } from "@/components/ui/button";
+import { FormValidateInput } from "@/components/common/FormValidateInput";
+import { useState } from "react";
 
 export const RegisterForm: React.FC = () => {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<RegisterFormData>();
+
+  const { isLoading, getHomeRedirect, register: registerUser } = useAuthStore();
   const navigate = useNavigate();
   const { showCommonDialog } = useDialogStore();
-  const [formData, setFormData] = useState<RegisterFormData>({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const [serverError, setServerError] = useState("");
 
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [errorMessage, setErrorMessage] = useState("");
-  const { isLoading, getHomeRedirect, register } = useAuthStore();
-
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = "請輸入姓名";
+  const onSubmit = async (data: RegisterFormData) => {
+    setServerError(""); // 清除前次錯誤訊息
+    if (data.password !== data.confirmPassword) {
+      return;
     }
 
-    if (!formData.email) {
-      newErrors.email = "請輸入電子郵件";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "請輸入有效的電子郵件格式";
-    }
-
-    if (!formData.password) {
-      newErrors.password = "請輸入密碼";
-    } else if (formData.password.length < 8) {
-      newErrors.password = "密碼長度至少為8個字符";
-    }
-
-    if (formData.confirmPassword !== formData.password) {
-      newErrors.confirmPassword = "密碼不一致";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) return;
-
-    setErrorMessage("");
     try {
-      const requestData: { email: string; name: string; password: string } = {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-      };
-
-      const result = await register(requestData);
-      if (result.success) navigate(getHomeRedirect());
-    } catch (error: any) {
+      const result = await registerUser(data);
+      if (result.success) {
+        navigate(getHomeRedirect());
+      } else {
+        // 顯示後端回傳錯誤（如有）
+        setServerError(result.message || "帳號或密碼錯誤，請再試一次");
+      }
+    } catch (error) {
       showCommonDialog({
         title: "註冊失敗",
         description: "請稍後再試",
@@ -77,122 +43,82 @@ export const RegisterForm: React.FC = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    if (errors[name as keyof FormErrors]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: undefined,
-      }));
-    }
-  };
-
   return (
-    <div className="bg-white rounded-2xl p-4 w-full ">
-      <div className="w-full max-w-md px-4">
-        <h2 className="text-center text-3xl font-extrabold text-gray-900 mb-6">
-          加入會員
-        </h2>
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          {/* name */}
-          <div>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              placeholder="姓名"
-              value={formData.name}
-              onChange={handleChange}
-              className={`w-full px-3 py-2 border ${
-                errors.name ? "border-red-500" : "border-gray-300"
-              } rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
-            />
-            {errors.name && (
-              <p className="text-sm text-red-500 mt-1">{errors.name}</p>
-            )}
-          </div>
-          {/* email */}
-          <div>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="電子郵件"
-              value={formData.email}
-              onChange={handleChange}
-              className={`w-full px-3 py-2 border ${
-                errors.email ? "border-red-500" : "border-gray-300"
-              } rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
-            />
-            {errors.email && (
-              <p className="text-sm text-red-500 mt-1">{errors.email}</p>
-            )}
-          </div>
-          {/* password */}
-          <div>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="密碼"
-              value={formData.password}
-              onChange={handleChange}
-              className={`w-full px-3 py-2 border ${
-                errors.password ? "border-red-500" : "border-gray-300"
-              } rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
-            />
-            {errors.password && (
-              <p className="text-sm text-red-500 mt-1">{errors.password}</p>
-            )}
-          </div>
-          {/* confirmPassword */}
-          <div>
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              placeholder="確認密碼"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className={`w-full px-3 py-2 border ${
-                errors.confirmPassword ? "border-red-500" : "border-gray-300"
-              } rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
-            />
-            {errors.confirmPassword && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.confirmPassword}
-              </p>
-            )}
-          </div>
-          {/* error message */}
-          {errorMessage && (
-            <div className="text-red-500 text-sm text-center">
-              {errorMessage}
-            </div>
-          )}
-          {/* submit */}
-          <div>
-            <Button
-              type="submit"
-              className="w-full bg-orange-600 hover:bg-orange-500 border-none"
-              // className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
-              //   isLoading
-              //     ? "bg-indigo-400 cursor-not-allowed"
-              //     : "bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              // }`}
-              disabled={isLoading}
-            >
-              {isLoading ? "註冊中..." : "註冊帳號"}
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <h2 className="text-center text-3xl font-extrabold text-gray-900 mb-6">
+        加入會員
+      </h2>
+
+      <FormValidateInput
+        id="name"
+        className="mb-4"
+        label={"姓名"}
+        type={"text"}
+        placeholder={"姓名"}
+        register={register}
+        rules={{ required: "請輸入姓名" }}
+        error={errors.name}
+      />
+
+      <FormValidateInput
+        id="email"
+        className="mb-4"
+        label={"電子郵件"}
+        type={"email"}
+        placeholder={"電子郵件"}
+        register={register}
+        rules={{
+          required: "請輸入電子郵件",
+          pattern: {
+            value: /\S+@\S+\.\S+/,
+            message: "請輸入有效的電子郵件格式",
+          },
+        }}
+        error={errors.email}
+      />
+
+      <FormValidateInput
+        id="password"
+        className="mb-4"
+        label={"密碼"}
+        type={"password"}
+        placeholder={"密碼"}
+        register={register}
+        rules={{
+          required: "請輸入密碼",
+          minLength: { value: 8, message: "密碼長度至少為 8 個字符" },
+        }}
+        error={errors.password}
+      />
+
+      <FormValidateInput
+        id="confirmPassword"
+        className="mb-4"
+        label={"請再次輸入密碼"}
+        type={"password"}
+        placeholder={"請再次輸入密碼"}
+        register={register}
+        rules={{
+          required: "請再次輸入密碼",
+          validate: (value: string) =>
+            value === watch("password") || "密碼不一致",
+        }}
+        error={errors.confirmPassword}
+      />
+
+      {/* API 回傳錯誤訊息 */}
+      {serverError && (
+        <div className="text-red-500 text-sm text-center">{serverError}</div>
+      )}
+
+      <Button
+        type="submit"
+        disabled={isLoading}
+        className="w-full bg-orange-600 hover:bg-orange-500 border-none"
+      >
+        {isLoading ? "註冊中..." : "註冊帳號"}
+      </Button>
+    </form>
   );
 };
 
