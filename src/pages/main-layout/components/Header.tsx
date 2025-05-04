@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useAuthStore } from "@/stores/AuthStore";
-import { useDialogStore } from "@/stores/CommonDialogStore";
+import { useAuthStore } from "@/stores/authStore";
+import { useDialogStore } from "@/stores/commonDialogStore";
 
 export const Header = () => {
   const navigate = useNavigate(); // <-- 用來登出後跳轉

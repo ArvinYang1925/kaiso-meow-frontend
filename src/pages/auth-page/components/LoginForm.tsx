@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import "@/index.css";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "@/stores/AuthStore";
-import { useDialogStore } from "@/stores/CommonDialogStore";
+import { useAuthStore } from "@/stores/authStore";
+import { useDialogStore } from "@/stores/commonDialogStore";
 import { useForm } from "react-hook-form";
 import { FormValidateInput } from "@/components/common/FormValidateInput";
 

@@ -1,8 +1,8 @@
 import { useForm } from "react-hook-form";
 import { RegisterFormData } from "@/services/types";
-import { useAuthStore } from "@/stores/AuthStore";
+import { useAuthStore } from "@/stores/authStore";
 import { useNavigate } from "react-router-dom";
-import { useDialogStore } from "@/stores/CommonDialogStore";
+import { useDialogStore } from "@/stores/commonDialogStore";
 import { Button } from "@/components/ui/button";
 import { FormValidateInput } from "@/components/common/FormValidateInput";
 import { useState } from "react";

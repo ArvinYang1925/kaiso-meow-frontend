@@ -1,6 +1,6 @@
 import { Route, Routes, Navigate } from "react-router-dom";
 import { CLIENT_ROUTES, ADMIN_ROUTES, PUBLIC_ROUTES } from "./route-path";
-import { useAuthStore } from "@/stores/AuthStore";
+import { useAuthStore } from "@/stores/authStore";
 import { Role } from "@/lib/enum";
 /** 前台頁面模板 */
 import { StudentLayout } from "../pages/main-layout/StudentLayout";

@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils"; // shadcn 預設 lib，負責 class 合併
 import { Button } from "@/components/ui/button";
-import { useAuthStore } from "@/stores/AuthStore";
+import { useAuthStore } from "@/stores/authStore";
 import {
   DropdownMenu,
   DropdownMenuContent,

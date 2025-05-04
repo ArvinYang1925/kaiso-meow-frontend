@@ -3,8 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { useProfileStore } from "./ProfileStore";
-import { useDialogStore } from "@/stores/CommonDialogStore";
+import { useProfileStore } from "./profileStore";
+import { useDialogStore } from "@/stores/commonDialogStore";
 
 export type FormData = {
   email: string;
