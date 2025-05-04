@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { fetchProfile, updateProfile } from './profile.service';
 import { toast } from '@/hooks/use-toast';
-import { ProfileModel, UpdateProfileModel } from './types';
+import { ProfileModel, UpdateProfileModel, UpdateProfileResponseModel } from './types';
 
 interface ProfilePageState {
     profile: ProfileModel;
@@ -11,14 +11,15 @@ interface ProfilePageState {
 
 interface ProfilePageAction {
     fetchProfile: () => Promise<void>;
-    updateProfile: (data: UpdateProfileModel) => Promise<void>;
+    updateProfile: (data: UpdateProfileModel) => Promise<UpdateProfileResponseModel>;
     setIsLoading: (loading: boolean) => void;
     updateFormData: (fields: Partial<ProfileModel>) => void;
 }
 
 export const useProfileStore = create<ProfilePageState & ProfilePageAction>()(
-    immer((set, get) => ({
+    immer((set) => ({
         profile: {
+            id: '',
             name: '',
             phoneNumber: '',
             email: '',
@@ -46,22 +47,20 @@ export const useProfileStore = create<ProfilePageState & ProfilePageAction>()(
                 });
             }
         },
-
-        updateProfile: async () => {
-            const { profile } = get();
+        updateProfile: async (data: UpdateProfileModel) => {
             set((state) => {
                 state.isLoading = true;
             });
             try {
-                const updateData: UpdateProfileModel = {
-                    name: profile.name,
-                    phoneNumber: profile.phoneNumber,
-                };
-                await updateProfile(updateData);
-                toast({
-                    title: '儲存成功',
-                    description: '個人資料已更新。',
+                const response = await updateProfile(data);
+                // 更新成功後，更新本地狀態
+                set((state) => {
+                    state.profile = {
+                        ...state.profile,
+                        ...data
+                    };
                 });
+                return response;
             } catch (error) {
                 console.error('Failed to save profile', error);
                 toast({
@@ -69,6 +68,7 @@ export const useProfileStore = create<ProfilePageState & ProfilePageAction>()(
                     title: '儲存失敗',
                     description: '無法儲存個人資料，請稍後再試。',
                 });
+                throw error; // 重新拋出錯誤，讓調用者可以處理
             } finally {
                 set((state) => {
                     state.isLoading = false;
