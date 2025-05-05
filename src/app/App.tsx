@@ -12,13 +12,14 @@ import AuthPage from "@/pages/auth-page/AuthPage";
 import PermissionDeniedPage from "@/pages/PermissionDeniedPage";
 /** 404 找不到路由頁面 */
 import NotFoundPage from "@/pages/NotFoundPage";
+/** 後台 404 頁面 */
+import AdminNotFound from "@/pages/admin/not-found-page/NotFound";
 /** 前台首頁 */
 import HomePage from "../pages/student/home-page/HomePage";
 /** 後台頁面 */
 import AdminHomePage from "../pages/admin/admin-home-page/AdminHomePage";
 /** 前台個人資料頁面 */
 import ProfilePage from "../pages/student/profile-page/ProfilePage";
-
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -86,6 +87,8 @@ function App() {
           }
         >
           <Route index element={<AdminHomePage />} />
+          {/* 後台 404 頁面 */}
+          <Route path="*" element={<AdminNotFound />} />
         </Route>
 
         {/* ❗無權限頁面與 404 fallback */}
