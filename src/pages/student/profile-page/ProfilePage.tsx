@@ -3,8 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { useProfileStore } from "./ProfileStore";
-import { useDialogStore } from "@/stores/CommonDialogStore";
+import { useProfileStore } from "./profileStore";
+import { useDialogStore } from "@/stores/commonDialogStore";
 
 export type FormData = {
   email: string;
@@ -45,10 +45,10 @@ export default function ProfilePage() {
       });
       return false;
     }
-    if (!profile.phoneNumber.trim()) {
+    if (profile.phoneNumber.trim() !== '' && profile.phoneNumber.length < 10) {
       showCommonDialog({
         title: "驗證錯誤",
-        description: "電話號碼 不可為空白。",
+        description: "電話號碼需為 10 位數字。",
       });
       return false;
     }
@@ -64,10 +64,10 @@ export default function ProfilePage() {
         name: profile.name,
         phoneNumber: profile.phoneNumber,
       };
-      updateProfile(data);
+      const response = await updateProfile(data);
       showCommonDialog({
         title: "儲存成功",
-        description: "個人資料已更新。",
+        description: response.message,
       });
       setIsEditing(false);
     } catch (error) {

@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useDialogStore } from "@/stores/CommonDialogStore";
+import { useDialogStore } from "@/stores/commonDialogStore";
 
 export function CommonDialog() {
   const { isShowDialog, setIsShowDialog, dialogContent } = useDialogStore();

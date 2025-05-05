@@ -6,9 +6,9 @@ interface APIErrorResponse {
 }
 
 /** 處理 cors 的反向代理設定 */
-// const baseURL = '/api'
-//判定開發環境或正式環境可加在這
-const baseURL = 'https://kaiso-meow-backend.onrender.com/'
+const baseURL = import.meta.env.DEV 
+  ? 'http://localhost:3000'  // 開發環境直接使用後端 URL
+  : import.meta.env.VITE_API_URL || 'https://kaiso-meow-backend.onrender.com/';
 
 const axiosInstance = axios.create({
   baseURL, // 所有請求都會自動加上這個 baseURL 開頭
