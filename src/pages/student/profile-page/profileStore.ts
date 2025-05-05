@@ -9,6 +9,7 @@ interface ProfilePageState {
     isLoading: boolean;
 }
 
+
 interface ProfilePageAction {
     fetchProfile: () => Promise<void>;
     updateProfile: (data: UpdateProfileModel) => Promise<UpdateProfileResponseModel>;
