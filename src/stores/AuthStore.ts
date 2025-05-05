@@ -4,6 +4,7 @@ import { loginUser, logoutUser, registerUser } from "@/services/auth.service";
 import { LoginFormData, RegisterFormData, LoginResponseData } from "@/services/types";
 import { Role } from "@/lib/enum";
 
+
 interface AuthState {
   token: string | null;
   userInfo: LoginResponseData | null;
