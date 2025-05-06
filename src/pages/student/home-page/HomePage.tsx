@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useAuthStore } from "@/stores/authStore";
+import { useAuthStore } from "@/stores/AuthStore";
+import ExpertRecommendationSection from "@/components/ExpertRecommendationSection";
 
 export const HomePage: React.FC = () => {
   const [userName, setUserName] = useState("");
@@ -16,14 +17,12 @@ export const HomePage: React.FC = () => {
     <>
       <div className="container">
         <div className="title mt-36">
-        {userName !== "" && (
-          <p className="text-2xl text-orange-600">
-            嗨！{userName}，你好啊！
-          </p>
-        )}
-        <h1 className="text-4xl">歡迎來到首頁</h1>
+          {userName !== "" && (
+            <p className="text-2xl text-orange-600">嗨！{userName}，你好啊！</p>
+          )}
+          <h1 className="text-4xl">歡迎來到首頁</h1>
         </div>
-    
+        <ExpertRecommendationSection />
       </div>
     </>
   );
