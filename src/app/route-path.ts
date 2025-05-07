@@ -1,28 +1,48 @@
 /** 前台 */
 export const CLIENT_ROUTES = Object.freeze({
-    /** 首頁 */
-    HOME: '/',
-    /** 課程列表 */
-    COURSES: '/courses',
-    /** 我的學習 */
-    LEARNING: '/learning',
-    /** 個人資料 */
-    PROFILE: '/profile',
-    /** 購買紀錄 */
-    ORDER: '/order'
+  /** 首頁 */
+  HOME: "/",
+  /** 課程列表 */
+  COURSES: "/courses",
+  /** 我的學習 */
+  LEARNING: "/learning",
+  /** 個人資料 */
+  PROFILE: "/profile",
+  /** 購買紀錄 */
+  ORDER: "/order",
 });
 
 /** 後台 */
 export const ADMIN_ROUTES = Object.freeze({
-    /** 首頁 */
-    HOME: '/admin',
-    /** 優惠券 */
-    COUPONS: '/admin/coupons',
+  /** 首頁 */
+  HOME: "/admin",
+  /** 數據儀表板 */
+  DASHBOARD: "/admin/dashboard",
+  /** 課程 */
+  COURSES: "/admin/courses",
+  /** 開始創建課程 */
+  CREATE_COURSE: "/admin/courses/create",
+  /** 課程資訊 */
+  COURSE_INFO: "/admin/courses/:courseId/info",
+  /** 章節管理 */
+  CHAPTER_MANAGEMENT: "/admin/courses/:courseId/chapters",
+  /** 下架課程 */
+  DEACTIVATE_COURSE: "/admin/courses/:courseId/deactivate",
+  /** 學生列表 */
+  STUDENTS: "/admin/students",
+  /** 訂單管理*/
+  ORDERS: "/admin/orders",
+  /** 個人設定*/
+  ME: "/admin/me",
+  /** 變更密碼 */
+  CHANGE_PASSWORD: "/admin/me/change-password",
+  /** 優惠券 */
+  COUPONS: "/admin/coupons",
 });
 
 /** 公共權限頁面 */
 export const PUBLIC_ROUTES = Object.freeze({
-    AUTH: '/auth',
-    LOGOUT: '/logout',
-    PERMISSION_DENIED: '/permission-denied',
+  AUTH: "/auth",
+  LOGOUT: "/logout",
+  PERMISSION_DENIED: "/permission-denied",
 });
