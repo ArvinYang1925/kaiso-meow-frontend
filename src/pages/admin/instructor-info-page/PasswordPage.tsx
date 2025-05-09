@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { usePasswordStore } from "./stores/passwordStore";
 
+
 // 定義表單驗證 schema
 const formSchema = z.object({
   currentPassword: z.string().min(1, "目前密碼為必填欄位"),
