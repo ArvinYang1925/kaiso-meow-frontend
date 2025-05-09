@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuthStore } from "@/stores/AuthStore";
+import { useAuthStore } from "@/stores/authStore";
 import ExpertRecommendationSection from "@/components/ExpertRecommendationSection";
 
 export const HomePage: React.FC = () => {
