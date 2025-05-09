@@ -20,6 +20,10 @@ import HomePage from "../pages/student/home-page/HomePage";
 import AdminHomePage from "../pages/admin/admin-home-page/AdminHomePage";
 /** 前台個人資料頁面 */
 import ProfilePage from "../pages/student/profile-page/ProfilePage";
+/** 講師個人設定頁面 */
+import InstructorInfoPage from "@/pages/admin/instructor-info-page/InstructorInfoPage";
+/** 變更密碼頁面 */
+import PasswordPage from "@/pages/admin/instructor-info-page/PasswordPage";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -87,6 +91,11 @@ function App() {
           }
         >
           <Route index element={<AdminHomePage />} />
+          <Route path={ADMIN_ROUTES.ME} element={<InstructorInfoPage />} />
+          <Route
+            path={ADMIN_ROUTES.CHANGE_PASSWORD}
+            element={<PasswordPage />}
+          />
           {/* 後台 404 頁面 */}
           <Route path="*" element={<AdminNotFound />} />
         </Route>
