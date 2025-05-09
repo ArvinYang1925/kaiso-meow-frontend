@@ -1,6 +1,6 @@
 import axiosInstance from '@/services/axiosInstance';
 import { ChangePasswordRequestModel } from '../models/password.model';
-import { ApiResponseModel } from '@/shared/types';
+import { ApiResponseModel } from '../models/api.model';
 
 /**
  * 變更密碼
