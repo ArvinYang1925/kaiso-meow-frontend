@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useProfileStore } from "./profileStore";
 import { useDialogStore } from "@/stores/commonDialogStore";
+import ChangePasswordDialog from "./components/ChangePasswordDialog";
 
 export type FormData = {
   email: string;
@@ -20,7 +21,8 @@ export default function ProfilePage() {
     setIsLoading,
     fetchProfile,
     updateProfile,
-    updateFormData,
+    updateProfileFormData,
+    resetStore,
   } = useProfileStore();
 
   const { showCommonDialog } = useDialogStore();
@@ -45,7 +47,7 @@ export default function ProfilePage() {
       });
       return false;
     }
-    if (profile.phoneNumber.trim() !== '' && profile.phoneNumber.length < 10) {
+    if (profile.phoneNumber.trim() !== "" && profile.phoneNumber.length < 10) {
       showCommonDialog({
         title: "驗證錯誤",
         description: "電話號碼需為 10 位數字。",
@@ -78,77 +80,91 @@ export default function ProfilePage() {
       });
     } finally {
       setIsLoading(false);
+      resetStore();
     }
   };
 
   return (
-    <div className="max-w-[1280px] mx-auto">
-      <h1 className="text-start text-3xl mb-10 font-bold">個人資料</h1>
-      <Card className="w-full min-w-[600px] max-w-[1280px] border-none">
-        <CardHeader></CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label className="text-left" htmlFor="email">
-              Email
-            </Label>
-            <Input
-              id="email"
-              name="email"
-              value={profile.email}
-              disabled={true}
-              onChange={(e) => updateFormData({ email: e.target.value })}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="name">
-              姓名<span className="text-red-300 ms-1">*</span>{" "}
-            </Label>
-            <Input
-              id="name"
-              name="name"
-              value={profile.name}
-              disabled={!isEditing}
-              onChange={(e) => updateFormData({ name: e.target.value })}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="phoneNumber">電話號碼</Label>
-            <Input
-              id="phoneNumber"
-              name="phoneNumber"
-              value={profile.phoneNumber}
-              disabled={!isEditing}
-              onChange={(e) => updateFormData({ phoneNumber: e.target.value })}
-            />
-          </div>
+    <>
+      <div className="max-w-[1280px] mx-auto">
+        <h1 className="text-start text-3xl mb-10 font-bold">個人資料</h1>
+        <Card className="w-full min-w-[600px] max-w-[1280px] border-none">
+          <CardHeader></CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-left" htmlFor="email">
+                Email
+              </Label>
+              <Input
+                id="email"
+                name="email"
+                value={profile.email}
+                disabled={true}
+                onChange={(e) =>
+                  updateProfileFormData({ email: e.target.value })
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="name">
+                姓名<span className="text-red-300 ms-1">*</span>
+              </Label>
+              <Input
+                id="name"
+                name="name"
+                value={profile.name}
+                disabled={!isEditing}
+                onChange={(e) =>
+                  updateProfileFormData({ name: e.target.value })
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phoneNumber">聯絡電話</Label>
+              <Input
+                id="phoneNumber"
+                name="phoneNumber"
+                value={profile.phoneNumber}
+                disabled={!isEditing}
+                onChange={(e) =>
+                  updateProfileFormData({ phoneNumber: e.target.value })
+                }
+              />
+            </div>
+            <div className="flex flex-col space-y-2">
+              <Label className="mb-2" htmlFor="modifyPwd">
+                密碼變更
+              </Label>
+              <ChangePasswordDialog />
+            </div>
 
-          <div className="flex justify-end space-x-2 pt-4 w-full">
-            {!isEditing ? (
-              <Button className="w-full" onClick={() => setIsEditing(true)}>
-                編輯
-              </Button>
-            ) : (
-              <>
-                <Button
-                  className="w-full text-white"
-                  variant="outline"
-                  onClick={() => setIsEditing(false)}
-                >
-                  取消
+            <div className="flex justify-end space-x-2 pt-4 w-full">
+              {!isEditing ? (
+                <Button className="w-full" onClick={() => setIsEditing(true)}>
+                  編輯
                 </Button>
-                <Button
-                  className="w-full"
-                  onClick={handleUpdateFormData}
-                  disabled={isLoading}
-                >
-                  {isLoading ? "儲存中..." : "儲存"}
-                </Button>
-              </>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-    // </div>
+              ) : (
+                <>
+                  <Button
+                    className="w-full"
+                    variant="outline"
+                    onClick={() => setIsEditing(false)}
+                  >
+                    取消
+                  </Button>
+                  <Button
+                    className="w-full"
+                    onClick={handleUpdateFormData}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "儲存中..." : "儲存"}
+                  </Button>
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   );
 }

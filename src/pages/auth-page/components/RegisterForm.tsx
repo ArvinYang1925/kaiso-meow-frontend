@@ -45,9 +45,9 @@ export const RegisterForm: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <h2 className="text-center text-3xl font-extrabold text-gray-900 mb-6">
+      {/* <h2 className="text-center text-3xl font-extrabold text-gray-900 mb-6">
         加入會員
-      </h2>
+      </h2> */}
 
       <FormValidateInput
         id="name"
@@ -82,7 +82,7 @@ export const RegisterForm: React.FC = () => {
         className="mb-4"
         label={"密碼"}
         type={"password"}
-        placeholder={"密碼"}
+        placeholder="大小寫 8-12 位英數"
         register={register}
         rules={{
           required: "請輸入密碼",
@@ -96,7 +96,7 @@ export const RegisterForm: React.FC = () => {
         className="mb-4"
         label={"請再次輸入密碼"}
         type={"password"}
-        placeholder={"請再次輸入密碼"}
+        placeholder="大小寫 8-12 位英數"
         register={register}
         rules={{
           required: "請再次輸入密碼",
