@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import ExpertRecommendationSection from "@/components/ExpertRecommendationSection";
+import BannerSection from "./BannerSection";
 
 export const HomePage: React.FC = () => {
   const [userName, setUserName] = useState("");
@@ -15,6 +16,7 @@ export const HomePage: React.FC = () => {
 
   return (
     <>
+      <BannerSection />
       <div className="container">
         <div className="title mt-36">
           {userName !== "" && (

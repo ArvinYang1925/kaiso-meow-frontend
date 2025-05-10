@@ -1,0 +1,35 @@
+/* Swiper 分頁自訂樣式 */
+.swiper-pagination-brand-01 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+
+  .swiper-pagination-bullet {
+    width: 10px;
+    height: 10px;
+    background: #d3dbe3;
+    opacity: 1;
+    border-radius: 50%;
+    transition: all 0.3s;
+    margin: 0;
+  }
+  .swiper-pagination-bullet-active {
+    width: 40px; // 橢圓形長度
+    height: 10px; // 橢圓形高度
+    background: #ff9431;
+    border-radius: 999px;
+  }
+}
+
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  display: none;
+}
+
+@media (max-width: 1200px) {
+  .swiper-button-next,
+  .swiper-button-prev {
+    display: none;
+  }
+}
