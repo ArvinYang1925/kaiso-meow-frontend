@@ -62,8 +62,7 @@ export const useInstructorProfileStore = create<
             state.isLoading = false;
           });
         }
-      } catch (error) {
-        console.error("Failed to fetch profile", error);
+      } catch {
         set((state) => {
           state.isLoading = false;
         });
@@ -89,7 +88,8 @@ export const useInstructorProfileStore = create<
               email: email || "",
               profileUrl: profileUrl || "https://i.meee.com.tw/zQufAr7.png",
             };
-            state.avatarPreview = profileUrl || "https://i.meee.com.tw/zQufAr7.png";
+            state.avatarPreview =
+              profileUrl || "https://i.meee.com.tw/zQufAr7.png";
           });
           toast({
             title: "儲存成功",
@@ -102,7 +102,7 @@ export const useInstructorProfileStore = create<
             description: response.message || "無法儲存講師資料，請稍後再試。",
           });
         }
-      } catch (error) {
+      } catch {
         toast({
           variant: "destructive",
           title: "儲存失敗",

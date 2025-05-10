@@ -58,13 +58,11 @@ export const updateInstructorProfile = async (
   const token = localStorage.getItem("token");
 
   try {
-    console.log("Update Profile Data:", data);
     const response = await axios.put("/api/v1/instructor/me", data, {
       headers: {
         Authorization: token,
       },
     });
-    console.log("Update Profile Response:", response);
     return {
       status: "success",
       message: "更新講師資料成功",

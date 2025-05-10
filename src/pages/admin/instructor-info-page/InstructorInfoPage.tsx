@@ -99,7 +99,6 @@ export default function InstructorInfoPage() {
         name: data.name,
         profileUrl: avatarUrl,
       });
-      console.log("Profile updated successfully");
       // 重置選擇的檔案
       setSelectedFile(null);
     } catch (error) {
