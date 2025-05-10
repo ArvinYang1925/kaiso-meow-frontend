@@ -82,7 +82,7 @@ export const RegisterForm: React.FC = () => {
         className="mb-4"
         label={"密碼"}
         type={"password"}
-        placeholder={"密碼"}
+        placeholder="大小寫 8-12 位英數"
         register={register}
         rules={{
           required: "請輸入密碼",
@@ -96,7 +96,7 @@ export const RegisterForm: React.FC = () => {
         className="mb-4"
         label={"請再次輸入密碼"}
         type={"password"}
-        placeholder={"請再次輸入密碼"}
+        placeholder="大小寫 8-12 位英數"
         register={register}
         rules={{
           required: "請再次輸入密碼",
