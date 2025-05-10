@@ -15,7 +15,13 @@ type FormData = {
 export const LoginForm: React.FC = () => {
   const navigate = useNavigate();
   const { showCommonDialog } = useDialogStore();
-  const { login, isLoading, isAuthenticated, getHomeRedirect } = useAuthStore();
+  const {
+    login,
+    isLoading,
+    isAuthenticated,
+    setIsShowPasswordForgotForm,
+    getHomeRedirect,
+  } = useAuthStore();
 
   const {
     register,
@@ -56,9 +62,9 @@ export const LoginForm: React.FC = () => {
     <div className="bg-white rounded-2xl p-4 w-full">
       <div className="w-full max-w-md px-4">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          {/* <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             會員登入
-          </h2>
+          </h2> */}
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="rounded-md shadow-sm -space-y-px">
@@ -94,6 +100,15 @@ export const LoginForm: React.FC = () => {
               }}
               error={errors.password}
             />
+          </div>
+
+          <div className="btn-wrapper flex justify-end">
+            <Button
+              className="bg-gray-400 hover:bg-gray-500"
+              onClick={() => setIsShowPasswordForgotForm(true)}
+            >
+              忘記密碼
+            </Button>
           </div>
 
           {/* API 回傳錯誤訊息 */}

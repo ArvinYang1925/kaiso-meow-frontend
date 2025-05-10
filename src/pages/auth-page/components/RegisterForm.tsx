@@ -45,9 +45,9 @@ export const RegisterForm: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <h2 className="text-center text-3xl font-extrabold text-gray-900 mb-6">
+      {/* <h2 className="text-center text-3xl font-extrabold text-gray-900 mb-6">
         加入會員
-      </h2>
+      </h2> */}
 
       <FormValidateInput
         id="name"

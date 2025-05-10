@@ -35,7 +35,17 @@ export type LogoutResponseData = {
     message: string;
 };
 
+/** 使用者登入 發送忘記密碼信件 請求資料 */
+export type PasswordForgotFormData = {
+    email: string;
+}
+
 export type ErrorMessage = {
     success: string;
+    message: string;
+}
+
+export type ApiResponseModel = {
+    status: string;
     message: string;
 }
