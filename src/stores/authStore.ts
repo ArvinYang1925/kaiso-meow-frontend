@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import { loginUser, logoutUser, registerUser } from "@/services/auth.service";
-import { LoginFormData, RegisterFormData, LoginResponseData } from "@/services/types";
+import { loginUser, logoutUser, registerUser, sendPasswordForgotLetter } from "@/services/auth.service";
+import { LoginFormData, RegisterFormData, LoginResponseData, PasswordForgotFormData } from "@/services/types";
 import { Role } from "@/lib/enum";
 
 interface AuthState {
@@ -10,15 +10,18 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   errorMsg: string | null;
+  isShowPasswordForgottenForm: boolean;
 }
 
 interface AuthActions {
   login: (formData: LoginFormData) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
   register: (formData: RegisterFormData) => Promise<{ success: boolean; message?: string }>;
+  sendPasswordForgotLetter: (formData: PasswordForgotFormData) => Promise<{ status: string; message?: string }>;
   getRole: () => Role | null;
   getHomeRedirect: () => string;
   clearError: () => void;
+  setIsShowPasswordForgotForm: (isShow: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState & AuthActions>()(
@@ -28,6 +31,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
     isAuthenticated: !!localStorage.getItem("token"),
     isLoading: false,
     errorMsg: null,
+    isShowPasswordForgottenForm: false,
 
     login: async (formData: LoginFormData) => {
       set((state) => {
@@ -106,6 +110,32 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       }
     },
 
+    sendPasswordForgotLetter: async (formData: PasswordForgotFormData) => {
+      set((state) => {
+        state.isLoading = true;
+        state.errorMsg = null;
+      });
+
+      try {
+        const response = await sendPasswordForgotLetter(formData);
+
+        set((state) => {
+          state.isLoading = false;
+        });
+
+        return response;
+      } catch (error: any) {
+        const errorMsg = error.response?.data?.message || "密碼重設信發送失敗";
+        set((state) => {
+          state.errorMsg = errorMsg;
+          state.isLoading = false;
+        });
+
+        return { status: "failed", message: errorMsg };
+      }
+    },
+
+
     getRole: () => {
       return get().userInfo?.role || null;
     },
@@ -120,6 +150,11 @@ export const useAuthStore = create<AuthState & AuthActions>()(
     clearError: () => {
       set((state) => {
         state.errorMsg = null;
+      });
+    },
+    setIsShowPasswordForgotForm: (isShow) => {
+      set((state) => {
+        state.isShowPasswordForgottenForm = isShow;
       });
     }
   }))

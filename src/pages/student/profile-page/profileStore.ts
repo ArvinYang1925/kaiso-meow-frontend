@@ -1,31 +1,54 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import { fetchProfile, updateProfile } from './profile.service';
+import { fetchProfile, updateProfile, updatePassword } from './profile.service';
 import { toast } from '@/hooks/use-toast';
-import { ProfileModel, UpdateProfileModel, UpdateProfileResponseModel } from './types';
+import { ProfileModel, UpdateProfileModel, UpdateProfileResponseModel, PasswordModel, UpdatePasswordModel, UpdatePasswordResponseModel } from './types';
 
 interface ProfilePageState {
     profile: ProfileModel;
+    password: PasswordModel;
     isLoading: boolean;
+    isShowDialog: boolean;
 }
-
 
 interface ProfilePageAction {
     fetchProfile: () => Promise<void>;
     updateProfile: (data: UpdateProfileModel) => Promise<UpdateProfileResponseModel>;
+    updatePassword: (data: UpdatePasswordModel) => Promise<UpdatePasswordResponseModel>
     setIsLoading: (loading: boolean) => void;
-    updateFormData: (fields: Partial<ProfileModel>) => void;
+    setIsShowDialog: (isShowDialog: boolean) => void;
+    updateProfileFormData: (fields: Partial<ProfileModel>) => void;
+    updatePasswordFormData: (fields: Partial<PasswordModel>) => void;
+    resetStore: () => void;
+}
+
+const initialProfile: ProfileModel = {
+    id: '',
+    name: '',
+    phoneNumber: '',
+    email: '',
+}
+
+const initialPassword: PasswordModel = {
+    oldPassword: '',
+    newPassword: '',
+    confirmNewPassword: '',
 }
 
 export const useProfileStore = create<ProfilePageState & ProfilePageAction>()(
     immer((set) => ({
-        profile: {
-            id: '',
-            name: '',
-            phoneNumber: '',
-            email: '',
-        },
+        profile: initialProfile,
+        password: initialPassword,
         isLoading: false,
+        isShowDialog: false,
+        resetStore: () => {
+            set((state) => {
+                state.profile = initialProfile
+                state.password = initialPassword
+                state.isLoading = false
+                state.isShowDialog = false
+            })
+        },
         fetchProfile: async () => {
             set((state) => {
                 state.isLoading = true;
@@ -76,16 +99,47 @@ export const useProfileStore = create<ProfilePageState & ProfilePageAction>()(
                 });
             }
         },
-
+        updatePassword: async (data: UpdatePasswordModel) => {
+            set((state) => {
+                state.isLoading = true;
+            });
+            try {
+                const response = await updatePassword(data);
+                return response;
+            } catch (error) {
+                console.error('Failed to update', error);
+                toast({
+                    variant: 'destructive',
+                    title: '密碼變更失敗',
+                    description: '無法變更密碼，請稍後再試。',
+                });
+                throw error; // 重新拋出錯誤，讓調用者可以處理
+            } finally {
+                set((state) => {
+                    state.isLoading = false;
+                });
+            }
+        },
         setIsLoading: (loading) => {
             set((state) => {
                 state.isLoading = loading;
             });
         },
 
-        updateFormData: (fields) => {
+        setIsShowDialog: (isShowDialog) => {
+            set((state) => {
+                state.isShowDialog = isShowDialog;
+            });
+        },
+
+        updateProfileFormData: (fields) => {
             set((state) => {
                 Object.assign(state.profile, fields);
+            });
+        },
+        updatePasswordFormData: (fields) => {
+            set((state) => {
+                Object.assign(state.password, fields);
             });
         },
     }))
