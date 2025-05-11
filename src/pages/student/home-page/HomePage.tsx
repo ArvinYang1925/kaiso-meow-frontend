@@ -1,28 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import ExpertRecommendationSection from "@/components/ExpertRecommendationSection";
+import CourseCardListComponent from "./components/CourseCardListComponent";
+import NewsLetterComponent from "./components/NewsletterComponent";
 
 export const HomePage: React.FC = () => {
-  const [userName, setUserName] = useState("");
-
   const { userInfo } = useAuthStore();
 
   useEffect(() => {
-    if (userInfo) {
-      setUserName(userInfo.name);
-    }
+    // if (userInfo) {
+    //   setUserName(userInfo.name);
+    // }
   }, [userInfo]);
 
   return (
     <>
       <div className="container">
-        <div className="title mt-36">
-          {userName !== "" && (
-            <p className="text-2xl text-orange-600">嗨！{userName}，你好啊！</p>
-          )}
-          <h1 className="text-4xl">歡迎來到首頁</h1>
-        </div>
+        {/* 課程卡片區塊 */}
+        <CourseCardListComponent />
+        {/* 專家推薦區塊 */}
         <ExpertRecommendationSection />
+        {/* 電子報訂閱區塊 */}
+        <NewsLetterComponent />
       </div>
     </>
   );
