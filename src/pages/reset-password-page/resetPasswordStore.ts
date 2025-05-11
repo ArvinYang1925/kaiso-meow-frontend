@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { resetPassword, ResetPasswordModel } from "./reset-password.service";
-import { ApiResponseModel } from "@/services/types";
+import { BaseApiResponseModel } from "@/services/types";
 
 interface ResetPasswordState {
     isLoading: boolean;
@@ -10,7 +10,7 @@ interface ResetPasswordState {
 
 interface ResetPasswordActions {
     setServerError: (errorMessage: string) => void;
-    resetPassword: (postData: ResetPasswordModel) => Promise<ApiResponseModel>;
+    resetPassword: (postData: ResetPasswordModel) => Promise<BaseApiResponseModel>;
 }
 
 export const useResetPasswordStore = create<ResetPasswordState & ResetPasswordActions>()(

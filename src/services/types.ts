@@ -29,6 +29,23 @@ export type LoginResponseData = {
     role: Role; // student or instructor
 };
 
+/** 使用者登入 成功回應資料 */
+export type LoginSuccessResponse = BaseApiResponseModel & {
+    status: 'success';
+    data: {
+        token: string;
+        expiresIn: number;
+        userInfo: LoginResponseData;
+    };
+};
+
+/** 使用者登入 失敗回應資料 （沒有 data）*/
+export type LoginFailedResponse = BaseApiResponseModel & {
+    status: 'failed';
+};
+
+export type LoginResponse = LoginSuccessResponse | LoginFailedResponse;
+
 /** 使用者登出 回應資料 */
 export type LogoutResponseData = {
     status: string;
@@ -45,7 +62,8 @@ export type ErrorMessage = {
     message: string;
 }
 
-export type ApiResponseModel = {
-    status: string;
+export type BaseApiResponseModel = {
+    status: 'success' | 'failed';
     message?: string;
 }
+

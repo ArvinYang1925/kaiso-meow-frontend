@@ -37,12 +37,13 @@ export const PasswordForgottenForm: React.FC = () => {
         // 顯示後端回傳錯誤（如有）
         setServerError(result.message || "請求失敗，請再試一次");
       }
-    } catch (error) {
-      showCommonDialog({
-        title: "請求失敗",
-        description: "請稍後再試",
-      });
+    } catch (error: any) {
       console.error("error:", error);
+      const { status, message } = error.response.data;
+      showCommonDialog({
+        title: `${status}`,
+        description: `${message}`,
+      });
     }
   };
 
