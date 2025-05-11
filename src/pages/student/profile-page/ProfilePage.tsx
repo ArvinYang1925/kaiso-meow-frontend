@@ -22,7 +22,6 @@ export default function ProfilePage() {
     fetchProfile,
     updateProfile,
     updateProfileFormData,
-    resetStore,
   } = useProfileStore();
 
   const { showCommonDialog } = useDialogStore();
@@ -69,7 +68,7 @@ export default function ProfilePage() {
       const response = await updateProfile(data);
       showCommonDialog({
         title: "儲存成功",
-        description: response.message,
+        description: response.status,
       });
       setIsEditing(false);
     } catch (error) {
@@ -80,7 +79,6 @@ export default function ProfilePage() {
       });
     } finally {
       setIsLoading(false);
-      resetStore();
     }
   };
 
