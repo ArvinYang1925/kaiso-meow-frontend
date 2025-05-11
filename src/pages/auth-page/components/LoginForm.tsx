@@ -29,26 +29,26 @@ export const LoginForm: React.FC = () => {
     formState: { errors },
   } = useForm<FormData>();
 
-  const [serverError, setServerError] = useState("");
-
   const onSubmit = async (data: FormData) => {
-    setServerError(""); // 清除前次錯誤訊息
-
     try {
       const result = await login(data);
+      const { status, message } = result;
 
-      if (result.success) {
+      if (status == "success") {
         navigate(getHomeRedirect());
       } else {
-        // 顯示後端回傳錯誤（如有）
-        setServerError(result.message || "帳號或密碼錯誤，請再試一次");
+        showCommonDialog({
+          title: `${status}`,
+          description: `${message}`,
+        });
       }
-    } catch (error) {
-      showCommonDialog({
-        title: "登入失敗",
-        description: "請稍後再試",
-      });
+    } catch (error: any) {
       console.error("Login error:", error);
+      const { status, message } = error.response.data;
+      showCommonDialog({
+        title: `${status}`,
+        description: `${message}`,
+      });
     }
   };
 
@@ -110,13 +110,6 @@ export const LoginForm: React.FC = () => {
               忘記密碼
             </Button>
           </div>
-
-          {/* API 回傳錯誤訊息 */}
-          {serverError && (
-            <div className="text-red-500 text-sm text-center">
-              {serverError}
-            </div>
-          )}
 
           <div>
             <Button
