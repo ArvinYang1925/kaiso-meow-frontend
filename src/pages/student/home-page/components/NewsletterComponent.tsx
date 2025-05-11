@@ -1,9 +1,42 @@
 import newsletterBackgroundImg from "@/assets/homepage/subscribe-background.jpg";
 import newsletterCat from "@/assets/homepage/subscribe-cat.png";
+import { FormValidateInput } from "@/components/common/FormValidateInput";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useForm } from "react-hook-form";
+import { NewsletterFormData } from "../services/home-page.service";
+import { useHomePageStore } from "../store/homePageStore";
+import { useDialogStore } from "@/stores/commonDialogStore";
 
 const NewsletterComponent: React.FC = () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<NewsletterFormData>();
+
+  const { createNewsletter } = useHomePageStore();
+  const { showCommonDialog } = useDialogStore();
+
+  const onSubmit = async (data: NewsletterFormData) => {
+    try {
+      const result = await createNewsletter(data);
+      const { status, message } = result;
+
+      showCommonDialog({
+        title: `${status}`,
+        description: `${message}`,
+      });
+    } catch (error: any) {
+      console.error("subscribe error:", error);
+      const { status, message } = error.response.data;
+      showCommonDialog({
+        title: `${status}`,
+        description: `${message}`,
+      });
+    }
+  };
+
   return (
     <div
       className="flex flex-col items-center justify-center px-4 py-24"
@@ -31,7 +64,46 @@ const NewsletterComponent: React.FC = () => {
       </div>
 
       <Card className="p-12 w-[628px]">
-        <Button className="bg-orange-500 w-full">加入訂閱</Button>
+        <form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
+          <div className="rounded-md shadow-sm space-y-px">
+            <FormValidateInput
+              id="name"
+              className="mb-4"
+              label={"名稱"}
+              type={"text"}
+              placeholder={"請輸入名稱"}
+              register={register}
+              rules={{
+                required: "名稱為必填",
+                pattern: {
+                  value: /^[\u4e00-\u9fa5_a-zA-Z0-9\s]{2,30}$/, // 範例：中英數，長度2~30
+                  message: "名稱格式不正確",
+                },
+              }}
+              error={errors.name}
+            />
+
+            <FormValidateInput
+              id="email"
+              className="mb-4"
+              label={"Email"}
+              type={"email"}
+              placeholder={"請輸入 Email"}
+              register={register}
+              rules={{
+                required: "請輸入電子郵件",
+                pattern: {
+                  value: /\S+@\S+\.\S+/,
+                  message: "請輸入有效的電子郵件格式",
+                },
+              }}
+              error={errors.email}
+            />
+          </div>
+          <Button className="bg-orange-500 w-full hover:bg-orange-600">
+            加入訂閱
+          </Button>
+        </form>
       </Card>
     </div>
   );
