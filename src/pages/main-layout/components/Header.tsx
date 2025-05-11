@@ -51,7 +51,7 @@ export const Header = () => {
 
   return (
     <nav className="shadow flex justify-content-center z-50">
-      <div className="container fixed top-0 left-0  flex items-center justify-between py-4">
+      <div className="container fixed top-0 left-0  flex items-center justify-between py-4 bg-white">
         {/* 左logo：程式喵學院 */}
         <div className="text-xl font-bold text-orange-600">
           <Link to="/">程式喵學院</Link>
