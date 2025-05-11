@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { loginUser, logoutUser, registerUser, sendPasswordForgotLetter } from "@/services/auth.service";
-import { LoginFormData, RegisterFormData, LoginResponseData, PasswordForgotFormData } from "@/services/types";
+import { LoginFormData, RegisterFormData, LoginResponseData, PasswordForgotFormData, LoginResponse } from "@/services/types";
 import { Role } from "@/lib/enum";
 
 interface AuthState {
@@ -14,7 +14,7 @@ interface AuthState {
 }
 
 interface AuthActions {
-  login: (formData: LoginFormData) => Promise<{ success: boolean; message?: string }>;
+  login: (formData: LoginFormData) => Promise<LoginResponse>;
   logout: () => void;
   register: (formData: RegisterFormData) => Promise<{ success: boolean; message?: string }>;
   sendPasswordForgotLetter: (formData: PasswordForgotFormData) => Promise<{ status: string; message?: string }>;
@@ -32,7 +32,6 @@ export const useAuthStore = create<AuthState & AuthActions>()(
     isLoading: false,
     errorMsg: null,
     isShowPasswordForgottenForm: false,
-
     login: async (formData: LoginFormData) => {
       set((state) => {
         state.isLoading = true;
@@ -41,7 +40,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
 
       try {
         const response = await loginUser(formData);
-        const { token, userInfo } = response.data.data;
+        const { token, userInfo } = response.data;
 
         localStorage.setItem("token", token);
         localStorage.setItem("userInfo", JSON.stringify(userInfo));
@@ -53,15 +52,13 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           state.isLoading = false;
         });
 
-        return { success: true };
+        return response;
       } catch (error: any) {
-        const errorMsg = error.response?.data?.message || "登入失敗";
         set((state) => {
-          state.errorMsg = errorMsg;
           state.isLoading = false;
         });
 
-        return { success: false, message: errorMsg };
+        return error.response.data;
       }
     },
 

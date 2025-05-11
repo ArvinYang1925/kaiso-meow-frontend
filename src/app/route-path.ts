@@ -44,5 +44,6 @@ export const ADMIN_ROUTES = Object.freeze({
 export const PUBLIC_ROUTES = Object.freeze({
   AUTH: "/auth",
   LOGOUT: "/logout",
+  RESET_PASSWORD: "/reset-password/:token",
   PERMISSION_DENIED: "/permission-denied",
 });

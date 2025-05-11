@@ -20,10 +20,12 @@ import HomePage from "../pages/student/home-page/HomePage";
 import AdminHomePage from "../pages/admin/admin-home-page/AdminHomePage";
 /** 前台個人資料頁面 */
 import ProfilePage from "../pages/student/profile-page/ProfilePage";
-/** 講師個人設定頁面 */
+/** 後台講師個人設定頁面 */
 import InstructorInfoPage from "@/pages/admin/instructor-info-page/InstructorInfoPage";
-/** 變更密碼頁面 */
+/** 後台變更密碼頁面 */
 import PasswordPage from "@/pages/admin/instructor-info-page/PasswordPage";
+/** 前台變更密碼頁面 */
+import ResetPasswordPage from "@/pages/reset-password-page/ResetPasswordPage";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -61,6 +63,10 @@ function App() {
         {/* 公共頁面 (不需要權限也可進入的頁面) */}
         <Route path={CLIENT_ROUTES.HOME} element={<StudentLayout />} />
         <Route path={PUBLIC_ROUTES.AUTH} element={<AuthPage />} />
+        <Route
+          path={PUBLIC_ROUTES.RESET_PASSWORD}
+          element={<ResetPasswordPage />}
+        />
 
         {/* 根據角色導向 */}
         <Route

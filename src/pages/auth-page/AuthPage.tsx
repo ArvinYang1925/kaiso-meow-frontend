@@ -8,6 +8,8 @@ import LoginForm from "./components/LoginForm";
 import RegisterForm from "./components/RegisterForm";
 import { useAuthStore } from "@/stores/authStore";
 import PasswordForgotForm from "./components/PasswordForgotForm";
+import { Toaster } from "@/components/ui/toaster";
+import { CommonDialog } from "@/components/common/CommonDialog";
 
 export default function AuthPage() {
   const [tab, setTab] = useState("login");
@@ -77,6 +79,8 @@ export default function AuthPage() {
             </AnimatePresence>
           </CardContent>
         </Card>
+        <Toaster />
+        <CommonDialog />
       </div>
     </div>
   );
