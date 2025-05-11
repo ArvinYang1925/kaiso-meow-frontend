@@ -71,19 +71,19 @@ export const useProfileStore = create<ProfilePageState & ProfilePageAction>()(
                 });
             }
         },
-        updateProfile: async (data: UpdateProfileModel) => {
+        updateProfile: async (formData: UpdateProfileModel) => {
             set((state) => {
                 state.isLoading = true;
             });
             try {
-                const response = await updateProfile(data);
-                // 更新成功後，更新本地狀態
-                set((state) => {
-                    state.profile = {
-                        ...state.profile,
-                        ...data
-                    };
-                });
+                const response = await updateProfile(formData);
+                const { status, data } = response
+                if (status == 'success') {
+                    // 更新成功後，更新本地狀態
+                    set((state) => {
+                        state.profile = data;
+                    });
+                }
                 return response;
             } catch (error) {
                 console.error('Failed to save profile', error);
