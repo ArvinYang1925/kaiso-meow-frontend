@@ -4,6 +4,7 @@ import { Header } from "./components/Header";
 import { Toaster } from "@/components/ui/toaster"; // shadcn 的 toast
 import { CommonDialog } from "@/components/common/CommonDialog";
 import ScrollToTop from "@/pages/main-layout/components/ScrollToTop";
+import { Footer } from "@/pages/main-layout/components/Footer";
 
 export const StudentLayout = () => {
   return (
@@ -18,6 +19,7 @@ export const StudentLayout = () => {
         <CommonDialog />
         <ScrollToTop />
       </main>
+      <Footer />
     </>
   );
 };

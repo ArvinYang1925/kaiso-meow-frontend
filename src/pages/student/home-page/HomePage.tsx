@@ -4,7 +4,6 @@ import ExpertRecommendationSection from "@/components/ExpertRecommendationSectio
 import CourseCardListComponent from "./components/CourseCardListComponent";
 import NewsLetterComponent from "./components/NewsletterComponent";
 import BannerComponent from "./components/BannerComponent";
-import { Footer } from "@/pages/main-layout/components/Footer";
 
 export const HomePage: React.FC = () => {
   const { userInfo } = useAuthStore();
@@ -26,7 +25,6 @@ export const HomePage: React.FC = () => {
         {/* 電子報訂閱區塊 */}
         <NewsLetterComponent />
       </div>
-      <Footer />
     </>
   );
 };
