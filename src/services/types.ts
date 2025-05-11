@@ -47,5 +47,5 @@ export type ErrorMessage = {
 
 export type ApiResponseModel = {
     status: string;
-    message: string;
+    message?: string;
 }
