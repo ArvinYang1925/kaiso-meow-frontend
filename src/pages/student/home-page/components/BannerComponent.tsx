@@ -3,11 +3,11 @@ import { FC, Fragment, useEffect, useState } from "react";
 import { Swiper } from "swiper";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
 // 內建資料引入
-import { bannerData, bannerMobileData } from "./bannerStore";
+import { bannerData, bannerMobileData } from "../data/bannerData";
 import banner_next from "@/assets/homepage/banner-next.svg";
 import banner_prev from "@/assets/homepage/banner-prev.svg";
 
-const BannerSection: FC = () => {
+const BannerComponent: FC = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1200);
 
   useEffect(() => {
@@ -122,4 +122,4 @@ const BannerSection: FC = () => {
   );
 };
 
-export default BannerSection;
+export default BannerComponent;
