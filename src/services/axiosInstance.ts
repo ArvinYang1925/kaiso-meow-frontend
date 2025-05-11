@@ -42,16 +42,16 @@ axiosInstance.interceptors.response.use(
       // 你可以根據錯誤碼自訂訊息處理邏輯
       switch (status) {
         case 401:
-          console.warn('未授權，請重新登入');
+          console.warn(data.message);
           break;
         case 403:
-          console.warn('權限不足');
+          console.warn(data.message);
           break;
         case 404:
-          console.warn('找不到資源');
+          console.warn(data.message);
           break;
         case 500:
-          console.error('伺服器錯誤，請稍後再試');
+          console.error(data.message);
           break;
         default:
           console.error(data?.message || '發生未知錯誤');

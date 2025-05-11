@@ -31,6 +31,7 @@ export type LoginResponseData = {
 
 /** 使用者登入 成功回應資料 */
 export type LoginSuccessResponse = BaseApiResponseModel & {
+    success?: string;
     status: 'success';
     data: {
         token: string;
@@ -40,9 +41,7 @@ export type LoginSuccessResponse = BaseApiResponseModel & {
 };
 
 /** 使用者登入 失敗回應資料 （沒有 data）*/
-export type LoginFailedResponse = BaseApiResponseModel & {
-    status: 'failed';
-};
+export type LoginFailedResponse = ErrorMessage;
 
 export type LoginResponse = LoginSuccessResponse | LoginFailedResponse;
 
@@ -58,8 +57,14 @@ export type PasswordForgotFormData = {
 }
 
 export type ErrorMessage = {
+    status?: 'success' | 'failed';
     success: string;
     message: string;
+    data: {
+        token: string;
+        expiresIn: number;
+        userInfo: LoginResponseData;
+    };
 }
 
 export type BaseApiResponseModel = {
