@@ -1,25 +1,30 @@
 import { useEffect } from "react";
-import { useAuthStore } from "@/stores/authStore";
+// import { useAuthStore } from "@/stores/authStore";
 import ExpertRecommendationComponent from "@/pages/student/home-page/components/ExpertRecommendationComponent";
-// import CourseCardListComponent from "./components/CourseCardListComponent";
+import CourseCardListComponent from "./components/CourseCardListComponent";
 import NewsLetterComponent from "./components/NewsletterComponent";
 import BannerComponent from "./components/BannerComponent";
+// import { useHomePageStore } from "./store/homePageStore";
 
 export const HomePage: React.FC = () => {
-  const { userInfo } = useAuthStore();
-
+ 
   useEffect(() => {
-    // if (userInfo) {
-    //   setUserName(userInfo.name);
-    // }
-  }, [userInfo]);
+    // fetchCourseCardList();
+  }, []);
 
   return (
     <>
       <BannerComponent />
       <div className="container">
         {/* 課程卡片區塊 */}
-        {/* <CourseCardListComponent /> */}
+        <div className="mt-24 course-card-section">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl font-bold mb-2">所有課程</h2>
+            <div className="w-12 h-1 bg-black mx-auto"></div>
+          </div>
+          <CourseCardListComponent />
+        </div>
+
         {/* 專家推薦區塊 */}
         <ExpertRecommendationComponent />
         {/* 電子報訂閱區塊 */}

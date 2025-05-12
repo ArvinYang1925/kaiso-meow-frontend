@@ -72,3 +72,9 @@ export type BaseApiResponseModel = {
     message?: string;
 }
 
+export type Pagination = {
+    currentPage: number;
+    pageSize: number;
+    totalPages: number;
+    totalItems: number;
+}
