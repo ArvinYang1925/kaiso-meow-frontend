@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useAuthStore } from "@/stores/authStore";
-import ExpertRecommendationSection from "@/components/ExpertRecommendationSection";
+import ExpertRecommendationComponent from "@/pages/student/home-page/components/ExpertRecommendationComponent";
 // import CourseCardListComponent from "./components/CourseCardListComponent";
 import NewsLetterComponent from "./components/NewsletterComponent";
 import BannerComponent from "./components/BannerComponent";
@@ -21,7 +21,7 @@ export const HomePage: React.FC = () => {
         {/* 課程卡片區塊 */}
         {/* <CourseCardListComponent /> */}
         {/* 專家推薦區塊 */}
-        <ExpertRecommendationSection />
+        <ExpertRecommendationComponent />
         {/* 電子報訂閱區塊 */}
         <NewsLetterComponent />
       </div>
