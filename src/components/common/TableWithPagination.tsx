@@ -29,7 +29,7 @@ export function TableWithPagination<T>({
 
   return (
     <div className="space-y-4">
-      <Table>
+      <Table className="h-[24rem]">
         <TableHeader>
           <TableRow>{columns}</TableRow>
         </TableHeader>
@@ -40,7 +40,7 @@ export function TableWithPagination<T>({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={100} className="text-center">
+              <TableCell colSpan={10} className="text-center">
                 查無資料
               </TableCell>
             </TableRow>
@@ -52,7 +52,7 @@ export function TableWithPagination<T>({
         <span className="text-sm text-muted-foreground">
           第 {currentPage} 頁，共 {totalPages} 頁
         </span>
-        <div className="space-x-2">
+        <div className="space-x-2 flex items-center">
           <Button
             variant="outline"
             size="sm"
@@ -61,6 +61,21 @@ export function TableWithPagination<T>({
           >
             上一頁
           </Button>
+
+          {Array.from({ length: totalPages }, (_, index) => {
+            const page = index + 1;
+            return (
+              <Button
+                key={page}
+                variant={page === currentPage ? "default" : "outline"}
+                size="sm"
+                onClick={() => onPageChange(page)}
+              >
+                {page}
+              </Button>
+            );
+          })}
+
           <Button
             variant="outline"
             size="sm"

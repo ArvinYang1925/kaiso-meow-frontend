@@ -26,6 +26,8 @@ import InstructorInfoPage from "@/pages/admin/instructor-info-page/InstructorInf
 import PasswordPage from "@/pages/admin/instructor-info-page/PasswordPage";
 /** 前台變更密碼頁面 */
 import ResetPasswordPage from "@/pages/reset-password-page/ResetPasswordPage";
+/** 前台查看訂單頁面 */
+import OrderPage from "@/pages/student/order-page/OrderPage";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -82,6 +84,14 @@ function App() {
             element={
               <ProtectedRoute requiredRole={Role.STUDENT}>
                 <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={CLIENT_ROUTES.ORDER}
+            element={
+              <ProtectedRoute requiredRole={Role.STUDENT}>
+                <OrderPage />
               </ProtectedRoute>
             }
           />
