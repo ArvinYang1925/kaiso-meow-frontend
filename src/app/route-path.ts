@@ -31,7 +31,7 @@ export const ADMIN_ROUTES = Object.freeze({
   /** 學生列表 */
   STUDENTS: "/admin/students",
   /** 訂單管理*/
-  ORDERS: "/admin/orders",
+  INSTRUCTOR_ORDERS: "/admin/instructor-orders",
   /** 個人設定*/
   ME: "/admin/me",
   /** 變更密碼 */
