@@ -28,6 +28,8 @@ import PasswordPage from "@/pages/admin/instructor-info-page/PasswordPage";
 import ResetPasswordPage from "@/pages/reset-password-page/ResetPasswordPage";
 /** 前台查看訂單頁面 */
 import OrderPage from "@/pages/student/order-page/OrderPage";
+/** 後台學生列表頁面 */
+import StudentListPage from "@/pages/admin/student-list-page/StudentListPage";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -111,6 +113,10 @@ function App() {
           <Route
             path={ADMIN_ROUTES.CHANGE_PASSWORD}
             element={<PasswordPage />}
+          />
+          <Route
+            path={ADMIN_ROUTES.STUDENTS}
+            element={<StudentListPage />}
           />
           {/* 後台 404 頁面 */}
           <Route path="*" element={<AdminNotFound />} />
