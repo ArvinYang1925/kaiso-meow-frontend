@@ -115,7 +115,7 @@ export default function AdminSidebar() {
         <SidebarItem
           icon={ShoppingCart}
           label="訂單管理"
-          onClick={() => navigate(ADMIN_ROUTES.ORDERS)}
+          onClick={() => navigate(ADMIN_ROUTES.INSTRUCTOR_ORDERS)}
         />
         <SidebarItem
           icon={Tag}

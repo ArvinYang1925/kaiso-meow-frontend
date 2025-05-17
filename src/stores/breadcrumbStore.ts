@@ -42,8 +42,8 @@ const routeConfigs: Record<string, RouteConfig> = {
     title: ROUTE_TITLES[ADMIN_ROUTES.STUDENTS],
   },
   orders: {
-    path: ADMIN_ROUTES.ORDERS,
-    title: ROUTE_TITLES[ADMIN_ROUTES.ORDERS],
+    path: ADMIN_ROUTES.INSTRUCTOR_ORDERS,
+    title: ROUTE_TITLES[ADMIN_ROUTES.INSTRUCTOR_ORDERS],
   },
   coupons: {
     path: ADMIN_ROUTES.COUPONS,
@@ -69,7 +69,7 @@ const processRoute = (
 ): BreadcrumbItem[] => {
   const items: BreadcrumbItem[] = [];
   let currentPath = basePath ? `${basePath}/${config.path}` : config.path;
-  
+
   // 處理動態參數
   if (config.path.includes(':courseId')) {
     currentPath = currentPath.replace(':courseId', params.courseId || '');
@@ -91,7 +91,7 @@ const processRoute = (
   if (config.children && pathSnippets.length > 1) {
     const childKey = pathSnippets[1];
     const childConfig = config.children[childKey];
-    
+
     if (childConfig) {
       const childItems = processRoute(pathSnippets.slice(1), params, childConfig, currentPath);
       items.push(...childItems);
@@ -140,7 +140,7 @@ export const useBreadcrumbStore = create<BreadcrumbState>((set) => ({
       const courseId = params.courseId;
       const pathSnippets = pathname.split('/').filter((i) => i);
       const lastPath = pathSnippets[pathSnippets.length - 1];
-      
+
       // 根據課程 ID 獲取對應的課程名稱
       let courseName = '課程';
       if (courseId) {
@@ -216,7 +216,7 @@ export const useBreadcrumbStore = create<BreadcrumbState>((set) => ({
     if (pathSnippets.length > 0) {
       const mainRoute = pathSnippets[0];
       const config = routeConfigs[mainRoute];
-      
+
       if (config) {
         const routeItems = processRoute(pathSnippets, params, config);
         items.push(...routeItems);
