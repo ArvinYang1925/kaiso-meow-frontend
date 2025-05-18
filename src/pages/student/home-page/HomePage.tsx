@@ -34,7 +34,8 @@ export const HomePage: React.FC = () => {
         <div className="container relative z-10">
           <InstructorIntroComponent />
         </div>
-        <div className="container"></div>
+      </div>
+      <div className="container">
         {/* 專家推薦區塊 */}
         <ExpertRecommendationComponent />
         {/* 電子報訂閱區塊 */}
