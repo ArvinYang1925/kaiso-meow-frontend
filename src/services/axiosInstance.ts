@@ -1,9 +1,4 @@
-import axios, { AxiosError } from "axios";
-
-interface APIErrorResponse {
-  message: string;
-  status: string;
-}
+import axios from 'axios';
 
 /** 處理 cors 的反向代理設定 */
 const baseURL = import.meta.env.DEV 
@@ -32,36 +27,20 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-// ✅ 回應攔截器：統一錯誤處理
+// ✅ 回應攔截器：處理 token 過期
 axiosInstance.interceptors.response.use(
-  (response) => response,
-  (error: AxiosError<APIErrorResponse>) => {
-    if (error.response) {
-      const { status, data } = error.response;
-
-      // 你可以根據錯誤碼自訂訊息處理邏輯
-      switch (status) {
-        case 401:
-          console.warn(data.message);
-          break;
-        case 403:
-          console.warn(data.message);
-          break;
-        case 404:
-          console.warn(data.message);
-          break;
-        case 500:
-          console.error(data.message);
-          break;
-        default:
-          console.error(data?.message || '發生未知錯誤');
-      }
-    } else if (error.request) {
-      console.error('無回應，可能是網路問題');
-    } else {
-      console.error('錯誤：', error.message);
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response?.status === 401) {
+      // 清除本地儲存的資料
+      localStorage.removeItem('token');
+      localStorage.removeItem('userInfo');
+      
+      // 重新導向到登入頁面
+      window.location.href = '/auth';
     }
-
     return Promise.reject(error);
   }
 );
