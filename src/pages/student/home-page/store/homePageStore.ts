@@ -27,7 +27,7 @@ export const useHomePageStore = create<HomePageState & HomePageAction>()(
                 console.log(error)
                 return {
                     status: 'failed',
-                    message: '訂閱失敗，請稍後再試',
+                    message: '請稍後再試',
                 };
             }
         },
