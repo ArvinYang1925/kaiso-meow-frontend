@@ -9,8 +9,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useInstructorProfileStore } from "@/pages/admin/instructor-info-page/stores/instructorInfoStore";
+import cloudUpload from "@/assets/cloud-upload.svg";
 
-//for test
 // 表單驗證規則
 const formSchema = z.object({
   name: z.string().min(1, "請輸入姓名"),
@@ -155,7 +155,7 @@ export default function InstructorInfoPage() {
                     onClick={handleUploadClick}
                   >
                     <img
-                      src="/src/assets/cloud-upload.svg"
+                      src={cloudUpload}
                       alt="上傳圖標"
                       className="w-4 h-4 mr-2 filter-blue-500"
                     />

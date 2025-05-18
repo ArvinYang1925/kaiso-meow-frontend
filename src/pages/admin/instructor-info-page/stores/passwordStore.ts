@@ -1,11 +1,9 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import { toast } from "@/hooks/use-toast";
-import { getPasswordService } from "../services/password.service";
-import {
-  PasswordFormValues,
-  ChangePasswordRequestModel,
-} from "../models/password.model";
+import { updatePassword } from "../services/password.service";
+import { PasswordFormValues } from "../models/password.model";
+import { AxiosError } from "axios";
+import { useDialogStore } from "@/stores/commonDialogStore";
 
 interface PasswordState {
   isLoading: boolean;
@@ -30,41 +28,59 @@ export const usePasswordStore = create<PasswordState & PasswordAction>()(
 
       try {
         // 驗證新密碼和確認密碼是否一致
-        if (data.newPassword !== data.confirmPassword) {
-          throw new Error("兩次輸入的密碼不一致");
+        if (data.newPassword !== data.confirmNewPassword) {
+          useDialogStore.getState().showCommonDialog({
+            title: "密碼變更失敗",
+            description: "兩次輸入的密碼不一致",
+          });
+          return false;
         }
 
-        // 準備 API 請求數據
-        const requestData: ChangePasswordRequestModel = {
-          currentPassword: data.currentPassword,
-          newPassword: data.newPassword,
-        };
-
-        // 獲取當前環境下的密碼變更服務
-        const passwordService = getPasswordService();
-
         // 調用 API 服務
-        await passwordService(requestData);
+        const response = await updatePassword(data);
 
-        // 顯示成功提示
-        toast({
-          title: "密碼變更成功",
-          description: "您的密碼已成功更新",
-        });
-
-        return true;
+        if (response.status === "success") {
+          useDialogStore.getState().showCommonDialog({
+            title: "密碼變更成功",
+            description: "您的密碼已成功更新",
+          });
+          return true;
+        } else {
+          useDialogStore.getState().showCommonDialog({
+            title: "密碼變更失敗",
+            description: response.message || "密碼變更失敗",
+          });
+          return false;
+        }
       } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : "密碼變更失敗";
-        set((state) => {
-          state.error = errorMessage;
-        });
+        let errorMessage = "密碼變更失敗";
 
-        // 顯示錯誤提示
-        toast({
-          variant: "destructive",
+        if (error instanceof AxiosError) {
+          const errorData = error.response?.data;
+
+          if (
+            errorData?.status === "failed" ||
+            error.response?.status === 400
+          ) {
+            useDialogStore.getState().showCommonDialog({
+              title: "密碼變更失敗",
+              description: errorData?.message || "請確認輸入的密碼是否正確",
+            });
+            return false;
+          }
+          errorMessage = errorData?.message || error.message;
+        } else if (error instanceof Error) {
+          try {
+            const parsedError = JSON.parse(error.message);
+            errorMessage = parsedError.message;
+          } catch {
+            errorMessage = error.message;
+          }
+        }
+
+        useDialogStore.getState().showCommonDialog({
           title: "密碼變更失敗",
-          description: errorMessage || "請稍後再試",
+          description: errorMessage,
         });
 
         return false;
