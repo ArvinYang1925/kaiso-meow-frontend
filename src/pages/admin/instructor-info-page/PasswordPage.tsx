@@ -1,48 +1,69 @@
 import { useNavigate } from "react-router-dom";
 import { ADMIN_ROUTES } from "@/app/route-path";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
+import { usePasswordStore } from "./stores/passwordStore";
+import { FormValidateInput } from "@/components/common/FormValidateInput";
+import { PasswordFormValues } from "./models/password.model";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { usePasswordStore } from "./stores/passwordStore";
+import { useDialogStore } from "@/stores/commonDialogStore";
 
-
-// 定義表單驗證 schema
-const formSchema = z.object({
-  currentPassword: z.string().min(1, "目前密碼為必填欄位"),
-  newPassword: z.string().min(1, "新密碼為必填欄位"),
-  confirmPassword: z.string().min(1, "確認密碼為必填欄位"),
-}).refine((data) => data.newPassword === data.confirmPassword, {
-  message: "新密碼與確認密碼不相符",
-  path: ["confirmPassword"],
-});
-
-type FormValues = z.infer<typeof formSchema>;
+/**
+ * 密碼表單驗證 Schema
+ */
+const passwordFormSchema = z
+  .object({
+    oldPassword: z
+      .string()
+      .min(8, "密碼長度至少為 8 個字符")
+      .max(12, "密碼長度最多為 12 個字符")
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,12}$/,
+        "密碼必須包含大小寫字母和數字"
+      ),
+    newPassword: z
+      .string()
+      .min(8, "密碼長度至少為 8 個字符")
+      .max(12, "密碼長度最多為 12 個字符")
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,12}$/,
+        "密碼必須包含大小寫字母和數字"
+      ),
+    confirmNewPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmNewPassword, {
+    message: "兩次輸入的密碼不一致",
+    path: ["confirmNewPassword"],
+  });
 
 export default function PasswordPage() {
   const navigate = useNavigate();
-  const { isLoading, changePassword } = usePasswordStore();
+  const { isLoading, error, changePassword } = usePasswordStore();
+  const { showCommonDialog } = useDialogStore();
 
-  // 使用 react-hook-form
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    },
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<PasswordFormValues>({
+    resolver: zodResolver(passwordFormSchema),
   });
 
-  // 表單提交處理
-  const onSubmit = async (data: FormValues) => {
-    const success = await changePassword(data);
-    
-    if (success) {
-      form.reset();
-      navigate(ADMIN_ROUTES.ME);
+  const onSubmit = async (data: PasswordFormValues) => {
+    try {
+      const success = await changePassword(data);
+      if (success) {
+        reset();
+        navigate(ADMIN_ROUTES.ME);
+      }
+    } catch (error) {
+      showCommonDialog({
+        title: "密碼變更失敗",
+        description: error instanceof Error ? error.message : "密碼變更失敗",
+      });
     }
   };
 
@@ -53,84 +74,59 @@ export default function PasswordPage() {
       </div>
 
       <Card>
-        <CardContent className="p-6">
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            {/* 隱藏的用戶名字段 */}
-            <div className="hidden">
-              <Input
-                type="text"
-                autoComplete="username"
-                value={localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")!).email : ""}
-                readOnly
-              />
+        <CardContent>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid gap-4 py-4">
+              <div className="space-y-2">
+                <FormValidateInput
+                  id="oldPassword"
+                  className="mb-4"
+                  label="舊密碼"
+                  type="password"
+                  placeholder="大小寫 8-12 位英數"
+                  register={register}
+                  error={errors.oldPassword}
+                />
+                {error?.includes("舊密碼") && (
+                  <p className="text-sm text-red-500 mt-1">{error}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <FormValidateInput
+                  id="newPassword"
+                  className="mb-4"
+                  label="新密碼"
+                  type="password"
+                  placeholder="大小寫 8-12 位英數"
+                  register={register}
+                  error={errors.newPassword}
+                />
+                {error?.includes("新密碼") && (
+                  <p className="text-sm text-red-500 mt-1">{error}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <FormValidateInput
+                  id="confirmNewPassword"
+                  label="再次確認密碼"
+                  type="password"
+                  placeholder="請再次輸入新密碼"
+                  register={register}
+                  error={errors.confirmNewPassword}
+                />
+                {error?.includes("確認密碼") && (
+                  <p className="text-sm text-red-500 mt-1">{error}</p>
+                )}
+              </div>
             </div>
 
-            {/* 目前密碼欄位 */}
-            <div className="space-y-2">
-              <Label htmlFor="currentPassword" className="block">
-                目前密碼 <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="currentPassword"
-                type="password"
-                {...form.register("currentPassword")}
-                className="w-full"
-                autoComplete="current-password"
-              />
-              {form.formState.errors.currentPassword && (
-                <p className="text-sm text-red-500">
-                  {form.formState.errors.currentPassword.message}
-                </p>
-              )}
-            </div>
-
-            {/* 新密碼欄位 */}
-            <div className="space-y-2">
-              <Label htmlFor="newPassword" className="block">
-                新密碼 <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="newPassword"
-                type="password"
-                {...form.register("newPassword")}
-                className="w-full"
-                autoComplete="new-password"
-              />
-              {form.formState.errors.newPassword && (
-                <p className="text-sm text-red-500">
-                  {form.formState.errors.newPassword.message}
-                </p>
-              )}
-            </div>
-
-            {/* 確認密碼欄位 */}
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="block">
-                確認密碼 <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                {...form.register("confirmPassword")}
-                className="w-full"
-                autoComplete="new-password"
-              />
-              {form.formState.errors.confirmPassword && (
-                <p className="text-sm text-red-500">
-                  {form.formState.errors.confirmPassword.message}
-                </p>
-              )}
-            </div>
-            
-            {/* 按鈕區塊 */}
-            <div className="flex justify-start space-x-4">
+            <div className="flex justify-end space-x-4">
               <Button
                 type="button"
-                variant="outline"
-                onClick={() => {
-                  form.reset();
-                  navigate(ADMIN_ROUTES.ME);
-                }}
+                variant="ghost"
+                onClick={() => navigate(ADMIN_ROUTES.ME)}
               >
                 取消
               </Button>
@@ -143,4 +139,4 @@ export default function PasswordPage() {
       </Card>
     </div>
   );
-} 
+}

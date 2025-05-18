@@ -1,65 +1,37 @@
-import axiosInstance from "@/services/axiosInstance";
-import { ChangePasswordRequestModel } from "../models/password.model";
-import { ApiResponseModel } from "../models/api.model";
+import axios from "@/services/axiosInstance";
+import {
+  PasswordFormValues,
+  ChangePasswordResponseModel,
+} from "../models/password.model";
+import { AxiosError } from "axios";
 
 /**
- * 變更密碼
- *
- * @param data - 密碼變更資料
- * @returns API 回傳的結果
+ * 更新密碼
+ * @param data 密碼更新資料
+ * @returns Promise<ChangePasswordResponseModel>
  */
-export const changePassword = async (
-  data: ChangePasswordRequestModel
-): Promise<ApiResponseModel> => {
-  /** 權限 token */
-  const token = localStorage.getItem("token");
+export const updatePassword = async (
+  data: PasswordFormValues
+): Promise<ChangePasswordResponseModel> => {
+  try {
+    const response = await axios.put<ChangePasswordResponseModel>(
+      "/api/v1/auth/password/change",
+      {
+        oldPassword: data.oldPassword,
+        newPassword: data.newPassword,
+        confirmNewPassword: data.confirmNewPassword,
+      }
+    );
 
-  return axiosInstance.put("/api/v1/auth/password", data, {
-    headers: {
-      Authorization: token,
-    },
-  });
-};
+    if (response.data.status === "failed") {
+      throw new Error(response.data.message || "密碼變更失敗");
+    }
 
-// DEMO 模式相關設定
-const DEMO_MODE = process.env.NODE_ENV === "development";
-
-// DEMO 使用者資料
-const DEMO_USER = {
-  email: "program_meow@meow.com",
-  currentPassword: "CCdd1111",
-  newPassword: "NewCCdd1111",
-};
-
-/**
- * DEMO 模式的變更密碼功能
- *
- * @param data - 密碼變更資料
- * @returns 模擬的 API 回應
- */
-export const changePasswordDemo = async (
-  data: ChangePasswordRequestModel
-): Promise<ApiResponseModel> => {
-  // 模擬 API 調用延遲
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  // 驗證當前密碼
-  if (data.currentPassword !== DEMO_USER.currentPassword) {
-    throw new Error("原始密碼錯誤");
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      throw new Error(error.response?.data?.message || "密碼變更失敗");
+    }
+    throw error;
   }
-
-  // 更新 demo 資料中的密碼
-  DEMO_USER.currentPassword = data.newPassword;
-
-  return {
-    status: "success",
-    message: "密碼變更成功",
-  };
-};
-
-/**
- * 根據環境選擇合適的密碼變更功能
- */
-export const getPasswordService = () => {
-  return DEMO_MODE ? changePasswordDemo : changePassword;
 };

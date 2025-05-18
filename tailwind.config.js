@@ -16,11 +16,14 @@ module.exports = {
     extend: {
       //設定max-width
       maxWidth: {
-        'screen-xl': '1280px', // 定義一個新的最大寬度
-        'screen-2xl': '1536px', // 你可以根據需要調整這些數值
+        "screen-xl": "1280px", // 定義一個新的最大寬度
+        "screen-2xl": "1536px", // 你可以根據需要調整這些數值
+      },
+      screens: {
+        xs: "375px",
       },
       fontFamily: {
-        sans: ["Inter", ...fontFamily.sans],
+        sans: ['"Noto Sans TC"', "sans-serif"], //"Inter", ...fontFamily.sans
       },
       colors: {
         border: "hsl(var(--border))",

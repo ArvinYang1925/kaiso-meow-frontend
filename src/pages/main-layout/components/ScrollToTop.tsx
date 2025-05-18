@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import iconsToTop from "@/assets/homepage/icons-to-top.svg";
 
 // 按下就可跳轉到最上方的懸浮右下角按紐
 const ScrollToTop: React.FC = () => {
@@ -30,16 +31,12 @@ const ScrollToTop: React.FC = () => {
   };
 
   return showButton ? (
-    <a 
-      href="#" 
+    <a
+      href="#"
       onClick={scrollToTop}
       className="fixed bottom-8 right-8 z-50 hover:opacity-80 transition-opacity"
     >
-      <img
-        className="w-12 h-12"
-        src="/src/assets/homepage/icons-to-top.svg"
-        alt="回到頂部"
-      />
+      <img className="w-12 h-12" src={iconsToTop} alt="回到頂部" />
     </a>
   ) : null;
 };

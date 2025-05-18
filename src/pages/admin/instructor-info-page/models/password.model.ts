@@ -1,16 +1,26 @@
+import { ApiResponseModel } from "./api.model";
+
 /**
- * 密碼表單資料模型
+ * 密碼表單資料
  */
 export type PasswordFormValues = {
-  currentPassword: string;
+  oldPassword: string;
   newPassword: string;
-  confirmPassword: string;
+  confirmNewPassword: string;
 };
 
 /**
- * 變更密碼請求模型
+ * 變更密碼請求資料
  */
 export type ChangePasswordRequestModel = {
-  currentPassword: string;
+  oldPassword: string;
   newPassword: string;
+  confirmNewPassword: string;
 };
+
+/**
+ * API 回應變更密碼資料
+ */
+export type ChangePasswordResponseModel = ApiResponseModel<{
+  data: ChangePasswordRequestModel;
+}>;
