@@ -42,8 +42,8 @@ export const ADMIN_ROUTES = Object.freeze({
 
 /** 公共權限頁面 */
 export const PUBLIC_ROUTES = Object.freeze({
-  AUTH: "/auth",
-  LOGOUT: "/logout",
-  RESET_PASSWORD: "/reset-password/:token",
-  PERMISSION_DENIED: "/permission-denied",
+  AUTH: "/#/auth",
+  LOGOUT: "/#/logout",
+  RESET_PASSWORD: "/#/reset-password/:token",
+  PERMISSION_DENIED: "/#/permission-denied",
 });
