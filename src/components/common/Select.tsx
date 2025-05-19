@@ -58,6 +58,7 @@ const Select: React.FC<CustomSelectProps> = ({
           <SelectViewport className="p-1">
             {options.map((option) => (
               <SelectItem
+                key={option.value}
                 className="w-full bg-white border-b border-gray-200 px-3 py-2 cursor-pointer hover:bg-gray-100 focus:bg-gray-100"
                 value={option.value}
                 textValue={option.label}

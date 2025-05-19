@@ -3,10 +3,12 @@ import Select from "@/components/common/Select";
 import { Button } from "@/components/ui/button";
 import { useDialogStore } from "@/stores/commonDialogStore";
 import { useModalStore } from "@/stores/modalStore";
-import { createCouponList } from "../coupon-list.service";
+import { createCouponList, fetchCouponList } from "../coupon-list.service";
 import { Controller, useForm } from "react-hook-form";
 import { CreateCouponModel } from "../types";
 import { FormValidateInput } from "@/components/common/FormValidateInput";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export default function CreateCouponModal() {
   const {
@@ -37,6 +39,8 @@ export default function CreateCouponModal() {
         title: `${status}`,
         description: `${message}`,
       });
+      closeModal();
+      fetchCouponList(1, 10);
     } catch (error: any) {
       console.error(error);
       const { status, message } = error.response.data;
@@ -44,7 +48,6 @@ export default function CreateCouponModal() {
         title: `${status}`,
         description: `${message}`,
       });
-      // fetchCouponList(1, 10);
     }
   };
 
@@ -107,18 +110,59 @@ export default function CreateCouponModal() {
             <div className="space-y-2">
               <FormValidateInput
                 id="value"
-                className="mb-4"
                 label="折抵金額"
                 type="number"
                 placeholder="請輸入折抵金額"
                 register={register}
                 rules={{
                   required: "請輸入折抵金額",
-                  valueAsNumber: true, 
+                  valueAsNumber: true,
                 }}
                 error={errors.value}
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Controller
+              name="startsAt"
+              control={control}
+              rules={{ required: "請選擇折扣碼開始時間" }}
+              render={({ field }) => (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium">
+                    折扣碼開始時間
+                  </label>
+                  <DatePicker
+                    placeholderText="yyyy-MM-dd"
+                    selected={field.value}
+                    onChange={(date) => field.onChange(date)}
+                    dateFormat="yyyy-MM-dd"
+                  />
+                </div>
+              )}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Controller
+              name="expiresAt"
+              control={control}
+              rules={{ required: "請選擇折扣碼過期時間" }}
+              render={({ field }) => (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium">
+                    折扣碼過期時間
+                  </label>
+                  <DatePicker
+                    placeholderText="yyyy-MM-dd"
+                    selected={field.value}
+                    onChange={(date) => field.onChange(date)}
+                    dateFormat="yyyy-MM-dd"
+                  />
+                </div>
+              )}
+            />
           </div>
 
           <div className="flex justify-end gap-2">
