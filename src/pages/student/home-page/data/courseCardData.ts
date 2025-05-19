@@ -38,35 +38,35 @@ export const courseCardList = [
         "price": '3,000'
     },
     {
-        "id": "a1315061-ab3a-4e4d-b553-13cc125ecb10",
+        "id": "a1315061-ab3a-4e4d-b553-13cc125ecbsqdqw10",
         "title": "TypeScript 強型別開發指南",
         "instructorName": "program_meow ",
         "coverUrl": typescript,
         "price": '3,000'
     },
     {
-        "id": "a1315061-ab3a-4e4d-b553-13cc125ecb10",
+        "id": "a1315061-ab3a-4e4d-b553-13cc125edcb10",
         "title": "Docker 與 Kubernetes 容器化部署",
         "instructorName": "program_meow ",
         "coverUrl": k8s,
         "price": '3,000'
     },
     {
-        "id": "a1315061-ab3a-4e4d-b553-13cc125ecb10",
+        "id": "a1315061-ab3a-4e4d-b553-13csssc125edcb10",
         "title": "全端開發：MERN 堆疊應用實作",
         "instructorName": "program_meow ",
         "coverUrl": mern,
         "price": '3,000'
     },
     {
-        "id": "a1315061-ab3a-4e4d-b553-13cc125ecb10",
+        "id": "a1315061-ab3a-4e4d-b553-13acc125ecb10",
         "title": "Flutter 跨平台移動應用開發",
         "instructorName": "program_meow ",
         "coverUrl": flutter,
         "price": '3,000'
     },
     {
-        "id": "a1315061-ab3a-4e4d-b553-13cc125ecb10",
+        "id": "a1315061-ab3a-4e4d-b553-13cc125decb10",
         "title": "演算法與資料結構：面試準備",
         "instructorName": "program_meow ",
         "coverUrl": dataStructure,
