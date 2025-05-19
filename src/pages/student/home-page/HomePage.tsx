@@ -6,7 +6,6 @@ import NewsLetterComponent from "./components/NewsletterComponent";
 import BannerComponent from "./components/BannerComponent";
 // import { useHomePageStore } from "./store/homePageStore";
 import InstructorIntroComponent from "./components/InstructorIntroComponent";
-import decorationSvg from "@/assets/homepage/decoration.svg";
 
 export const HomePage: React.FC = () => {
   useEffect(() => {
@@ -26,15 +25,10 @@ export const HomePage: React.FC = () => {
           <CourseCardListComponent />
         </div>
       </div>
-      <div className="relative">
-        <div className="absolute left-[94px] top-[168px] w-[452px] h-[452px] z-0 pointer-events-none hidden md:block">
-          <img src={decorationSvg} alt="Decoration" className="w-full h-full" />
-        </div>
-        {/* 講師介紹區塊 */}
-        <div className="container relative z-10">
-          <InstructorIntroComponent />
-        </div>
-      </div>
+
+      {/* 講師介紹區塊 */}
+      <InstructorIntroComponent />
+
       <div className="container">
         {/* 專家推薦區塊 */}
         <ExpertRecommendationComponent />
