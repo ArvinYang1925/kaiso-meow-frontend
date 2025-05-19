@@ -11,7 +11,7 @@ export type CreateCouponModel = {
   couponName: string;
   type: string;
   code: string;
-  value: string;
+  value: number;
   // startsAt: string;
   expiresAt: string;
 };

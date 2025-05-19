@@ -37,6 +37,7 @@ export const FormValidateInput: React.FC<FormInputProps> = ({
       <div className="relative">
         <input
           id={id}
+          min={0}
           type={isPasswordType && isShowPassword ? "text" : type}
           placeholder={placeholder}
           className={`appearance-none block w-full px-3 pr-10 py-2 border ${

@@ -22,7 +22,6 @@ export default function CouponListPage() {
   ];
 
   const handleDeleteCoupon = async (id: string) => {
-    console.log("要刪除的折扣馬id 1", id);
     const response = await deleteCouponList(id);
     const { status, message } = response;
     if (status === "success") {

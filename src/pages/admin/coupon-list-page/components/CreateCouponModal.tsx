@@ -1,60 +1,140 @@
 import { Modal } from "@/components/common/Modal";
 import Select from "@/components/common/Select";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useDialogStore } from "@/stores/commonDialogStore";
 import { useModalStore } from "@/stores/modalStore";
-import { useState } from "react";
+import { createCouponList } from "../coupon-list.service";
+import { Controller, useForm } from "react-hook-form";
+import { CreateCouponModel } from "../types";
+import { FormValidateInput } from "@/components/common/FormValidateInput";
 
 export default function CreateCouponModal() {
-  const { openModal, closeModal } = useModalStore();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    control,
+  } = useForm<CreateCouponModel>({
+    defaultValues: {
+      type: "fixed", // type 欄位的預設值
+    },
+  });
 
-  const [discountType, setDiscountType] = useState("");
+  const { openModal, closeModal } = useModalStore();
+  const { showCommonDialog } = useDialogStore();
 
   const options = [
-    { label: "-- 請選擇 --", value: "default" },
     { label: "固定金額", value: "fixed" },
     { label: "百分比", value: "percentage" },
   ];
+
+  const onSubmit = async (couponData: CreateCouponModel) => {
+    try {
+      const response = await createCouponList(couponData);
+      const { status, message } = response;
+
+      showCommonDialog({
+        title: `${status}`,
+        description: `${message}`,
+      });
+    } catch (error: any) {
+      console.error(error);
+      const { status, message } = error.response.data;
+      showCommonDialog({
+        title: `${status}`,
+        description: `${message}`,
+      });
+      // fetchCouponList(1, 10);
+    }
+  };
 
   const handleOpenModal = () => {
     openModal({
       title: "新增折扣碼",
       body: (
-        <div className="space-y-6">
-          <div>
-            <label className="block mb-2 text-sm font-medium">折扣碼名稱</label>
-            <Input placeholder="請輸入折扣碼名稱" />
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
+          <div className="grid gap-4 py-4">
+            <div className="space-y-2">
+              <FormValidateInput
+                id="couponName"
+                className="mb-4"
+                label="折扣碼名稱"
+                type="string"
+                placeholder="請輸入折扣碼名稱"
+                register={register}
+                rules={{
+                  required: "請輸入折扣碼名稱",
+                }}
+                error={errors.couponName}
+              />
+            </div>
+
+            <div className="">
+              <FormValidateInput
+                id="code"
+                className="mb-2"
+                label="折扣碼"
+                type="string"
+                placeholder="請輸入折扣碼"
+                register={register}
+                rules={{
+                  required: "請輸入折扣碼",
+                }}
+                error={errors.code}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Controller
+                name="type"
+                control={control}
+                rules={{ required: "請選擇折扣類型" }}
+                render={({ field }) => (
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium">
+                      折扣類型
+                    </label>
+                    <Select
+                      options={options}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    />
+                  </div>
+                )}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <FormValidateInput
+                id="value"
+                className="mb-4"
+                label="折抵金額"
+                type="number"
+                placeholder="請輸入折抵金額"
+                register={register}
+                rules={{
+                  required: "請輸入折抵金額",
+                  valueAsNumber: true, 
+                }}
+                error={errors.value}
+              />
+            </div>
           </div>
-          <div>
-            <label className="block mb-2 text-sm font-medium">折扣碼</label>
-            <Input placeholder="請輸入折扣碼" />
+
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                closeModal();
+              }}
+            >
+              取消
+            </Button>
+            <Button className="bg-blue-500 hover:bg-blue-600" type="submit">
+              送出
+            </Button>
           </div>
-          <div>
-            <label className="block mb-2 text-sm font-medium">折扣類型</label>
-            <Select
-              options={options}
-              value={discountType}
-              onValueChange={setDiscountType}
-            />
-          </div>
-          <div>
-            <label className="block mb-2 text-sm font-medium">折抵金額</label>
-            <Input placeholder="請輸入折抵金額" />
-          </div>
-        </div>
-      ),
-      footer: (
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={closeModal}>
-            取消
-          </Button>
-          <Button
-            className="bg-blue-500 hover:bg-blue-600"
-            onClick={() => alert("送出成功")}
-          >
-            送出
-          </Button>
-        </div>
+        </form>
       ),
     });
   };
