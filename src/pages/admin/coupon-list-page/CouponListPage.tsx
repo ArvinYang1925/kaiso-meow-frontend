@@ -4,6 +4,7 @@ import { TableWithPagination } from "@/components/common/TableWithPagination";
 import { useCouponListStore } from "./couponListStore";
 import { Button } from "@/components/ui/button";
 import { useDialogStore } from "@/stores/commonDialogStore";
+import CreateCouponModal from "./components/CreateCouponModal";
 
 export default function CouponListPage() {
   const { couponList, pagination, fetchCouponList, deleteCouponList } =
@@ -43,7 +44,7 @@ export default function CouponListPage() {
         <h1 className="font-semibold text-3xl mb-16">折扣碼列表</h1>
         <main className="mb-8">
           <div className="table-header grid justify-items-end">
-            <Button className="bg-blue-500 hover:bg-blue-600">新增折扣碼</Button>
+            <CreateCouponModal />
           </div>
           <TableWithPagination
             data={couponList}
