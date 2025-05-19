@@ -88,7 +88,7 @@ export const Header = () => {
                   <Link to={CLIENT_ROUTES.ORDER}>購買紀錄</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout}>
-                  <Link to={PUBLIC_ROUTES.LOGOUT}>登出</Link>
+                  登出
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
