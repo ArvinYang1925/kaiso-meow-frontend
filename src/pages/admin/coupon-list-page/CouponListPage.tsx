@@ -3,9 +3,13 @@ import { TableCell, TableHead } from "@/components/ui/table";
 import { TableWithPagination } from "@/components/common/TableWithPagination";
 import { useCouponListStore } from "./couponListStore";
 import { Button } from "@/components/ui/button";
+import { useDialogStore } from "@/stores/commonDialogStore";
 
 export default function CouponListPage() {
-  const { couponList, pagination, fetchCouponList } = useCouponListStore();
+  const { couponList, pagination, fetchCouponList, deleteCouponList } =
+    useCouponListStore();
+
+  const { showCommonDialog } = useDialogStore();
 
   const tableColumn = [
     { label: "折扣碼名稱", key: "couponName" },
@@ -16,6 +20,19 @@ export default function CouponListPage() {
     { label: "操作", key: "action" },
   ];
 
+  const handleDeleteCoupon = async (id: string) => {
+    console.log("要刪除的折扣馬id 1", id);
+    const response = await deleteCouponList(id);
+    const { status, message } = response;
+    if (status === "success") {
+      showCommonDialog({
+        title: status,
+        description: message ?? "刪除成功",
+      });
+      fetchCouponList(1, 10);
+    }
+  };
+
   useEffect(() => {
     fetchCouponList(pagination.currentPage, 10);
   }, []);
@@ -25,6 +42,9 @@ export default function CouponListPage() {
       <div className="container mt-8">
         <h1 className="font-semibold text-3xl mb-16">折扣碼列表</h1>
         <main className="mb-8">
+          <div className="table-header grid justify-items-end">
+            <Button className="bg-blue-500 hover:bg-blue-600">新增折扣碼</Button>
+          </div>
           <TableWithPagination
             data={couponList}
             pagination={pagination}
@@ -46,7 +66,12 @@ export default function CouponListPage() {
                 <TableCell>{coupon.value}</TableCell>
                 <TableCell>{coupon.expiresAt}</TableCell>
                 <TableCell>
-                  <Button className="bg-red-500 hover:bg-red-600">刪除</Button>
+                  <Button
+                    className="bg-red-500 hover:bg-red-600"
+                    onClick={() => handleDeleteCoupon(coupon.id)}
+                  >
+                    刪除
+                  </Button>
                 </TableCell>
               </>
             )}
