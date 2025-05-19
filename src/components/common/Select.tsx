@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { SelectOption } from "@/types/select";
 import {
   Select as RadixSelect,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectPortal,
   SelectTrigger,
@@ -19,21 +21,21 @@ interface CustomSelectProps {
 
 const Select: React.FC<CustomSelectProps> = ({
   options,
-  // placeholder = "",
   value,
   onValueChange,
   className,
 }) => {
-  // 確保在控制台記錄值的變化，幫助調試
+  const [selectedValue, setSelectedValue] = useState(value);
+
   const handleValueChange = (newValue: string) => {
-    console.log("選擇的值:", newValue);
+    setSelectedValue(newValue);
     if (onValueChange) {
       onValueChange(newValue);
     }
   };
 
   return (
-    <RadixSelect value={value} onValueChange={handleValueChange}>
+    <RadixSelect value={selectedValue} onValueChange={handleValueChange}>
       <SelectTrigger
         className={
           className ??
@@ -41,9 +43,11 @@ const Select: React.FC<CustomSelectProps> = ({
         }
         aria-label="選擇選項"
       >
-        <SelectValue>
-          {options.find((opt) => opt.value === value)?.label}
-        </SelectValue>
+        <SelectGroup>
+          <SelectValue>
+            {options.find((opt) => opt.value === selectedValue)?.label}
+          </SelectValue>
+        </SelectGroup>
       </SelectTrigger>
       <SelectPortal>
         <SelectContent
@@ -55,7 +59,6 @@ const Select: React.FC<CustomSelectProps> = ({
             {options.map((option) => (
               <SelectItem
                 className="w-full bg-white border-b border-gray-200 px-3 py-2 cursor-pointer hover:bg-gray-100 focus:bg-gray-100"
-                // key={option.value}
                 value={option.value}
                 textValue={option.label}
               >
