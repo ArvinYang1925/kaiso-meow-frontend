@@ -32,6 +32,8 @@ import OrderPage from "@/pages/student/order-page/OrderPage";
 import StudentListPage from "@/pages/admin/student-list-page/StudentListPage";
 /** 後台訂單管理頁面 */
 import InstructorOrderListPage from "@/pages/admin/instructor-order-page/InstructorOrderListPage";
+/** 後台折扣碼列表頁面 */
+import CouponListPage from "@/pages/admin/coupon-list-page/CouponListPage";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -121,6 +123,7 @@ function App() {
             path={ADMIN_ROUTES.INSTRUCTOR_ORDERS}
             element={<InstructorOrderListPage />}
           />
+          <Route path={ADMIN_ROUTES.COUPONS} element={<CouponListPage />} />
           {/* 後台 404 頁面 */}
           <Route path="*" element={<AdminNotFound />} />
         </Route>
