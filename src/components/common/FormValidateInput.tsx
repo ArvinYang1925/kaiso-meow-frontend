@@ -42,7 +42,7 @@ export const FormValidateInput: React.FC<FormInputProps> = ({
           placeholder={placeholder}
           className={`appearance-none block w-full px-3 pr-10 py-2 border ${
             error ? "border-red-500" : "border-gray-300"
-          } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+          } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:border-slate-500 sm:text-sm`}
           {...register(id, rules)}
         />
 
