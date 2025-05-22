@@ -4,13 +4,15 @@ import { TableWithPagination } from "@/components/common/TableWithPagination";
 import { useCouponListStore } from "./couponListStore";
 import { Button } from "@/components/ui/button";
 import { useDialogStore } from "@/stores/commonDialogStore";
-import CreateCouponModal from "./components/CreateCouponModal";
+import { useCommonModalStore } from "@/stores/commonModalStore";
+import { CreateCouponModal } from "./components/CreateCouponModal";
 
 export default function CouponListPage() {
   const { couponList, pagination, fetchCouponList, deleteCouponList } =
     useCouponListStore();
 
   const { showCommonDialog } = useDialogStore();
+  const { setIsShowModal } = useCommonModalStore();
 
   const tableColumn = [
     { label: "折扣碼名稱", key: "couponName" },
@@ -42,8 +44,8 @@ export default function CouponListPage() {
       <div className="container mt-8">
         <h1 className="font-semibold text-3xl mb-16">折扣碼列表</h1>
         <main className="mb-8">
-          <div className="table-header grid justify-items-end">
-            <CreateCouponModal />
+          <div className="table-header grid justify-items-end mb-4 pe-4">
+            <Button className="bg-blue-500 hover:bg-blue-600" onClick={() => setIsShowModal(true)}>新增折扣碼</Button>
           </div>
           <TableWithPagination
             data={couponList}
@@ -78,6 +80,7 @@ export default function CouponListPage() {
           />
         </main>
       </div>
+      <CreateCouponModal />
     </>
   );
 }
