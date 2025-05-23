@@ -17,7 +17,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({
   price,
 }) => {
   return (
-    <div className="w-[394px] h-[443px] rounded-lg shadow-md bg-white overflow-hidden flex flex-col">
+    <div className="w-full rounded-lg shadow-md bg-white overflow-hidden flex flex-col">
       {/* 圖片區塊 */}
       <img
         src={coverUrl}
