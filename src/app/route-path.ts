@@ -3,9 +3,11 @@ export const CLIENT_ROUTES = Object.freeze({
   /** 首頁 */
   HOME: "/",
   /** 課程列表 */
-  COURSES: "/courses",
+  COURSE_LIST: "/course-list",
+  /** 課程詳細頁面 */
+  COURSE: "/course/:courseId",
   /** 我的學習 */
-  LEARNING: "/learning",
+  MY_LEARNING: "/my-learning",
   /** 個人資料 */
   PROFILE: "/profile",
   /** 購買紀錄 */
