@@ -5,10 +5,13 @@ import HeroComponent from "./components/HeroComponent";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { useRef } from "react";
-import { FAQAccordion } from "@/components/common/FAQAccordion";
+import FAQAccordion from "@/components/features/FAQAccordion";
 import { CourseAccordion } from "./components/CourseAccordion";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useOrderStore } from "../order-page/store/orderStore";
+import { useDialogStore } from "@/stores/commonDialogStore";
+import axios from "axios";
 
 const CourseDetailPage = () => {
   const courseIntroRef = useRef(null);
@@ -19,11 +22,47 @@ const CourseDetailPage = () => {
   const { courseDetail } = useCourseDetailStore();
 
   const navigate = useNavigate();
+  const { createOrderPreview } = useOrderStore();
+  const { showCommonDialog } = useDialogStore();
 
   if (!courseDetail) return <div>載入中...</div>;
 
+  /** Tab 所定位的頁面位置 */
   const handleScroll = (ref) => {
     ref.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  /** 產生訂單預覽 */
+  const handleCreatePreviewOrder = async () => {
+    const reqData = {
+      courseId: courseId ?? "",
+      couponId: "",
+    };
+    if (courseId !== "") {
+      try {
+        await createOrderPreview(reqData);
+        navigate(`/order/${courseId}`);
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.data) {
+          const { status, message } = error.response.data;
+          showCommonDialog({
+            title: status,
+            description: message,
+          });
+        } else {
+          // 非 Axios 的錯誤處理
+          showCommonDialog({
+            title: "Error",
+            description: "Something went wrong. Please try again later.",
+          });
+        }
+      }
+    } else {
+      showCommonDialog({
+        title: "failed",
+        description: "courseId 不可為空值！",
+      });
+    }
   };
 
   return (
@@ -101,9 +140,7 @@ const CourseDetailPage = () => {
           </div>
           <div className="FAQSection scroll-mt-24" ref={faqRef}>
             <h2 className="mb-10 font-medium text-3xl">常見問答</h2>
-            <p>
-              <FAQAccordion />
-            </p>
+            <FAQAccordion />
           </div>
         </div>
 
@@ -119,7 +156,10 @@ const CourseDetailPage = () => {
                 <li>課程長度約 {courseDetail.duration} 小時</li>
               </ul>
             </div>
-            <Button className="w-full bg-orange-600 hover:bg-orange-500" onClick={()=>navigate(`/order/${courseId}`)}>
+            <Button
+              className="w-full bg-orange-600 hover:bg-orange-500"
+              onClick={handleCreatePreviewOrder}
+            >
               立即購買
             </Button>
           </Card>
