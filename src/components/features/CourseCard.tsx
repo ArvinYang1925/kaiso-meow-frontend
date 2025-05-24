@@ -8,7 +8,7 @@ interface CourseCardProps {
   title: string;
   instructorName: string;
   coverUrl: string;
-  price: string;
+  price: number;
 }
 
 export const CourseCard: React.FC<CourseCardProps> = ({
@@ -44,7 +44,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({
 
         {/* 價格與按鈕 */}
         <div className="flex items-center justify-between mt-auto">
-          <span className="text-xl font-bold text-sky-600">NT$ {price}</span>
+          <span className="text-xl font-bold text-sky-600">NT$ {price.toLocaleString() ?? ''}</span>
           <Button
             variant="outline"
             className="bg-orange-500 text-white hover:bg-orange-600 hover:text-gray"
