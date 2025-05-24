@@ -33,8 +33,8 @@ const HeroComponent = () => {
                   {courseDetail?.title ?? ""}
                 </h1>
                 <h2>
-                  {courseDetail?.description.split("\n").map((line) => (
-                    <p>{line}</p>
+                  {courseDetail?.description.split("\n").map((line, index) => (
+                    <p key={index}>{line}</p>
                   ))}
                 </h2>
                 {/* LOGO */}

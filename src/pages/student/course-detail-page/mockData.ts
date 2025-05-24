@@ -1,7 +1,7 @@
 import { CourseDetailResponse } from './course-detail.service';
 
 export const mockCourseDetail: CourseDetailResponse = {
-  id: 'course-001',
+  id: '41ffe479-9036-425b-9289-9193dcab2179',
   title: 'React 前端開發實戰',
   subtitle: '從 HTML 到 React 一次搞懂',
   description: '從零開始學習React框架，\n掌握組件開發、狀態管理和前端路由',
