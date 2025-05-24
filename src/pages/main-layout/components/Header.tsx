@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/authStore";
 import { useDialogStore } from "@/stores/commonDialogStore";
+import catschool_logotype from "@/assets/homepage/catschool_logotype.svg";
 
 export const Header = () => {
   const navigate = useNavigate(); // <-- 用來登出後跳轉
@@ -55,7 +56,12 @@ export const Header = () => {
         <div className="container flex items-center justify-between">
           {/* 左logo：程式喵學院 */}
         <div className="text-xl font-bold text-orange-600">
-          <Link to="/">程式喵學院</Link>
+
+          <Link to="/"><img
+                src={catschool_logotype}
+                alt="程式喵學院"
+                className="h-10 mr-4"
+              /></Link>
         </div>
 
         <div className="flex items-center">
