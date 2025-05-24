@@ -5,6 +5,7 @@ import HeroComponent from "./components/HeroComponent";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { useRef } from "react";
+import { FAQAccordion } from "@/components/common/FAQAccordion";
 
 const CourseDetailPage = () => {
   const courseIntroRef = useRef(null);
@@ -26,7 +27,10 @@ const CourseDetailPage = () => {
       <div className="container py-20 grid grid-cols-2 gap-12">
         <div className="wrapper">
           <div className="text-section space-y-18">
-            <Tabs defaultValue="courseIntro" className="w-full mb-18 text-sm border-b border-slate-200">
+            <Tabs
+              defaultValue="courseIntro"
+              className="w-full mb-18 text-sm border-b border-slate-200"
+            >
               <TabsList>
                 <TabsTrigger
                   value="courseIntro"
@@ -51,7 +55,10 @@ const CourseDetailPage = () => {
                 </TabsTrigger>
               </TabsList>
             </Tabs>
-            <div className="courseIntroSection scroll-mt-24" ref={courseIntroRef}>
+            <div
+              className="courseIntroSection scroll-mt-24"
+              ref={courseIntroRef}
+            >
               <h2 className="mb-10 font-medium text-3xl">課程簡介</h2>
               <p>
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
@@ -80,7 +87,10 @@ const CourseDetailPage = () => {
                 fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
               </p>
             </div>
-            <div className="chapterContentSection scroll-mt-24" ref={chapterContentRef}>
+            <div
+              className="chapterContentSection scroll-mt-24"
+              ref={chapterContentRef}
+            >
               <h2 className="mb-10 font-medium text-3xl">章節內容</h2>
               <p>
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
@@ -107,28 +117,7 @@ const CourseDetailPage = () => {
             <div className="FAQSection scroll-mt-24" ref={faqRef}>
               <h2 className="mb-10 font-medium text-3xl">常見問答</h2>
               <p>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
-                repellendus molestiae maiores veniam corporis delectus similique
-                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
-                quae repellat tempore, minima aut! Modi obcaecati sunt et Lorem
-                ipsum dolor sit amet consectetur adipisicing elit. Eos eum
-                repellendus molestiae maiores veniam corporis delectus similique
-                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
-                repellendus molestiae maiores veniam corporis delectus similique
-                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
-                repellendus molestiae maiores veniam corporis delectus similique
-                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
-                repellendus molestiae maiores veniam corporis delectus similique
-                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
-                repellendus molestiae maiores veniam corporis delectus similique
-                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
-                repellendus molestiae maiores veniam corporis delectus similique
-                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
+                <FAQAccordion />
               </p>
             </div>
           </div>

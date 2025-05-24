@@ -10,24 +10,30 @@ module.exports = {
       center: true,
       padding: "2rem",
       screens: {
-        sm: '640px',
-        md: '768px',
-        lg: '1024px',
-        xl: '1280px',
-        '2xl': '1536px',
+        sm: "640px",
+        md: "768px",
+        lg: "1024px",
+        xl: "1280px",
+        "2xl": "1536px",
       },
     },
     extend: {
-      //設定max-width
       maxWidth: {
-        "screen-xl": "1280px", // 定義一個新的最大寬度
-        "screen-2xl": "1536px", // 你可以根據需要調整這些數值
+        "screen-xl": "1280px",
+        "screen-2xl": "1536px",
       },
       screens: {
         xs: "375px",
       },
       fontFamily: {
-        sans: ['"Noto Sans TC"', "sans-serif"], //"Inter", ...fontFamily.sans
+        sans: ['Noto Sans TC"', "sans-serif"],
+      },
+      spacing: {
+        18: "4.5rem",
+      },
+      scrollMargin: {
+        18: "4.5rem",
+        24: "6rem",
       },
       colors: {
         border: "hsl(var(--border))",
@@ -86,7 +92,28 @@ module.exports = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
-      keyframes: {},
+      keyframes: {
+        "accordion-down": {
+          from: {
+            height: "0",
+          },
+          to: {
+            height: "var(--radix-accordion-content-height)",
+          },
+        },
+        "accordion-up": {
+          from: {
+            height: "var(--radix-accordion-content-height)",
+          },
+          to: {
+            height: "0",
+          },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+      },
     },
   },
   plugins: [
