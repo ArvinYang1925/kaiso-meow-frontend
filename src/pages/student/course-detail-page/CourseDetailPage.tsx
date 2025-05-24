@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { useRef } from "react";
 import { FAQAccordion } from "@/components/common/FAQAccordion";
+import { CourseAccordion } from "./components/CourseAccordion";
 
 const CourseDetailPage = () => {
   const courseIntroRef = useRef(null);
@@ -92,27 +93,7 @@ const CourseDetailPage = () => {
               ref={chapterContentRef}
             >
               <h2 className="mb-10 font-medium text-3xl">章節內容</h2>
-              <p>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
-                repellendus molestiae maiores veniam corporis delectus similique
-                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
-                quae repellat tempore, minima aut! Modi obcaecati sunt et Lorem
-                ipsum dolor sit amet consectetur adipisicing elit. Eos eum
-                repellendus molestiae maiores veniam corporis delectus similique
-                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
-                repellendus molestiae maiores veniam corporis delectus similique
-                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
-                repellendus molestiae maiores veniam corporis delectus similique
-                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
-                repellendus molestiae maiores veniam corporis delectus similique
-                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
-                repellendus molestiae maiores veniam corporis delectus similique
-                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
-              </p>
+              <CourseAccordion sections={courseDetail.sections} />
             </div>
             <div className="FAQSection scroll-mt-24" ref={faqRef}>
               <h2 className="mb-10 font-medium text-3xl">常見問答</h2>

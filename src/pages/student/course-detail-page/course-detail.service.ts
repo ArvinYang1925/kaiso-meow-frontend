@@ -6,9 +6,10 @@ type Instructor = {
     profileUrl: string;
 }
 
-type Section = {
+export type Section = {
     id: string;
     title: string;
+    content: string;
     orderIndex: number
 }
 
