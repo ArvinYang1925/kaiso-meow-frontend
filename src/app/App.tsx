@@ -36,6 +36,8 @@ import InstructorOrderListPage from "@/pages/admin/instructor-order-page/Instruc
 import CouponListPage from "@/pages/admin/coupon-list-page/CouponListPage";
 /** 前台課程詳細頁面 */
 import CourseDetailPage from "@/pages/student/course-detail-page/CourseDetailPage";
+/** 前台訂單詳細頁面 */
+import OrderPage from "@/pages/student/order-page/OrderPage";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -109,6 +111,15 @@ function App() {
             element={
               <ProtectedRoute requiredRole={Role.STUDENT}>
                 <CourseDetailPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path={CLIENT_ROUTES.ORDER}
+            element={
+              <ProtectedRoute requiredRole={Role.STUDENT}>
+                <OrderPage />
               </ProtectedRoute>
             }
           />

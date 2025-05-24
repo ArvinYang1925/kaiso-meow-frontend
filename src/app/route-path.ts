@@ -12,6 +12,8 @@ export const CLIENT_ROUTES = Object.freeze({
   PROFILE: "/profile",
   /** 購買紀錄列表 */
   ORDER_LIST: "/order-list",
+  /** 訂單詳細資訊列表 */
+  ORDER: "/order/:courseId",
 });
 
 /** 後台 */
