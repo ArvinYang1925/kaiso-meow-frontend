@@ -86,7 +86,7 @@ export const Header = () => {
                   <Link to={CLIENT_ROUTES.PROFILE}>個人資料</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <Link to={CLIENT_ROUTES.ORDER}>購買紀錄</Link>
+                  <Link to={CLIENT_ROUTES.ORDER_LIST}>購買紀錄</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout}>
                   登出

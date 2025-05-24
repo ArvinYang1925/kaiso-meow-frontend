@@ -10,8 +10,8 @@ export const CLIENT_ROUTES = Object.freeze({
   MY_LEARNING: "/my-learning",
   /** 個人資料 */
   PROFILE: "/profile",
-  /** 購買紀錄 */
-  ORDER: "/order",
+  /** 購買紀錄列表 */
+  ORDER_LIST: "/order-list",
 });
 
 /** 後台 */

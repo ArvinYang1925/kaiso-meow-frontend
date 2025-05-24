@@ -27,7 +27,7 @@ import PasswordPage from "@/pages/admin/instructor-info-page/PasswordPage";
 /** 前台變更密碼頁面 */
 import ResetPasswordPage from "@/pages/reset-password-page/ResetPasswordPage";
 /** 前台查看訂單頁面 */
-import OrderPage from "@/pages/student/order-page/OrderPage";
+import OrderListPage from "@/pages/student/order-list-page/OrderListPage";
 /** 後台學生列表頁面 */
 import StudentListPage from "@/pages/admin/student-list-page/StudentListPage";
 /** 後台訂單管理頁面 */
@@ -96,10 +96,10 @@ function App() {
             }
           />
           <Route
-            path={CLIENT_ROUTES.ORDER}
+            path={CLIENT_ROUTES.ORDER_LIST}
             element={
               <ProtectedRoute requiredRole={Role.STUDENT}>
-                <OrderPage />
+                <OrderListPage />
               </ProtectedRoute>
             }
           />
