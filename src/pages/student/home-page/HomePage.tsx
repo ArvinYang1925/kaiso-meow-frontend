@@ -20,7 +20,7 @@ export const HomePage: React.FC = () => {
       <BannerComponent />
       {/* 課程卡片區塊 */}
       <div
-        className="my-24 course-card-section"
+        className="py-24 course-card-section bg-slate-50"
         style={{
           backgroundImage: `url(${topLeftDecor}), url(${bottomRightDecor})`,
           backgroundPosition: "left top, right bottom",
