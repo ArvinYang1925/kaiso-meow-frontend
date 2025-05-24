@@ -10,7 +10,7 @@ import flutter from '@/assets/homepage/flutter-course-card.jpg'
 
 export const courseCardList = [
     {
-        "id": "fb23c072-5c6d-4bf6-9210-fd433eba0cab",
+        "id": "a1315061-ab3a-4e4d-b553-13cc125ecb10",
         "title": "React 前端開發實戰",
         "instructorName": "program_meow ",
         "coverUrl": react,
