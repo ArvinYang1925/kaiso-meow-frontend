@@ -1,51 +1,140 @@
 // import { useParams } from "react-router-dom";
 import { useCourseDetailStore } from "./courseDetailStore";
 import React from "@/assets/homepage/react-course-card.jpg";
-import MaskBackground from "@/assets/homepage/mask-background-blue.jpg";
-import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
-import logo from "@/assets/catschool_logo.svg";
+import HeroComponent from "./components/HeroComponent";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card } from "@/components/ui/card";
+import { useRef } from "react";
 
 const CourseDetailPage = () => {
+  const courseIntroRef = useRef(null);
+  const chapterContentRef = useRef(null);
+  const faqRef = useRef(null);
+
   //   const { courseId } = useParams();
   const { courseDetail } = useCourseDetailStore();
 
   if (!courseDetail) return <div>載入中...</div>;
 
+  const handleScroll = (ref) => {
+    ref.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <div className="mt-16">
-      <div className="relative w-full h-[596px] overflow-hidden">
-        {/* 背景圖模糊 */}
-        <img
-          src={MaskBackground}
-          alt="Background"
-          className="absolute inset-0 w-full h-full object-cover blur-sm scale-105"
-        />
-
-        {/* 遮罩 */}
-        <div className="absolute inset-0 bg-black bg-opacity-60"></div>
-
-        {/* 前景內容（壓在最上層） */}
-        <div className="relative z-10 h-full foreground-content flex items-center">
-          <div className="container">
-            <div className="grid grid-cols-2 gap-8 items-center">
-              <img
-                src={React}
-                alt="Foreground"
-                className="rounded-lg w-full h-[410px] self-center"
-              />
-              <div className="text-content text-white flex flex-col justify-center justify-center space-y-6">
-                <h1 className="text-5xl font-black">{courseDetail.title}</h1>
-                <h2 className="text-xl font-normal">{courseDetail.subtitle}</h2>
-                {/* LOGO */}
-                <div className="logo-section flex items-center">
-                  <Avatar className="cursor-pointer p-1 ring-1 ring-gray-300 me-2 bg-white rounded-full">
-                    <AvatarImage className="scale-x-[-1] w-8 h-8" src={logo} />
-                  </Avatar>
-                  <p className="text-md font-base">程式喵</p>
-                </div>
-              </div>
+      <HeroComponent />
+      <div className="container py-20 grid grid-cols-2 gap-12">
+        <div className="wrapper">
+          <div className="text-section space-y-18">
+            <Tabs defaultValue="courseIntro" className="w-full mb-18 text-sm border-b border-slate-200">
+              <TabsList>
+                <TabsTrigger
+                  value="courseIntro"
+                  onClick={() => handleScroll(courseIntroRef)}
+                  className="w-[88px] font-medium px-4 py-2 leading-[20px] data-[state=active]:border-b-2 data-[state=active]:border-black"
+                >
+                  課程簡介
+                </TabsTrigger>
+                <TabsTrigger
+                  value="chapterContent"
+                  onClick={() => handleScroll(chapterContentRef)}
+                  className="w-[88px] font-medium px-4 py-2 leading-[20px] data-[state=active]:border-b-2 data-[state=active]:border-black"
+                >
+                  章節內容
+                </TabsTrigger>
+                <TabsTrigger
+                  value="FAQSection"
+                  onClick={() => handleScroll(faqRef)}
+                  className="w-[88px] font-medium px-4 py-2 leading-[20px] data-[state=active]:border-b-2 data-[state=active]:border-black"
+                >
+                  常見問答
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+            <div className="courseIntroSection scroll-mt-24" ref={courseIntroRef}>
+              <h2 className="mb-10 font-medium text-3xl">課程簡介</h2>
+              <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
+                repellendus molestiae maiores veniam corporis delectus similique
+                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
+                repellendus molestiae maiores veniam corporis delectus similique
+                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
+                repellendus molestiae maiores veniam corporis delectus similique
+                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
+                repellendus molestiae maiores veniam corporis delectus similique
+                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
+                repellendus molestiae maiores veniam corporis delectus similique
+                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
+                repellendus molestiae maiores veniam corporis delectus similique
+                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
+                repellendus molestiae maiores veniam corporis delectus similique
+                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
+                repellendus molestiae maiores veniam corporis delectus similique
+                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
+              </p>
+            </div>
+            <div className="chapterContentSection scroll-mt-24" ref={chapterContentRef}>
+              <h2 className="mb-10 font-medium text-3xl">章節內容</h2>
+              <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
+                repellendus molestiae maiores veniam corporis delectus similique
+                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
+                quae repellat tempore, minima aut! Modi obcaecati sunt et Lorem
+                ipsum dolor sit amet consectetur adipisicing elit. Eos eum
+                repellendus molestiae maiores veniam corporis delectus similique
+                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
+                repellendus molestiae maiores veniam corporis delectus similique
+                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
+                repellendus molestiae maiores veniam corporis delectus similique
+                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
+                repellendus molestiae maiores veniam corporis delectus similique
+                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
+                repellendus molestiae maiores veniam corporis delectus similique
+                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
+              </p>
+            </div>
+            <div className="FAQSection scroll-mt-24" ref={faqRef}>
+              <h2 className="mb-10 font-medium text-3xl">常見問答</h2>
+              <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
+                repellendus molestiae maiores veniam corporis delectus similique
+                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
+                quae repellat tempore, minima aut! Modi obcaecati sunt et Lorem
+                ipsum dolor sit amet consectetur adipisicing elit. Eos eum
+                repellendus molestiae maiores veniam corporis delectus similique
+                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
+                repellendus molestiae maiores veniam corporis delectus similique
+                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
+                repellendus molestiae maiores veniam corporis delectus similique
+                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
+                repellendus molestiae maiores veniam corporis delectus similique
+                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
+                repellendus molestiae maiores veniam corporis delectus similique
+                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
+                repellendus molestiae maiores veniam corporis delectus similique
+                fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
+              </p>
             </div>
           </div>
+        </div>
+        <div className="card-section">
+          <Card>dddd</Card>
         </div>
       </div>
     </div>

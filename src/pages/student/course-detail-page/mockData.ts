@@ -2,9 +2,9 @@ import { CourseDetailResponse } from './course-detail.service';
 
 export const mockCourseDetail: CourseDetailResponse = {
   id: 'course-001',
-  title: '前端入門課程',
+  title: 'React 前端開發實戰',
   subtitle: '從 HTML 到 React 一次搞懂',
-  description: '這是一堂從零開始的前端開發課程，包含 HTML、CSS、JavaScript 及 React 基礎。',
+  description: '從零開始學習React框架，\n掌握組件開發、狀態管理和前端路由',
   highlight: '專為初學者設計，包含實戰專案與作業。',
   duration: 480, // 單位：分鐘
   isPublished: false,
