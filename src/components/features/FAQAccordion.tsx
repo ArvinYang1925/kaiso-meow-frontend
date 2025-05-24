@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/accordion";
 
 /** FAQ 內容比較客制化排版，獨立製作一個元件 */
-export const FAQAccordion = () => {
+const FAQAccordion = () => {
   return (
     <Accordion type="single" collapsible className="w-full">
       <AccordionItem value="item-1">
@@ -38,3 +38,5 @@ export const FAQAccordion = () => {
     </Accordion>
   );
 };
+
+export default FAQAccordion;
