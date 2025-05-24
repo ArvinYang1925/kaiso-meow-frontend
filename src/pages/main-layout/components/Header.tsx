@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/authStore";
 import { useDialogStore } from "@/stores/commonDialogStore";
-import catschool_logotype from "@/assets/homepage/catschool_logotype.svg";
+import LOGO from "@/components/common/LOGO";
 
 export const Header = () => {
   const navigate = useNavigate(); // <-- 用來登出後跳轉
@@ -54,62 +54,54 @@ export const Header = () => {
     <nav className="flex justify-content-center z-50">
       <div className="shadow w-full fixed top-0 left-0 py-4 bg-white">
         <div className="container flex items-center justify-between">
-          {/* 左logo：程式喵學院 */}
-        <div className="text-xl font-bold text-orange-600">
+          <LOGO />
 
-          <Link to="/"><img
-                src={catschool_logotype}
-                alt="程式喵學院"
-                className="h-10 mr-4"
-              /></Link>
-        </div>
-
-        <div className="flex items-center">
-          {/* 課程列表 */}
-          <div className="space-x-6 me-4">
-            <Link
-              to={CLIENT_ROUTES.COURSE_LIST}
-              className="text-base text-gray-700 hover:text-orange-600"
-            >
-              課程列表
-            </Link>
-          </div>
-
-          {/* Avatar + DropdownMenu */}
-          {isAuthenticated == true ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <Avatar className="cursor-pointer">
-                  {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
-                  <AvatarFallback>{userName}</AvatarFallback>
-                </Avatar>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>
-                  <Link to={CLIENT_ROUTES.MY_LEARNING}>我的學習</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link to={CLIENT_ROUTES.PROFILE}>個人資料</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link to={CLIENT_ROUTES.ORDER_LIST}>購買紀錄</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout}>
-                  登出
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <>
-              <Button
-                className="me-2 bg-orange-600"
-                onClick={() => navigate(PUBLIC_ROUTES.AUTH)}
+          <div className="flex items-center">
+            {/* 課程列表 */}
+            <div className="space-x-6 me-4">
+              <Link
+                to={CLIENT_ROUTES.COURSE_LIST}
+                className="text-base text-gray-700 hover:text-orange-600"
               >
-                登入 / 註冊
-              </Button>
-            </>
-          )}
-        </div>
+                課程列表
+              </Link>
+            </div>
+
+            {/* Avatar + DropdownMenu */}
+            {isAuthenticated == true ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <Avatar className="cursor-pointer">
+                    {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
+                    <AvatarFallback>{userName}</AvatarFallback>
+                  </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem>
+                    <Link to={CLIENT_ROUTES.MY_LEARNING}>我的學習</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link to={CLIENT_ROUTES.PROFILE}>個人資料</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link to={CLIENT_ROUTES.ORDER_LIST}>購買紀錄</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    登出
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Button
+                  className="me-2 bg-orange-600"
+                  onClick={() => navigate(PUBLIC_ROUTES.AUTH)}
+                >
+                  登入 / 註冊
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </nav>

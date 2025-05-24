@@ -1,5 +1,5 @@
-import catschool_logotype from "@/assets/homepage/catschool_logotype.svg";
 import kaiso_logo from "@/assets/homepage/kaiso_logo.svg";
+import LOGO from "@/components/common/LOGO";
 
 export const Footer = () => {
   return (
@@ -10,11 +10,7 @@ export const Footer = () => {
           {/* 第一層 */}
           <div className="flex flex-row justify-between items-center h-[136px]">
             <div className="flex items-center">
-              <img
-                src={catschool_logotype}
-                alt="程式喵學院"
-                className="h-10 mr-4"
-              />
+              <LOGO />
               <a
                 href="/faq"
                 className="ml-12 text-slate-600 hover:text-orange-600 font-medium"
@@ -46,7 +42,7 @@ export const Footer = () => {
         <div className="flex flex-col md:hidden w-full">
           {/* 第一層 */}
           <div className="flex flex-col items-center justify-center mt-12 mb-8">
-            <img src={catschool_logotype} alt="程式喵學院" className="h-10" />
+            <LOGO />
             <div className="flex items-center space-x-12 mt-4">
               <a
                 href="/faq"
