@@ -1,6 +1,5 @@
 import React from "@/assets/homepage/react-course-card.jpg";
 import { useCourseDetailStore } from "../courseDetailStore";
-import MaskBackground from "@/assets/homepage/mask-background-blue.jpg";
 import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
 import logo from "@/assets/catschool_logo.svg";
 
@@ -12,7 +11,7 @@ const HeroComponent = () => {
       <div className="relative w-full h-[596px] overflow-hidden">
         {/* 背景圖模糊 */}
         <img
-          src={MaskBackground}
+          src={React}
           alt="Background"
           className="absolute inset-0 w-full object-cover blur-md scale-125"
         />

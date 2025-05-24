@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import logo from "@/assets/catschool_logo.svg";
+import { useNavigate } from "react-router-dom";
 
 interface CourseCardProps {
-  // id: string;
+  id: string;
   title: string;
   instructorName: string;
   coverUrl: string;
@@ -11,11 +12,14 @@ interface CourseCardProps {
 }
 
 export const CourseCard: React.FC<CourseCardProps> = ({
+  id,
   title,
   // instructorName,
   coverUrl,
   price,
 }) => {
+  const navigate = useNavigate();
+
   return (
     <div className="w-full rounded-lg shadow-md bg-white overflow-hidden flex flex-col">
       {/* 圖片區塊 */}
@@ -44,6 +48,9 @@ export const CourseCard: React.FC<CourseCardProps> = ({
           <Button
             variant="outline"
             className="bg-orange-500 text-white hover:bg-orange-600 hover:text-gray"
+            onClick={() => {
+              navigate(`/course/${id}`);
+            }}
           >
             查看詳情
           </Button>
