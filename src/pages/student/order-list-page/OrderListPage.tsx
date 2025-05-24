@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { TableCell, TableHead } from "@/components/ui/table";
 import { TableWithPagination } from "@/components/common/TableWithPagination";
-import { useOrderStore } from "./orderStore";
+import { useOrderListStore } from "./orderListStore";
 
-export default function OrderPage() {
-  const { orderList, pagination, fetchOrder } = useOrderStore();
+export default function OrderListPage() {
+  const { orderList, pagination, fetchOrder } = useOrderListStore();
 
   const tableColumn = [
     { label: "產品名稱", key: "title" },

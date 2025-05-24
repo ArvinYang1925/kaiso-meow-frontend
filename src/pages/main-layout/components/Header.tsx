@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/authStore";
 import { useDialogStore } from "@/stores/commonDialogStore";
+import catschool_logotype from "@/assets/homepage/catschool_logotype.svg";
 
 export const Header = () => {
   const navigate = useNavigate(); // <-- 用來登出後跳轉
@@ -51,17 +52,23 @@ export const Header = () => {
 
   return (
     <nav className="flex justify-content-center z-50">
-      <div className="shadow w-full fixed top-0 left-0  flex items-center justify-between py-4 px-48 bg-white">
-        {/* 左logo：程式喵學院 */}
+      <div className="shadow w-full fixed top-0 left-0 py-4 bg-white">
+        <div className="container flex items-center justify-between">
+          {/* 左logo：程式喵學院 */}
         <div className="text-xl font-bold text-orange-600">
-          <Link to="/">程式喵學院</Link>
+
+          <Link to="/"><img
+                src={catschool_logotype}
+                alt="程式喵學院"
+                className="h-10 mr-4"
+              /></Link>
         </div>
 
         <div className="flex items-center">
           {/* 課程列表 */}
           <div className="space-x-6 me-4">
             <Link
-              to={CLIENT_ROUTES.COURSES}
+              to={CLIENT_ROUTES.COURSE_LIST}
               className="text-base text-gray-700 hover:text-orange-600"
             >
               課程列表
@@ -79,16 +86,16 @@ export const Header = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem>
-                  <Link to={CLIENT_ROUTES.LEARNING}>我的學習</Link>
+                  <Link to={CLIENT_ROUTES.MY_LEARNING}>我的學習</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Link to={CLIENT_ROUTES.PROFILE}>個人資料</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <Link to={CLIENT_ROUTES.ORDER}>購買紀錄</Link>
+                  <Link to={CLIENT_ROUTES.ORDER_LIST}>購買紀錄</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout}>
-                  <Link to={PUBLIC_ROUTES.LOGOUT}>登出</Link>
+                  登出
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -102,6 +109,7 @@ export const Header = () => {
               </Button>
             </>
           )}
+        </div>
         </div>
       </div>
     </nav>

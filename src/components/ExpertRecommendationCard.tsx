@@ -11,7 +11,7 @@ const ExpertRecommendationCard: FC<ExpertRecommendationCardProps> = ({
   imageSrc,
 }) => {
   return (
-    <div className="bg-gray-100 rounded-lg overflow-hidden shadow-sm p-6 relative">
+    <div className="bg-gray-100 rounded-lg overflow-visible shadow-sm py-7 px-8 relative">
       <div className="grid grid-cols-[2fr_3fr] gap-4">
         <div className="w-full h-full rounded-full overflow-visible">
           <img
@@ -26,8 +26,8 @@ const ExpertRecommendationCard: FC<ExpertRecommendationCardProps> = ({
           <p className="text-sm text-gray-700 leading-relaxed">{description}</p>
         </div>
       </div>
-      <div className="absolute -bottom-2 right-4 text-3xl text-gray-200 overflow-visible">
-        <img src={vector} alt="vector" className="" />
+      <div className="absolute -bottom-3 right-4 text-3xl text-gray-200 overflow-visible">
+        <img src={vector} alt="vector" className="w-[24px] h-[20px]" />
       </div>
     </div>
   );

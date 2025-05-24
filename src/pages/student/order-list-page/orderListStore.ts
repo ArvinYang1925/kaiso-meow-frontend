@@ -2,23 +2,23 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { Order } from "./types";
 import { Pagination } from "@/services/types";
-import { fetchOrderList } from "./order.service";
+import { fetchOrderList } from "./order-list.service";
 import { DEFAULT_PAGINATION } from "@/lib/constants";
 
-interface OrderPageState {
+interface OrderListPageState {
   orderList: Order[];
   pagination: Pagination;
   isLoading: boolean;
   isShowDialog: boolean;
 }
 
-interface OrderPageAction {
+interface OrderListPageAction {
   fetchOrder: (page: number, pageSize: number) => void;
   setIsShowDialog: (isShowDialog: boolean) => void;
   resetStore: () => void;
 }
 
-export const useOrderStore = create<OrderPageState & OrderPageAction>()(
+export const useOrderListStore = create<OrderListPageState & OrderListPageAction>()(
   immer((set) => ({
     orderList: [],
     pagination: DEFAULT_PAGINATION,

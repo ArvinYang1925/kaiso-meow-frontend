@@ -84,8 +84,8 @@ export default function ProfilePage() {
 
   return (
     <>
-      <div className="max-w-[1280px] mx-auto">
-        <h1 className="text-start text-3xl mb-10 font-bold">個人資料</h1>
+      <div className="max-w-[1280px] mx-auto mb-16">
+        <h1 className="text-start text-3xl mt-36 font-bold">個人資料</h1>
         <Card className="w-full min-w-[600px] max-w-[1280px] border-none">
           <CardHeader></CardHeader>
           <CardContent className="space-y-4">

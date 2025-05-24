@@ -27,11 +27,17 @@ import PasswordPage from "@/pages/admin/instructor-info-page/PasswordPage";
 /** 前台變更密碼頁面 */
 import ResetPasswordPage from "@/pages/reset-password-page/ResetPasswordPage";
 /** 前台查看訂單頁面 */
-import OrderPage from "@/pages/student/order-page/OrderPage";
+import OrderListPage from "@/pages/student/order-list-page/OrderListPage";
 /** 後台學生列表頁面 */
 import StudentListPage from "@/pages/admin/student-list-page/StudentListPage";
 /** 後台訂單管理頁面 */
 import InstructorOrderListPage from "@/pages/admin/instructor-order-page/InstructorOrderListPage";
+/** 後台折扣碼列表頁面 */
+import CouponListPage from "@/pages/admin/coupon-list-page/CouponListPage";
+/** 前台課程詳細頁面 */
+import CourseDetailPage from "@/pages/student/course-detail-page/CourseDetailPage";
+/** 前台訂單詳細頁面 */
+import OrderPage from "@/pages/student/order-page/OrderPage";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -92,6 +98,24 @@ function App() {
             }
           />
           <Route
+            path={CLIENT_ROUTES.ORDER_LIST}
+            element={
+              <ProtectedRoute requiredRole={Role.STUDENT}>
+                <OrderListPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path={CLIENT_ROUTES.COURSE}
+            element={
+              <ProtectedRoute requiredRole={Role.STUDENT}>
+                <CourseDetailPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path={CLIENT_ROUTES.ORDER}
             element={
               <ProtectedRoute requiredRole={Role.STUDENT}>
@@ -121,6 +145,7 @@ function App() {
             path={ADMIN_ROUTES.INSTRUCTOR_ORDERS}
             element={<InstructorOrderListPage />}
           />
+          <Route path={ADMIN_ROUTES.COUPONS} element={<CouponListPage />} />
           {/* 後台 404 頁面 */}
           <Route path="*" element={<AdminNotFound />} />
         </Route>
