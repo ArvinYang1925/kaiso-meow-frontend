@@ -5,7 +5,7 @@ export type CourseItem = {
     title: string;
     instructorName: string;
     coverUrl: string;
-    price: string;
+    price: number;
 }
 
 export type CourseListResponse = {

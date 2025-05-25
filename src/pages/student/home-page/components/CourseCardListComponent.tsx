@@ -8,7 +8,7 @@ const CourseCardListComponent: React.FC = () => {
     <div className="course-card-list grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
       {courseCardList.map((course) => (
         <CourseCard
-          key={course.id}
+          id={course.id}
           title={course.title}
           instructorName={course.instructorName}
           coverUrl={course.coverUrl}

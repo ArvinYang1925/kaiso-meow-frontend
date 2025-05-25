@@ -56,6 +56,11 @@ export function TableWithPagination<T>({
           <Button
             variant="outline"
             size="sm"
+            className={
+              currentPage <= 1
+                ? "text-gray-400 border-gray-200 cursor-not-allowed"
+                : "text-gray-700 border-gray-300 hover:bg-gray-200"
+            }
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage <= 1}
           >
@@ -67,8 +72,13 @@ export function TableWithPagination<T>({
             return (
               <Button
                 key={page}
-                variant={page === currentPage ? "default" : "outline"}
+                variant={page === currentPage ? "outline" : "ghost"}
                 size="sm"
+                className={
+                  page === currentPage
+                    ? "text-gray-600 hover:bg-gray-100 hover:text-gray-500 cursor-not-allowed"
+                    : "text-gray-600 hover:bg-gray-300 hover:text-gray-700"
+                }
                 onClick={() => onPageChange(page)}
               >
                 {page}
@@ -81,6 +91,11 @@ export function TableWithPagination<T>({
             size="sm"
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage >= totalPages}
+            className={
+              currentPage >= totalPages
+                ? "text-gray-400 border-gray-200 cursor-not-allowed"
+                : "text-gray-700 border-gray-300 hover:bg-gray-200"
+            }
           >
             下一頁
           </Button>

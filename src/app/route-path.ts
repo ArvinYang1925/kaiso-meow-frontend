@@ -3,13 +3,17 @@ export const CLIENT_ROUTES = Object.freeze({
   /** 首頁 */
   HOME: "/",
   /** 課程列表 */
-  COURSES: "/courses",
+  COURSE_LIST: "/course-list",
+  /** 課程詳細頁面 */
+  COURSE: "/course/:courseId",
   /** 我的學習 */
-  LEARNING: "/learning",
+  MY_LEARNING: "/my-learning",
   /** 個人資料 */
   PROFILE: "/profile",
-  /** 購買紀錄 */
-  ORDER: "/order",
+  /** 購買紀錄列表 */
+  ORDER_LIST: "/order-list",
+  /** 訂單詳細資訊列表 */
+  ORDER: "/order/:courseId",
 });
 
 /** 後台 */

@@ -15,7 +15,7 @@ const InstructorIntroComponent: FC = () => {
           {instructorIntroData.map((item, idx) => (
             <div
               key={idx}
-              className="flex flex-col-reverse md:flex-row items-center justify-between gap-6 md:gap-8 w-full relative"
+              className="flex flex-col-reverse md:flex-row items-center justify-between gap-6 md:gap-8 w-full relative p-6"
             >
               {/* 裝飾圖片 */}
               <div className="absolute -left-[226px] -top-[91px] w-[452px] h-[452px] pointer-events-none hidden md:block z-0">
