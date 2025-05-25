@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { StudentRecommendation } from "@/pages/student/home-page/data/studentRecommendationData";
 import Star from "@/assets/homepage/star.svg";
-import FullStar from "@/assets/homepage/fullstar.svg";
+import FullStar from "@/assets/homepage/fullStar.svg";
 
 const StudentRecommendationCard: FC<StudentRecommendation> = ({
   title,
@@ -56,11 +56,17 @@ const StudentRecommendationCard: FC<StudentRecommendation> = ({
       <div className="block md:hidden">
         <div className="w-[253px] h-[398px] bg-white rounded-xl shadow border border-gray-200 flex flex-col p-4 mx-auto">
           <div className="w-full h-[147.33px] rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center mb-4">
-            <img src={courseImageSrc} alt={title} className="w-full h-full object-cover" />
+            <img
+              src={courseImageSrc}
+              alt={title}
+              className="w-full h-full object-cover"
+            />
           </div>
           <div className="flex-1 flex flex-col justify-between min-w-0 relative">
             <div>
-              <h3 className="text-lg leading-7 font-medium mb-3 truncate">{title}</h3>
+              <h3 className="text-lg leading-7 font-medium mb-3 truncate">
+                {title}
+              </h3>
               <div className="flex items-center gap-2 mb-3">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <span key={i}>
@@ -68,10 +74,16 @@ const StudentRecommendationCard: FC<StudentRecommendation> = ({
                   </span>
                 ))}
               </div>
-              <p className="text-state-700 mb-3 whitespace-pre-line text-sm leading-5 font-normal">{description}</p>
+              <p className="text-state-700 mb-3 whitespace-pre-line text-sm leading-5 font-normal">
+                {description}
+              </p>
             </div>
             <div className="flex items-center mt-3 justify-end">
-              <img src={studentAvatarSrc} alt={studentName} className="w-8 h-8 rounded-full object-cover" />
+              <img
+                src={studentAvatarSrc}
+                alt={studentName}
+                className="w-8 h-8 rounded-full object-cover"
+              />
               <span className="text-state-400 ml-2 text-xs">{studentName}</span>
             </div>
           </div>
