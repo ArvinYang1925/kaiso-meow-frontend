@@ -14,9 +14,9 @@ import { useDialogStore } from "@/stores/commonDialogStore";
 import axios from "axios";
 
 const CourseDetailPage = () => {
-  const courseIntroRef = useRef(null);
-  const chapterContentRef = useRef(null);
-  const faqRef = useRef(null);
+  const courseIntroRef = useRef<HTMLDivElement>(null);
+  const chapterContentRef = useRef<HTMLDivElement>(null);
+  const faqRef = useRef<HTMLDivElement>(null);
 
   const { courseId } = useParams();
   const { courseDetail } = useCourseDetailStore();
@@ -28,8 +28,10 @@ const CourseDetailPage = () => {
   if (!courseDetail) return <div>載入中...</div>;
 
   /** Tab 所定位的頁面位置 */
-  const handleScroll = (ref) => {
-    ref.current?.scrollIntoView({ behavior: "smooth" });
+  const handleScroll = (ref: React.RefObject<HTMLDivElement | null>) => {
+    if (ref?.current) {
+      ref.current?.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   /** 產生訂單預覽 */

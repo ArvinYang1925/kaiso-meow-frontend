@@ -54,7 +54,7 @@ export const HomePage: React.FC = () => {
           backgroundRepeat: "no-repeat, no-repeat",
         }}
       >
-        <div className="container pt-24 pb-32">
+        <div className="container py-32">
           <div className="text-center mb-12">
             <h2 className="text-2xl font-bold mb-2">專家推薦</h2>
             <div className="w-12 h-1 bg-black mx-auto"></div>

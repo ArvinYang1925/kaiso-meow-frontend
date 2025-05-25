@@ -27,9 +27,9 @@ export const FormValidateInput: React.FC<FormInputProps> = ({
   const isPasswordType = type === "password";
 
   return (
-    <div className={`space-y-1 ${className}`}>
+    <div className={`space-y-2 ${className}`}>
       {label && (
-        <label htmlFor={id} className="block text-sm font-medium text-gray-700">
+        <label htmlFor={id} className="block text-sm font-medium text-slate-900">
           {label}
         </label>
       )}
@@ -40,9 +40,9 @@ export const FormValidateInput: React.FC<FormInputProps> = ({
           min={0}
           type={isPasswordType && isShowPassword ? "text" : type}
           placeholder={placeholder}
-          className={`appearance-none block w-full px-3 pr-10 py-2 border ${
+          className={`appearance-none block w-full px-3 pr-10 h-[40px] border ${
             error ? "border-red-500" : "border-gray-300"
-          } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:border-slate-500 sm:text-sm`}
+          } placeholder-slate-400 text-gray-900 rounded-md focus:outline-none focus:border-slate-500 sm:text-sm`}
           {...register(id, rules)}
         />
 

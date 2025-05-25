@@ -51,10 +51,9 @@ export const useOrderStore = create<OrderPageState & OrderPageAction>()(
             });
             try {
                 const response = await createOrderPreview(requestData);
-                const { originalPrice, orderPrice, status, course, user, id } = response;
+                const { originalPrice, orderPrice, status, course, user } = response;
 
                 set((state) => {
-                    
                     state.orderData.orderPrice = orderPrice;
                     state.orderData.originalPrice = originalPrice;
                     state.orderData.status = status;

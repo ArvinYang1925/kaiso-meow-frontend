@@ -5,6 +5,7 @@ export type OrderStatus = null | 'pending' | 'paid';
 export type CourseInfo = {
     title: string;
     cover_url: string;
+    // price: number;
 }
 /** 學生資訊 */
 export type UserInfo = {
