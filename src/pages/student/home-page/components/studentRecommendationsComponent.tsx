@@ -29,7 +29,7 @@ const StudentRecommendationsComponent: FC = () => {
   };
 
   return (
-    <section className="relative overflow-hidden mb-32 bg-slate-50 py-[48px] md:py-[144px]">
+    <section className="relative overflow-hidden bg-slate-50 py-[48px] md:py-[144px]">
       {/* Swiper 外層 RWD 寬度 */}
       <div className="w-full max-w-[375px] mx-auto md:w-[1280px] md:max-w-[1280px] relative">
         {/* 左箭頭 */}
