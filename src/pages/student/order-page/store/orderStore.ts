@@ -54,7 +54,6 @@ export const useOrderStore = create<OrderPageState & OrderPageAction>()(
                 const { originalPrice, orderPrice, status, course, user, id } = response;
 
                 set((state) => {
-                    
                     state.orderData.orderPrice = orderPrice;
                     state.orderData.originalPrice = originalPrice;
                     state.orderData.status = status;
