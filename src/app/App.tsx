@@ -79,6 +79,11 @@ function App() {
           path={PUBLIC_ROUTES.RESET_PASSWORD}
           element={<ResetPasswordPage />}
         />
+        <Route
+          path={PUBLIC_ROUTES.RESET_PASSWORD}
+          element={<ResetPasswordPage />}
+        />
+        <Route path={PUBLIC_ROUTES.COURSE} element={<CourseDetailPage />} />
 
         {/* 根據角色導向 */}
         <Route
@@ -102,15 +107,6 @@ function App() {
             element={
               <ProtectedRoute requiredRole={Role.STUDENT}>
                 <OrderListPage />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path={CLIENT_ROUTES.COURSE}
-            element={
-              <ProtectedRoute requiredRole={Role.STUDENT}>
-                <CourseDetailPage />
               </ProtectedRoute>
             }
           />
