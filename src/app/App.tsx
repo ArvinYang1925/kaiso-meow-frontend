@@ -73,7 +73,10 @@ function App() {
     <div className="App">
       <Routes>
         {/* 公共頁面 (不需要權限也可進入的頁面) */}
-        <Route path={CLIENT_ROUTES.HOME} element={<StudentLayout />} />
+        <Route path={CLIENT_ROUTES.HOME} element={<StudentLayout />}>
+          <Route path={PUBLIC_ROUTES.COURSE} element={<CourseDetailPage />} />
+        </Route>
+
         <Route path={PUBLIC_ROUTES.AUTH} element={<AuthPage />} />
         <Route
           path={PUBLIC_ROUTES.RESET_PASSWORD}
@@ -83,7 +86,6 @@ function App() {
           path={PUBLIC_ROUTES.RESET_PASSWORD}
           element={<ResetPasswordPage />}
         />
-        <Route path={PUBLIC_ROUTES.COURSE} element={<CourseDetailPage />} />
 
         {/* 根據角色導向 */}
         <Route
