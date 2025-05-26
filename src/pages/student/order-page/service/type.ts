@@ -92,7 +92,7 @@ export type OrderPreviewRequestModel = {
 /** 驗證折扣碼 - 請求資料 */
 export type ApplyCouponRequestModel = {
     couponCode: string;
-    originalPrice: string;
+    originalPrice: number;
 }
 
 /** 建立訂單 - 請求資料 */

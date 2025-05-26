@@ -33,7 +33,7 @@ interface OrderPageAction {
 }
 
 export const useOrderStore = create<OrderPageState & OrderPageAction>()(
-    immer((set) => ({
+    immer((set, get) => ({
         userData: initUserData,
         orderData: initOrderData,
         couponData: initCouponData,
@@ -46,6 +46,7 @@ export const useOrderStore = create<OrderPageState & OrderPageAction>()(
             });
         },
         createOrderPreview: async (requestData) => {
+            get().resetStore();
             set((state) => {
                 state.isLoading = true;
             });

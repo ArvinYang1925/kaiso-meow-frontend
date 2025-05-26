@@ -10,11 +10,14 @@ import { Badge } from "@/components/ui/badge";
 import React from "@/assets/homepage/react-course-card.jpg";
 import { CouponInfo } from "./service/type";
 import { OrderStatus, CouponType } from "@/lib/enum";
+import { useDialogStore } from "@/stores/commonDialogStore";
+import { handleErrorMessageDialog } from "@/lib/helper";
 
 type FormData = {
   name: string;
   phoneNumber: string;
   email: string;
+  couponId: string;
 };
 
 const OrderPage = () => {
@@ -22,10 +25,20 @@ const OrderPage = () => {
     register,
     // handleSubmit,
     // watch,
+    getValues,
     formState: { errors },
   } = useForm<FormData>();
 
-  const { userData, orderData, courseData, couponData } = useOrderStore();
+  const {
+    userData,
+    orderData,
+    courseData,
+    couponData,
+    applyCoupon,
+    resetStore,
+  } = useOrderStore();
+
+  const { showCommonDialog } = useDialogStore();
 
   const handleOrderStatus = (status: string) => {
     if (status == "") {
@@ -55,9 +68,9 @@ const OrderPage = () => {
   const handleCouponTypeAndValueData = (couponData: CouponInfo) => {
     const { type, value } = couponData;
     if (type == "fix") {
-      return `折扣${value}元`;
+      return `(折扣${value}元)`;
     } else if (type == "percentage") {
-      return `折扣${value}%`;
+      return `(折扣${parseInt(value)}%)`;
     } else {
       return "";
     }
@@ -65,7 +78,8 @@ const OrderPage = () => {
 
   /** 計算 percentage 折扣 */
   const calculateDiscount = (originalPrice: number, percent: string) => {
-    return originalPrice * (Number(percent) / 100);
+    const discountPrice = originalPrice * (Number(percent) / 100);
+    return Math.round(discountPrice).toLocaleString();
   };
 
   /** 計算折扣結果 */
@@ -75,11 +89,29 @@ const OrderPage = () => {
   ) => {
     const { type, value } = couponData;
     if (type == CouponType.FIXED) {
-      return `-NT$${value}`;
+      return `-NT$${Number(value).toLocaleString()}`;
     } else if (type == CouponType.PERCENTAGE) {
-      return `-NT${calculateDiscount(originalPrice, value)}%`;
+      return `-NT${calculateDiscount(originalPrice, value)}`;
     } else {
       return "";
+    }
+  };
+
+  const handleApplyCoupon = async () => {
+    const couponCode = getValues("couponId");
+
+    if (couponCode && orderData.originalPrice) {
+      try {
+        const reqData = { couponCode, originalPrice: orderData.originalPrice };
+        applyCoupon(reqData);
+      } catch (error) {
+        handleErrorMessageDialog(error);
+      }
+    } else {
+      showCommonDialog({
+        title: "請確認資料格式",
+        description: "折扣碼或課程價格不得為空",
+      });
     }
   };
 
@@ -152,8 +184,13 @@ const OrderPage = () => {
                   register={register}
                 />
                 <Button
+                  type="button"
                   size={"sm"}
                   className="bg-orange-600 hover:bg-orange-500 px-4 py-5"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleApplyCoupon();
+                  }}
                 >
                   套用
                 </Button>
@@ -184,22 +221,26 @@ const OrderPage = () => {
                     {courseData.title}
                   </h2>
                   <h2 className="font-bold text-xl">
-                    <span>NT${orderData.originalPrice?.toLocaleString() ?? ''}</span>
+                    <span>
+                      NT${orderData.originalPrice?.toLocaleString() ?? ""}
+                    </span>
                   </h2>
                 </div>
               </div>
             </CardContent>
-            <CardContent className="border-b">
-              <div className="order-summary py-6 space-y-3">
+            <CardContent className="border-b py-6 text-sm">
+              <div className="order-summary space-y-3">
                 <p className="flex justify-between">
                   <span className="text-slate-500">小計</span>
-                  <span>{`NT$${orderData.originalPrice?.toLocaleString()  ?? ''}`}</span>
+                  <span>{`NT$${
+                    orderData.originalPrice?.toLocaleString() ?? ""
+                  }`}</span>
                 </p>
                 <p className="flex justify-between">
-                  <span>{`${
+                  <span className="text-slate-500">{`${
                     couponData.couponName
                   } ${handleCouponTypeAndValueData(couponData)}`}</span>
-                  <span>
+                  <span className="text-red-600">
                     {orderData.originalPrice
                       ? handleCalculateCouponResult(
                           orderData.originalPrice,
@@ -209,6 +250,17 @@ const OrderPage = () => {
                   </span>
                 </p>
               </div>
+            </CardContent>
+            <CardContent>
+              <p className="flex justify-between font-bold text-base py-6">
+                <span>總計</span>
+                <span>{`NT$${
+                  orderData.orderPrice?.toLocaleString() ?? ""
+                }`}</span>
+              </p>
+              <Button className="bg-orange-600 hover:bg-orange-500 w-full h-[44px]">
+                確定送出
+              </Button>
             </CardContent>
           </Card>
         </div>
