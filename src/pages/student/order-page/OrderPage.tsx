@@ -118,15 +118,18 @@ const OrderPage = () => {
   console.log("userData in order", userData);
 
   return (
-    <div className="mt-16 bg-slate-100 py-12">
-      <div className="container flex gap-12">
-        <div className="order-section rounded-lg bg-white basis-1/2 pt-4 pb-12 px-6 border border-slate-200">
-          <div className="return-btn flex mb-6">
-            <ChevronLeft className="me-2" />
-            <span>返回</span>
+    <div className="bg-slate-100 px-4 pt-6 pb-4 md:px-80 md:py-12">
+      <div className="px-4 flex flex-col-reverse md:flex-row gap-6 md:gap-12">
+        {/* 左邊的表單區塊 */}
+        <div className="order-section rounded-lg bg-white w-full md:basis-1/2 pt-4 pb-12 px-0 md:px-6 border border-slate-200">
+          <div className="return-btn mb-6 hidden md:block">
+            <div className="wrap flex">
+              <ChevronLeft className="me-2" />
+              <span>返回</span>
+            </div>
           </div>
 
-          <form id="orderForm" className="px-9 space-y-8 ">
+          <form id="orderForm" className="px-4 md:px-9 space-y-8 ">
             <div className="user-info flex space-x-2">
               <div className="img-wrap w-[48px] h-[48px] rounded-full overflow-hidden">
                 <img className="w-full object-cover" src={catAvatar} alt="" />
@@ -201,8 +204,9 @@ const OrderPage = () => {
             </div>
           </form>
         </div>
-        <div className="order-card-section basis-1/2">
-          <Card className="rounded-lg p-6">
+        {/* 右邊邊的明細列表 */}
+        <div className="order-card-section w-full md:basis-1/2">
+          <Card className="rounded-lg p-4 md:p-6">
             <CardHeader className="border-b">
               <div className="header flex justify-between items-center">
                 <img
@@ -214,7 +218,7 @@ const OrderPage = () => {
               </div>
             </CardHeader>
             <CardContent className="border-b">
-              <div className="grid grid-cols-2 gap-4 py-6">
+              <div className="grid grid-cols-2 gap-4 p-4 md:py-6">
                 <img src={React} className="rounded-xl" alt="react" />
                 <div className="text">
                   <h2 className="font-medium text-2xl mb-4">
@@ -258,12 +262,22 @@ const OrderPage = () => {
                   orderData.orderPrice?.toLocaleString() ?? ""
                 }`}</span>
               </p>
-              <Button className="bg-orange-600 hover:bg-orange-500 w-full h-[44px]">
+              <Button className="bg-orange-600 hover:bg-orange-500 w-full h-[44px] hidden md:block">
                 確定送出
               </Button>
             </CardContent>
           </Card>
         </div>
+      </div>
+      <div className="fixed bottom-0 left-0 w-full bg-white shadow-md p-4 md:hidden z-50 grid grid-cols-2">
+        <div className="text-base flex items-center">
+          <p className="order-price font-bold">
+            {`NT$${orderData.orderPrice?.toLocaleString()}`}
+          </p>
+        </div>
+        <Button className="bg-orange-600 hover:bg-orange-500 w-full h-[44px] md:hidden">
+          確定送出
+        </Button>
       </div>
     </div>
   );
