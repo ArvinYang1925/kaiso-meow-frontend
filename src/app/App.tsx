@@ -38,6 +38,12 @@ import CouponListPage from "@/pages/admin/coupon-list-page/CouponListPage";
 import CourseDetailPage from "@/pages/student/course-detail-page/CourseDetailPage";
 /** 前台訂單詳細頁面 */
 import OrderPage from "@/pages/student/order-page/OrderPage";
+/** 後台課程管理頁面 */
+import InstructorCoursePage from "@/pages/admin/instructor-course-page/instructorCoursePage";
+import InstructorCourseCreatePage from "@/pages/admin/instructor-course-page/instructorCourseCreatePage";
+import InstructorCourseDetailPage from "@/pages/admin/instructor-course-page/instructorCourseDetailPage";
+import InstructorCourseChaptersPage from "@/pages/admin/instructor-course-page/instructorCourseChaptersPage";
+import InstructorCourseDeactivatePage from "@/pages/admin/instructor-course-page/instructorCourseDeactivatePage";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -146,6 +152,27 @@ function App() {
             element={<InstructorOrderListPage />}
           />
           <Route path={ADMIN_ROUTES.COUPONS} element={<CouponListPage />} />
+          {/* 課程相關路由 */}
+          <Route
+            path={ADMIN_ROUTES.COURSES}
+            element={<InstructorCoursePage />}
+          />
+          <Route
+            path={ADMIN_ROUTES.CREATE_COURSE}
+            element={<InstructorCourseCreatePage />}
+          />
+          <Route
+            path={ADMIN_ROUTES.COURSE_INFO}
+            element={<InstructorCourseDetailPage />}
+          />
+          <Route
+            path={ADMIN_ROUTES.CHAPTER_MANAGEMENT}
+            element={<InstructorCourseChaptersPage />}
+          />
+          <Route
+            path={ADMIN_ROUTES.DEACTIVATE_COURSE}
+            element={<InstructorCourseDeactivatePage />}
+          />
           {/* 後台 404 頁面 */}
           <Route path="*" element={<AdminNotFound />} />
         </Route>
