@@ -38,6 +38,8 @@ import CouponListPage from "@/pages/admin/coupon-list-page/CouponListPage";
 import CourseDetailPage from "@/pages/student/course-detail-page/CourseDetailPage";
 /** 前台訂單詳細頁面 */
 import OrderPage from "@/pages/student/order-page/OrderPage";
+/** 前台結帳 callback 頁面 */
+import CheckoutPage from "@/pages/student/checkout-page/CheckoutPage";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -118,6 +120,15 @@ function App() {
             element={
               <ProtectedRoute requiredRole={Role.STUDENT}>
                 <OrderPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path={CLIENT_ROUTES.CHECKOUT}
+            element={
+              <ProtectedRoute requiredRole={Role.STUDENT}>
+                <CheckoutPage />
               </ProtectedRoute>
             }
           />

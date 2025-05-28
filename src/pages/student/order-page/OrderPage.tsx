@@ -5,13 +5,18 @@ import { ChevronLeft } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useOrderStore } from "./store/orderStore";
 import catAvatar from "@/assets/cat-avatar.jpg";
-import catschool_logotype from "@/assets/homepage/catschool_logotype.svg";
-import { Badge } from "@/components/ui/badge";
 import React from "@/assets/homepage/react-course-card.jpg";
-import { CouponInfo } from "./service/type";
-import { OrderStatus, CouponType } from "@/lib/enum";
 import { useDialogStore } from "@/stores/commonDialogStore";
 import { handleErrorMessageDialog } from "@/lib/helper";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import { OrderStatusBadge } from "./components/OrderStatusBadge";
+import LOGO from "@/components/common/LOGO";
+import {
+  handleCouponTypeLabel,
+  formatCouponDiscount,
+  formatPrice,
+} from "@/lib/priceHelper";
 
 type FormData = {
   name: string;
@@ -21,6 +26,8 @@ type FormData = {
 };
 
 const OrderPage = () => {
+  const navigate = useNavigate();
+
   const {
     register,
     // handleSubmit,
@@ -35,68 +42,14 @@ const OrderPage = () => {
     courseData,
     couponData,
     applyCoupon,
+    createOrder,
     resetStore,
   } = useOrderStore();
 
   const { showCommonDialog } = useDialogStore();
+  const { courseId } = useParams();
 
-  const handleOrderStatus = (status: string) => {
-    if (status == "") {
-      return <></>;
-    } else if (status == OrderStatus.PENDING) {
-      return (
-        <Badge className="bg-gray-100 text-gray-600 border border-gray-300 font-medium text-sm rounded-lg">
-          待付款
-        </Badge>
-      );
-    } else if (status == OrderStatus.PAID) {
-      return (
-        <Badge className="bg-lime-100 text-lime-600 border border-lime-300 font-medium text-sm rounded-lg">
-          付款完成
-        </Badge>
-      );
-    } else if (status == OrderStatus.FAILED) {
-      return (
-        <Badge className="bg-rose-100 text-rose-700 border border-rose-300 font-medium text-sm rounded-lg">
-          付款失敗
-        </Badge>
-      );
-    }
-  };
-
-  /** 處理訂單折扣種類 */
-  const handleCouponTypeAndValueData = (couponData: CouponInfo) => {
-    const { type, value } = couponData;
-    if (type == "fix") {
-      return `(折扣${value}元)`;
-    } else if (type == "percentage") {
-      return `(折扣${parseInt(value)}%)`;
-    } else {
-      return "";
-    }
-  };
-
-  /** 計算 percentage 折扣 */
-  const calculateDiscount = (originalPrice: number, percent: string) => {
-    const discountPrice = originalPrice * (Number(percent) / 100);
-    return Math.round(discountPrice).toLocaleString();
-  };
-
-  /** 計算折扣結果 */
-  const handleCalculateCouponResult = (
-    originalPrice: number,
-    couponData: CouponInfo
-  ) => {
-    const { type, value } = couponData;
-    if (type == CouponType.FIXED) {
-      return `-NT$${Number(value).toLocaleString()}`;
-    } else if (type == CouponType.PERCENTAGE) {
-      return `-NT${calculateDiscount(originalPrice, value)}`;
-    } else {
-      return "";
-    }
-  };
-
+  /** 套用折扣碼 */
   const handleApplyCoupon = async () => {
     const couponCode = getValues("couponId");
 
@@ -104,6 +57,10 @@ const OrderPage = () => {
       try {
         const reqData = { couponCode, originalPrice: orderData.originalPrice };
         applyCoupon(reqData);
+        showCommonDialog({
+          title: "success",
+          description: "折扣碼套用成功",
+        });
       } catch (error) {
         handleErrorMessageDialog(error);
       }
@@ -115,7 +72,52 @@ const OrderPage = () => {
     }
   };
 
-  console.log("userData in order", userData);
+  /** 送出訂單、跳轉綠界 */
+  const handleSubmitOrder = async () => {
+    const couponId = couponData?.id ?? "";
+    const course_id = courseId ?? "";
+    const reqData = { couponId, courseId: course_id };
+
+    if (!courseId) {
+      showCommonDialog({
+        title: "請確認資料格式",
+        description: "課程 id 或折扣碼 id 不得為空",
+      });
+      return;
+    }
+
+    try {
+      /** response 為綠界的 form HTML 字串 */
+      const response = await createOrder(reqData);
+      const wrapper = document.createElement("div");
+      wrapper.innerHTML = response;
+      const form = wrapper.querySelector("form");
+
+      if (form) {
+        document.body.appendChild(form);
+        form.submit();
+      } else {
+        showCommonDialog({
+          title: "發生錯誤",
+          description: "未取得綠界付款表單，請稍後再試。",
+        });
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.data) {
+        const { status, message } = error.response.data;
+        showCommonDialog({
+          title: status,
+          description: message,
+        });
+      } else {
+        // 非 Axios 的錯誤處理
+        showCommonDialog({
+          title: "Error",
+          description: "Something went wrong. Please try again later.",
+        });
+      }
+    }
+  };
 
   return (
     <div className="bg-slate-100 px-4 pt-6 pb-4 md:px-80 md:py-12">
@@ -123,10 +125,13 @@ const OrderPage = () => {
         {/* 左邊的表單區塊 */}
         <div className="order-section rounded-lg bg-white w-full md:basis-1/2 pt-4 pb-12 px-0 md:px-6 border border-slate-200">
           <div className="return-btn mb-6 hidden md:block">
-            <div className="wrap flex">
+            <a
+              className="wrap flex w-[80px] cursor-pointer items-center"
+              onClick={() => navigate(-1)}
+            >
               <ChevronLeft className="me-2" />
               <span>返回</span>
-            </div>
+            </a>
           </div>
 
           <form id="orderForm" className="px-4 md:px-9 space-y-8 ">
@@ -204,30 +209,25 @@ const OrderPage = () => {
             </div>
           </form>
         </div>
+
         {/* 右邊邊的明細列表 */}
         <div className="order-card-section w-full md:basis-1/2">
           <Card className="rounded-lg p-4 md:p-6">
             <CardHeader className="border-b">
               <div className="header flex justify-between items-center">
-                <img
-                  src={catschool_logotype}
-                  alt="程式喵學院"
-                  className="h-8 mr-4"
-                />
-                {orderData?.status ? handleOrderStatus(orderData.status) : null}
+                <LOGO className="h-8 mr-4" />
+                <OrderStatusBadge status={orderData.status} />
               </div>
             </CardHeader>
             <CardContent className="border-b">
               <div className="grid grid-cols-2 gap-4 p-4 md:py-6">
                 <img src={React} className="rounded-xl" alt="react" />
                 <div className="text">
-                  <h2 className="font-medium text-2xl mb-4">
+                  <h2 className="font-medium text-xl md:text-2xl mb-4">
                     {courseData.title}
                   </h2>
-                  <h2 className="font-bold text-xl">
-                    <span>
-                      NT${orderData.originalPrice?.toLocaleString() ?? ""}
-                    </span>
+                  <h2 className="font-bold text-small md:text-xl">
+                    <span>{formatPrice(orderData.originalPrice)}</span>
                   </h2>
                 </div>
               </div>
@@ -236,21 +236,14 @@ const OrderPage = () => {
               <div className="order-summary space-y-3">
                 <p className="flex justify-between">
                   <span className="text-slate-500">小計</span>
-                  <span>{`NT$${
-                    orderData.originalPrice?.toLocaleString() ?? ""
-                  }`}</span>
+                  <span>{formatPrice(orderData.originalPrice)}</span>
                 </p>
                 <p className="flex justify-between">
-                  <span className="text-slate-500">{`${
-                    couponData.couponName
-                  } ${handleCouponTypeAndValueData(couponData)}`}</span>
+                  <span className="text-slate-500">
+                    {handleCouponTypeLabel(couponData)}
+                  </span>
                   <span className="text-red-600">
-                    {orderData.originalPrice
-                      ? handleCalculateCouponResult(
-                          orderData.originalPrice,
-                          couponData
-                        )
-                      : ""}
+                    {formatCouponDiscount(orderData.originalPrice, couponData)}
                   </span>
                 </p>
               </div>
@@ -258,11 +251,12 @@ const OrderPage = () => {
             <CardContent>
               <p className="flex justify-between font-bold text-base py-6">
                 <span>總計</span>
-                <span>{`NT$${
-                  orderData.orderPrice?.toLocaleString() ?? ""
-                }`}</span>
+                <span>{formatPrice(orderData.orderPrice)}</span>
               </p>
-              <Button className="bg-orange-600 hover:bg-orange-500 w-full h-[44px] hidden md:block">
+              <Button
+                className="bg-orange-600 hover:bg-orange-500 w-full h-[44px] hidden md:block"
+                onClick={handleSubmitOrder}
+              >
                 確定送出
               </Button>
             </CardContent>
@@ -272,10 +266,13 @@ const OrderPage = () => {
       <div className="fixed bottom-0 left-0 w-full bg-white shadow-md p-4 md:hidden z-50 grid grid-cols-2">
         <div className="text-base flex items-center">
           <p className="order-price font-bold">
-            {`NT$${orderData.orderPrice?.toLocaleString()}`}
+            <span>{formatPrice(orderData.orderPrice)}</span>
           </p>
         </div>
-        <Button className="bg-orange-600 hover:bg-orange-500 w-full h-[44px] md:hidden">
+        <Button
+          className="bg-orange-600 hover:bg-orange-500 w-full h-[44px] md:hidden"
+          onClick={handleSubmitOrder}
+        >
           確定送出
         </Button>
       </div>

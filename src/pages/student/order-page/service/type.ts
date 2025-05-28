@@ -1,5 +1,5 @@
 /** 訂單狀態類型 */
-export type OrderStatus = null | 'pending' | 'paid';
+export type OrderStatus = null | 'pending' | 'paid' | 'failed';
 
 /** 課程資訊 */
 export type CourseInfo = {
