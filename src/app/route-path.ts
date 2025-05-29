@@ -4,8 +4,6 @@ export const CLIENT_ROUTES = Object.freeze({
   HOME: "/",
   /** 課程列表 */
   COURSE_LIST: "/course-list",
-  /** 課程詳細頁面 */
-  COURSE: "/course/:courseId",
   /** 我的學習 */
   MY_LEARNING: "/my-learning",
   /** 個人資料 */
@@ -14,6 +12,8 @@ export const CLIENT_ROUTES = Object.freeze({
   ORDER_LIST: "/order-list",
   /** 訂單詳細資訊列表 */
   ORDER: "/order/:courseId",
+  /** 訂單結帳 callback 頁面 */
+  CHECKOUT: "/checkout/:orderId",
 });
 
 /** 後台 */
@@ -50,4 +50,6 @@ export const PUBLIC_ROUTES = Object.freeze({
   LOGOUT: "/logout",
   RESET_PASSWORD: "/reset-password/:token",
   PERMISSION_DENIED: "/permission-denied",
+  /** 課程詳細頁面 */
+  COURSE: "/course/:courseId",
 });

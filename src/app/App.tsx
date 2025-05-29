@@ -44,6 +44,8 @@ import InstructorCourseCreatePage from "@/pages/admin/instructor-course-page/ins
 import InstructorCourseDetailPage from "@/pages/admin/instructor-course-page/instructorCourseDetailPage";
 import InstructorCourseChaptersPage from "@/pages/admin/instructor-course-page/instructorCourseChaptersPage";
 import InstructorCourseDeactivatePage from "@/pages/admin/instructor-course-page/instructorCourseDeactivatePage";
+/** 前台結帳 callback 頁面 */
+import CheckoutPage from "@/pages/student/checkout-page/CheckoutPage";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -79,8 +81,15 @@ function App() {
     <div className="App">
       <Routes>
         {/* 公共頁面 (不需要權限也可進入的頁面) */}
-        <Route path={CLIENT_ROUTES.HOME} element={<StudentLayout />} />
+        <Route path={CLIENT_ROUTES.HOME} element={<StudentLayout />}>
+          <Route path={PUBLIC_ROUTES.COURSE} element={<CourseDetailPage />} />
+        </Route>
+
         <Route path={PUBLIC_ROUTES.AUTH} element={<AuthPage />} />
+        <Route
+          path={PUBLIC_ROUTES.RESET_PASSWORD}
+          element={<ResetPasswordPage />}
+        />
         <Route
           path={PUBLIC_ROUTES.RESET_PASSWORD}
           element={<ResetPasswordPage />}
@@ -113,19 +122,19 @@ function App() {
           />
 
           <Route
-            path={CLIENT_ROUTES.COURSE}
+            path={CLIENT_ROUTES.ORDER}
             element={
               <ProtectedRoute requiredRole={Role.STUDENT}>
-                <CourseDetailPage />
+                <OrderPage />
               </ProtectedRoute>
             }
           />
 
           <Route
-            path={CLIENT_ROUTES.ORDER}
+            path={CLIENT_ROUTES.CHECKOUT}
             element={
               <ProtectedRoute requiredRole={Role.STUDENT}>
-                <OrderPage />
+                <CheckoutPage />
               </ProtectedRoute>
             }
           />
