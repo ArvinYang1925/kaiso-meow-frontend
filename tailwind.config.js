@@ -8,7 +8,10 @@ module.exports = {
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: {
+        DEFAULT: "1rem", // 手機
+        md: "2rem", // md 以上才用 2rem
+      },
       screens: {
         sm: "375px",
         md: "768px",

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { immer } from 'zustand/middleware/immer';
 import { CouponInfo, UserInfo, CourseInfo, OrderStatus, CreateOrderRequestModel, ApplyCouponRequestModel } from "../service/type";
-import { applyCoupon, createOrder, createOrderPreview, fetchOrder } from "../service/order.service";
+import { applyCoupon, checkoutEcpay, createOrder, createOrderPreview, fetchOrder } from "../service/order.service";
 import { initCouponData, initCourseData, initOrderData, initUserData } from "../constants/initialData";
 
 /** 僅在頁面上有用到的訂單資料 */
@@ -29,11 +29,11 @@ interface OrderPageAction {
     createOrderPreview: (requestData: CreateOrderRequestModel) => void;
     applyCoupon: (requestData: ApplyCouponRequestModel) => void;
     fetchOrder: (orderId: string) => void;
-    createOrder: (requestData: CreateOrderRequestModel) => void;
+    createOrder: (requestData: CreateOrderRequestModel) => Promise<string>;
 }
 
 export const useOrderStore = create<OrderPageState & OrderPageAction>()(
-    immer((set) => ({
+    immer((set, get) => ({
         userData: initUserData,
         orderData: initOrderData,
         couponData: initCouponData,
@@ -46,6 +46,7 @@ export const useOrderStore = create<OrderPageState & OrderPageAction>()(
             });
         },
         createOrderPreview: async (requestData) => {
+            get().resetStore();
             set((state) => {
                 state.isLoading = true;
             });
@@ -122,17 +123,12 @@ export const useOrderStore = create<OrderPageState & OrderPageAction>()(
                 state.isLoading = true;
             });
             try {
-                const response = await createOrder(requestData);
-                const { user, course, coupon, id, originalPrice, orderPrice, status } = response;
-                set((state) => {
-                    state.userData = user;
-                    state.courseData = course;
-                    state.couponData = coupon;
-                    state.orderData.id = id;
-                    state.orderData.originalPrice = originalPrice;
-                    state.orderData.orderPrice = orderPrice;
-                    state.orderData.status = status;
-                });
+                const newOrderResData = await createOrder(requestData);
+                const { id: orderId } = newOrderResData.data;
+
+                //拿到 id 打綠界
+                const ecpayFormString = await checkoutEcpay(orderId)
+                return ecpayFormString;
             } catch (error) {
                 console.error('Failed to createOrder', error);
                 throw error;

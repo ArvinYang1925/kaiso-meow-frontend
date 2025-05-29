@@ -52,9 +52,9 @@ export const Header = () => {
 
   return (
     <nav className="flex justify-content-center z-50">
-      <div className="shadow w-full fixed top-0 left-0 py-4 bg-white">
-        <div className="container flex items-center justify-between">
-          <LOGO />
+      <div className="shadow w-full fixed top-0 left-0 px-4 py-2 md:px-80 md:py-4 bg-white">
+        <div className="px-4 flex items-center justify-between">
+          <LOGO className="w-[154px] mr-4" />
 
           <div className="flex items-center">
             {/* 課程列表 */}

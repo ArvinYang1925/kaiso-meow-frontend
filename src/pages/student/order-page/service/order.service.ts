@@ -8,6 +8,7 @@ import {
     CreateOrderResponseModel,
     FetchOrderResponseModel,
 } from './type';
+import { ApiResponse } from '@/services/types';
 
 /** 訂單預覽 */
 export const createOrderPreview = async (data: OrderPreviewRequestModel): Promise<OrderPreviewResponseModel> => {
@@ -28,7 +29,13 @@ export const fetchOrder = async (orderId: string): Promise<FetchOrderResponseMod
 };
 
 /** 建立訂單 */
-export const createOrder = async (data: CreateOrderRequestModel): Promise<CreateOrderResponseModel> => {
+export const createOrder = async (data: CreateOrderRequestModel): Promise<ApiResponse<CreateOrderResponseModel>> => {
     const response = await axios.post('/api/v1/orders', data);
-    return response.data.data;
+    return response.data;
+}
+
+/** 跳轉綠界 */
+export const checkoutEcpay = async (orderId: string): Promise<string> => {
+    const response = await axios.post(`/api/v1/orders/${orderId}/checkout`);
+    return response.data;
 }

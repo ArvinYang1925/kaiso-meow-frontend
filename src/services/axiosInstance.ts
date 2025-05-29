@@ -39,7 +39,7 @@ axiosInstance.interceptors.response.use(
       localStorage.removeItem('userInfo');
       
       // 重新導向到登入頁面
-      window.location.href = '/auth';
+      // window.location.href = '/auth';
     }
     return Promise.reject(error);
   }

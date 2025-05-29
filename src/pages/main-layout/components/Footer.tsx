@@ -10,7 +10,7 @@ export const Footer = () => {
           {/* 第一層 */}
           <div className="flex flex-row justify-between items-center h-[136px]">
             <div className="flex items-center">
-              <LOGO />
+              <LOGO className="w-[154px] mr-4" />
               <a
                 href="/faq"
                 className="ml-12 text-slate-600 hover:text-orange-600 font-medium"
@@ -42,7 +42,7 @@ export const Footer = () => {
         <div className="flex flex-col md:hidden w-full">
           {/* 第一層 */}
           <div className="flex flex-col items-center justify-center mt-12 mb-8">
-            <LOGO />
+            <LOGO className="w-[154px] mr-4" />
             <div className="flex items-center space-x-12 mt-4">
               <a
                 href="/faq"
