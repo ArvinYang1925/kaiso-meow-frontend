@@ -46,6 +46,7 @@ import InstructorCourseChaptersPage from "@/pages/admin/instructor-course-page/i
 import InstructorCourseDeactivatePage from "@/pages/admin/instructor-course-page/instructorCourseDeactivatePage";
 /** 前台結帳 callback 頁面 */
 import CheckoutPage from "@/pages/student/checkout-page/CheckoutPage";
+import CoursePlayerPage from "@/pages/student/course-player-page/CoursePlayerPage";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -93,6 +94,15 @@ function App() {
         <Route
           path={PUBLIC_ROUTES.RESET_PASSWORD}
           element={<ResetPasswordPage />}
+        />
+
+        <Route
+          path={CLIENT_ROUTES.COURSE_PLAYER}
+          element={
+            <CoursePlayerPage
+              src={"https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"}
+            />
+          }
         />
 
         {/* 根據角色導向 */}
