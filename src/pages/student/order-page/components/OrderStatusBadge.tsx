@@ -2,13 +2,13 @@ import { Badge } from "@/components/ui/badge";
 import { OrderStatus } from "@/lib/enum";
 
 type OrderStatusBadgeProps = {
-  status: string | null;
+  status: OrderStatus | null;
 };
 
 export const OrderStatusBadge = ({ status }: OrderStatusBadgeProps) => {
   if (!status) return null;
 
-  const badgeMap: Record<string, JSX.Element> = {
+  const badgeMap: Record<OrderStatus, JSX.Element> = {
     [OrderStatus.PENDING]: (
       <Badge className="bg-gray-100 text-gray-600 border border-gray-300 font-medium text-sm rounded-lg">
         待付款
