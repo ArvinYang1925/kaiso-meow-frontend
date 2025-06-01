@@ -6,11 +6,17 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useBreadcrumbStore } from "@/stores/breadcrumbStore";
+import { ReactSortable } from "react-sortablejs";
 
-interface Chapter {
+type Chapter = {
   id: string;
   title: string;
-  description: string;
+  content: string;
+  order: number;
+}
+
+type ChapterOrder = {
+  id: string;
   order: number;
 }
 
@@ -20,6 +26,9 @@ export default function CoursesChaptersPage() {
   const { setBreadcrumbs } = useBreadcrumbStore();
   const [isLoading, setIsLoading] = useState(false);
   const [chapters, setChapters] = useState<Chapter[]>([]);
+
+  console.log("chapters new data", chapters);
+
   const [isAdding, setIsAdding] = useState(false);
   const [newChapter, setNewChapter] = useState({
     title: "",
@@ -31,21 +40,39 @@ export default function CoursesChaptersPage() {
     const mockCourseInfo = {
       title: "React 入門課程",
     };
-    
+
     // 設置麵包屑
     setBreadcrumbs(location.pathname, {
       courseId,
-      courseName: mockCourseInfo.title
+      courseName: mockCourseInfo.title,
     });
 
     // 模擬章節數據
     setChapters([
       {
-        id: "1",
+        id: "section_1",
         title: "第一章：課程介紹",
-        description: "本章節介紹課程的基本內容",
+        content: "本章節介紹課程的基本內容",
         order: 1,
-      }
+      },
+      {
+        id: "section_2",
+        title: "第二章：課程介紹",
+        content: "本章節介紹課程的基本內容",
+        order: 2,
+      },
+      {
+        id: "section_3",
+        title: "第三章：課程介紹",
+        content: "本章節介紹課程的基本內容",
+        order: 3,
+      },
+      {
+        id: "section_4",
+        title: "第四章：課程介紹",
+        content: "本章節介紹課程的基本內容",
+        order: 4,
+      },
     ]);
   }, [courseId, location.pathname, setBreadcrumbs]);
 
@@ -66,7 +93,7 @@ export default function CoursesChaptersPage() {
 
   const handleDeleteChapter = async (chapterId: string) => {
     if (!window.confirm("確定要刪除這個章節嗎？")) return;
-    
+
     setIsLoading(true);
     try {
       // TODO: 實現刪除章節邏輯
@@ -76,6 +103,10 @@ export default function CoursesChaptersPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const sendUpdateOrderRequest = (data: ChapterOrder[]) => {
+    console.log("發了api, 資料：", data);
   };
 
   return (
@@ -97,7 +128,9 @@ export default function CoursesChaptersPage() {
                 <Input
                   id="chapterTitle"
                   value={newChapter.title}
-                  onChange={(e) => setNewChapter({ ...newChapter, title: e.target.value })}
+                  onChange={(e) =>
+                    setNewChapter({ ...newChapter, title: e.target.value })
+                  }
                   placeholder="請輸入章節標題"
                   required
                 />
@@ -107,7 +140,12 @@ export default function CoursesChaptersPage() {
                 <Input
                   id="chapterDescription"
                   value={newChapter.description}
-                  onChange={(e) => setNewChapter({ ...newChapter, description: e.target.value })}
+                  onChange={(e) =>
+                    setNewChapter({
+                      ...newChapter,
+                      description: e.target.value,
+                    })
+                  }
                   placeholder="請輸入章節描述"
                   required
                 />
@@ -128,31 +166,60 @@ export default function CoursesChaptersPage() {
           )}
 
           <div className="space-y-4">
-            {chapters.map((chapter) => (
-              <div key={chapter.id} className="border rounded-lg p-4">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="font-medium">{chapter.title}</h3>
-                    <p className="text-sm text-gray-500">{chapter.description}</p>
+            <ReactSortable
+              tag="ul"
+              list={chapters}
+              setList={(newList) => setChapters(newList)} // 單純更新畫面
+              animation={1000}
+              ghostClass="ghost" // 拖曳時顯示的佔位樣式
+              chosenClass="chosen" // 被拖曳中的項目
+              onEnd={(evt) => {
+                const updated = [...chapters];
+                const [moved] = updated.splice(evt.oldIndex!, 1);
+                updated.splice(evt.newIndex!, 0, moved);
+
+                setChapters(updated);
+
+                // 自訂 payload
+                const payload = updated.map((item, index) => ({
+                  id: item.id,
+                  order: index + 1,
+                }));
+
+                sendUpdateOrderRequest(payload);
+              }}
+            >
+              {chapters.map((chapter) => (
+                <li
+                  key={chapter.id}
+                  className="border rounded-lg p-4 bg-white mb-4 shadow"
+                >
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="font-medium">{chapter.title}</h3>
+                      {/* <p className="text-sm text-gray-500">
+                        {chapter.content}
+                      </p> */}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="icon">
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => handleDeleteChapter(chapter.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="icon">
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => handleDeleteChapter(chapter.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
+                </li>
+              ))}
+            </ReactSortable>
           </div>
         </div>
       </Card>
     </div>
   );
-} 
+}

@@ -116,3 +116,14 @@
     @apply bg-background text-foreground;
   }
 }
+
+.ghost {
+  background-color: #f0f9ff;
+  border: 2px dashed #38bdf8;
+}
+
+/* chosen 是目前拖曳的項目 */
+.chosen {
+  opacity: 0.5;
+  transform: scale(1.02);
+}
