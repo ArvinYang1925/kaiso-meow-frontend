@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { OrderStatus } from "@/lib/enum";
 
 type OrderStatusBadgeProps = {
-  status: OrderStatus | null;
+  status: null | "pending" | "paid" | "failed";
 };
 
 export const OrderStatusBadge = ({ status }: OrderStatusBadgeProps) => {
