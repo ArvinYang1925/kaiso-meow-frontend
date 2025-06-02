@@ -8,7 +8,7 @@ type OrderStatusBadgeProps = {
 export const OrderStatusBadge = ({ status }: OrderStatusBadgeProps) => {
   if (!status) return null;
 
-  const badgeMap: Record<OrderStatus, JSX.Element> = {
+  const badgeMap = {
     [OrderStatus.PENDING]: (
       <Badge className="bg-gray-100 text-gray-600 border border-gray-300 font-medium text-sm rounded-lg">
         待付款
@@ -26,5 +26,5 @@ export const OrderStatusBadge = ({ status }: OrderStatusBadgeProps) => {
     ),
   };
 
-  return badgeMap[status] || null;
+  return badgeMap[status] ?? null;
 };
