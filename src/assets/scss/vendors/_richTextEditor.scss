@@ -1,0 +1,157 @@
+.rich-text-editor {
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #d1d5db;
+  background: #fff;
+}
+
+.rich-text-container {
+  min-height: 500px;
+  height: auto;
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.ql-container {
+  min-height: 500px !important;
+  height: auto !important;
+  max-height: none !important;
+  border: none;
+  background: #fff;
+  border-radius: 0 0 16px 16px;
+}
+
+.ql-editor {
+  position: relative;
+  min-height: var(--editor-min-height, 200px) !important;
+  max-height: var(--editor-max-height, 400px) !important;
+  height: auto !important;
+  overflow-y: auto !important;
+  font-size: 1rem;
+  line-height: 1.7;
+  padding: 18px 20px;
+  background: #fff;
+}
+
+.ql-toolbar {
+  border: none;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  padding: 10px 16px;
+  min-height: 48px;
+  position: relative !important;
+}
+
+.ql-toolbar.ql-snow .ql-formats {
+  margin-right: 4px;
+}
+
+.ql-toolbar button,
+.ql-toolbar select {
+  margin-right: 4px;
+  border-radius: 6px;
+  transition: background 0.15s;
+  &:hover {
+    background: #f3f4f6;
+  }
+}
+
+.ql-toolbar .ql-active {
+  background: #e0e7ff;
+  color: #2563eb;
+}
+
+// 美化滾動條
+.ql-editor::-webkit-scrollbar {
+  width: 8px;
+}
+.ql-editor::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 4px;
+}
+
+// 連結顏色
+.ql-editor a {
+  color: #ea580c;
+  text-decoration: underline;
+  &:hover {
+    color: #c2410c;
+  }
+}
+
+/* Bubble Theme */
+#root .ql-bubble .ql-editor {
+  border: 1px solid #ccc;
+  border-radius: 0.5em;
+}
+
+// 調整顏色選擇器的位置
+.ql-color-picker,
+.ql-background {
+  .ql-picker-options {
+    right: 0 !important;
+    left: auto !important;
+  }
+}
+
+// 調整連結輸入框位置
+.ql-tooltip {
+  white-space: nowrap;
+  position: absolute;
+  border: 1px solid #e5e7eb;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  left: 20px !important;
+  margin-top: 10px;
+
+  &.ql-hidden {
+    left: -10000px !important;
+    top: -10000px !important;
+    visibility: hidden !important;
+    display: none !important;
+  }
+
+  &[data-mode="link"]::before {
+    content: "Enter link: ";
+  }
+
+  input[type="text"] {
+    width: 200px;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    padding: 4px 8px;
+    margin: 0 4px;
+    display: inline-block;
+    vertical-align: middle;
+
+    &:focus {
+      outline: none;
+      border-color: black;
+    }
+  }
+
+  a.ql-action,
+  a.ql-remove {
+    cursor: pointer;
+    color: #ea580c;
+    margin: 0 4px;
+    text-decoration: none;
+    font-size: 14px;
+    display: inline-block;
+    vertical-align: middle;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &.ql-flip {
+    transform: translateY(-100%);
+  }
+}
