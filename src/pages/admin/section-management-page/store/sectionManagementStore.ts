@@ -22,34 +22,34 @@ interface SectionManagementAction {
 export const useSectionManagementStore = create<SectionManagementState & SectionManagementAction>()(
     immer((set) => ({
         sectionList: [
-            {
-                id: "section_1",
-                title: "第一章：課程介紹",
-                videoUrl: 'http: test-video.com',
-                content: "本章節介紹課程的基本內容",
-                isPublished: false
-            },
-            {
-                id: "section_2",
-                title: "第二章：課程介紹",
-                videoUrl: 'http: test-video.com',
-                content: "本章節介紹課程的基本內容",
-                isPublished: false
-            },
-            {
-                id: "section_3",
-                title: "第三章：課程介紹",
-                videoUrl: 'http: test-video.com',
-                content: "本章節介紹課程的基本內容",
-                isPublished: false
-            },
-            {
-                id: "section_4",
-                title: "第四章：課程介紹",
-                videoUrl: 'http: test-video.com',
-                content: "本章節介紹課程的基本內容",
-                isPublished: false
-            },
+            // {
+            //     id: "section_1",
+            //     title: "第一章：課程介紹",
+            //     videoUrl: 'http: test-video.com',
+            //     content: "本章節介紹課程的基本內容",
+            //     isPublished: false
+            // },
+            // {
+            //     id: "section_2",
+            //     title: "第二章：課程介紹",
+            //     videoUrl: 'http: test-video.com',
+            //     content: "本章節介紹課程的基本內容",
+            //     isPublished: false
+            // },
+            // {
+            //     id: "section_3",
+            //     title: "第三章：課程介紹",
+            //     videoUrl: 'http: test-video.com',
+            //     content: "本章節介紹課程的基本內容",
+            //     isPublished: false
+            // },
+            // {
+            //     id: "section_4",
+            //     title: "第四章：課程介紹",
+            //     videoUrl: 'http: test-video.com',
+            //     content: "本章節介紹課程的基本內容",
+            //     isPublished: false
+            // },
         ],
         section: {
             id: '',

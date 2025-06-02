@@ -47,6 +47,8 @@ import InstructorCourseDeactivatePage from "@/pages/admin/instructor-course-page
 /** 前台結帳 callback 頁面 */
 import CheckoutPage from "@/pages/student/checkout-page/CheckoutPage";
 import CoursePlayerPage from "@/pages/student/course-player-page/CoursePlayerPage";
+/** 後台章節管理頁面 */
+import SectionManagementPage from "@/pages/admin/section-management-page/SectionManagementPage";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -191,6 +193,10 @@ function App() {
           <Route
             path={ADMIN_ROUTES.DEACTIVATE_COURSE}
             element={<InstructorCourseDeactivatePage />}
+          />
+          <Route
+            path={ADMIN_ROUTES.SECTION_MANAGEMENT}
+            element={<SectionManagementPage />}
           />
           {/* 後台 404 頁面 */}
           <Route path="*" element={<AdminNotFound />} />

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,10 +13,23 @@ export default function SectionManagementPage() {
   const location = useLocation();
   const { setBreadcrumbs } = useBreadcrumbStore();
 
-  const { isLoading, section, sectionList, setSectionList } = useSectionManagementStore();
+  const { isLoading, section, sectionList, fetchSectionList, setSectionList } =
+    useSectionManagementStore();
+  //courseId a1315061-ab3a-4e4d-b553-13cc125ecb10
 
+  // 做 shallow copy，避免傳入 immer readonly proxy
+  const mutableItems = useMemo(
+    () => structuredClone(sectionList),
+    [sectionList]
+  );
 
   useEffect(() => {
+    //取章節資料
+    console.log("courseId", courseId);
+    if (courseId) {
+      fetchSectionList(courseId);
+    }
+
     // TODO: 從 API 獲取章節列表和課程資訊
     const mockCourseInfo = {
       title: "React 入門課程",
@@ -27,7 +40,6 @@ export default function SectionManagementPage() {
       courseId,
       courseName: mockCourseInfo.title,
     });
-
   }, [courseId, location.pathname, setBreadcrumbs]);
 
   const sendUpdateOrderRequest = (data: SectionOrder[]) => {
@@ -38,7 +50,7 @@ export default function SectionManagementPage() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">章節管理</h1>
-        <Button onClick={() => (true)}>
+        <Button onClick={() => true}>
           <Plus className="w-4 h-4 mr-2" />
           新增章節
         </Button>
@@ -46,17 +58,17 @@ export default function SectionManagementPage() {
 
       <Card className="p-6">
         <div className="space-y-6">
-        
           <div className="space-y-4">
             <ReactSortable
               tag="ul"
-              list={sectionList}
-              setList={(newList) => setSectionList(newList)} // 單純更新畫面
+              list={mutableItems}
+              // setList={(newList) => setSectionList(newList)} // 單純更新畫面
+              setList={() => {}} // 不讓 Sortable 自動改 state，統一交給 onEnd 處理
               animation={1000}
               ghostClass="ghost" // 拖曳時顯示的佔位樣式
               chosenClass="chosen" // 被拖曳中的項目
               onEnd={(evt) => {
-                const updated = [...sectionList];
+                const updated = [...mutableItems];
                 const [moved] = updated.splice(evt.oldIndex!, 1);
                 updated.splice(evt.newIndex!, 0, moved);
 
@@ -71,7 +83,7 @@ export default function SectionManagementPage() {
                 sendUpdateOrderRequest(payload);
               }}
             >
-              {sectionList.map((section) => (
+              {mutableItems.map((section) => (
                 <li
                   key={section.id}
                   className="border rounded-lg p-4 bg-white mb-4 shadow"
