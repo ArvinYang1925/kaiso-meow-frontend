@@ -2,7 +2,7 @@ import { useEffect, useMemo } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, CloudUpload } from "lucide-react";
 import { useBreadcrumbStore } from "@/stores/breadcrumbStore";
 import { ReactSortable } from "react-sortablejs";
 import { useSectionManagementStore } from "./store/sectionManagementStore";
@@ -10,17 +10,22 @@ import { Section, SectionOrder } from "./services/type";
 import CreateSectionModal from "./components/CreateSectionModal";
 import UpdateSectionModal from "./components/UpdateSectionModal";
 import InitialPageComponent from "./components/InitialPageComponent";
+import clsx from "clsx";
+import { handleErrorMessageDialog } from "@/lib/helper";
+import { useDialogStore } from "@/stores/commonDialogStore";
 
 export default function SectionManagementPage() {
   const { courseId } = useParams();
   const location = useLocation();
   const { setBreadcrumbs } = useBreadcrumbStore();
+  const { showCommonDialog } = useDialogStore();
 
   const {
     isLoading,
     sectionList,
     fetchSectionList,
     deleteSection,
+    updateSectionPublishedStatus,
     setSectionList,
     setCurrentSection,
     setIsShowCreateSectionModal,
@@ -33,6 +38,42 @@ export default function SectionManagementPage() {
     () => structuredClone(sectionList),
     [sectionList]
   );
+
+  const handleUpdatePublishedStatus = async (
+    sectionId: string,
+    isPublished: boolean
+  ) => {
+    if (!courseId) return;
+    const reqData = {
+      isPublished: !isPublished,
+    };
+
+    try {
+      await updateSectionPublishedStatus(sectionId, reqData);
+      fetchSectionList(courseId);
+      showCommonDialog({
+        title: "章節狀態",
+        description: reqData.isPublished ? "已發布" : "已取消發布",
+      });
+    } catch (error) {
+      handleErrorMessageDialog(error);
+    }
+  };
+
+  const handleDeleteSection = async (sectionId: string) => {
+    if (!courseId) return;
+    try {
+      await deleteSection(sectionId);
+      showCommonDialog({
+        title: "章節狀態",
+        description: "章節已刪除",
+      });
+      fetchSectionList(courseId);
+    } catch (error) {
+      console.log("error", error);
+      handleErrorMessageDialog(error);
+    }
+  };
 
   const sendUpdateOrderRequest = (data: SectionOrder[]) => {
     console.log("發了api, 資料：", data);
@@ -108,11 +149,25 @@ export default function SectionManagementPage() {
                       className="border rounded-lg p-4 bg-white mb-4 shadow"
                     >
                       <div className="flex justify-between items-center">
-                        <div>
+                        <div className="flex items-center">
+                          <Button
+                            variant="ghost"
+                            size="default"
+                            onClick={() =>
+                              handleUpdatePublishedStatus(
+                                section.id,
+                                section.isPublished
+                              )
+                            }
+                          >
+                            <CloudUpload
+                              className={clsx("h-6 w-6", {
+                                "text-indigo-500": section.isPublished,
+                                "text-slate-400": !section.isPublished,
+                              })}
+                            />
+                          </Button>
                           <h3 className="font-medium">{section.title}</h3>
-                          {/* <p className="text-sm text-gray-500">
-                        {chapter.content}
-                      </p> */}
                         </div>
                         <div className="flex gap-2">
                           <Button
@@ -125,7 +180,7 @@ export default function SectionManagementPage() {
                           <Button
                             variant="outline"
                             size="icon"
-                            onClick={() => deleteSection(section.id)}
+                            onClick={() => handleDeleteSection(section.id)}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
