@@ -1,31 +1,32 @@
 import Modal from "@/components/common/Modal";
 import { useSectionManagementStore } from "../store/sectionManagementStore";
-import ReactQuill from "react-quill";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { useParams } from "react-router-dom";
 import { handleErrorMessageDialog } from "@/lib/helper";
+import ReactQuill from "react-quill";
+import { Button } from "@/components/ui/button";
 import { useDialogStore } from "@/stores/commonDialogStore";
 
-const CreateSectionModal = () => {
+const UpdateSectionModal = () => {
   const {
-    isShowCreateSectionModal,
-    setIsShowCreateSectionModal,
-    createSection,
+    section,
+    isShowUpdateSectionModal,
+    setIsShowUpdateSectionModal,
+    updateSection,
     fetchSectionList,
   } = useSectionManagementStore();
 
   const { showCommonDialog } = useDialogStore();
 
   const { courseId } = useParams();
-  const [sectionTitle, setSectionTitle] = useState("");
-  const [sectionContent, setSectionContent] = useState("");
+  const [sectionTitle, setSectionTitle] = useState(section.title);
+  const [sectionContent, setSectionContent] = useState(section.content);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     if (!courseId) return;
     if (sectionTitle == "") {
       showCommonDialog({
-        title: "新增失敗",
+        title: "更新失敗",
         description: "章節標題不得為空",
       });
       return;
@@ -38,12 +39,12 @@ const CreateSectionModal = () => {
     };
 
     try {
-      await createSection(courseId, reqData);
+      await updateSection(section.id, reqData);
       showCommonDialog({
-        title: "新增成功",
-        description: "",
-      });
-      setIsShowCreateSectionModal(false);
+        title: '更新成功',
+        description: ''
+      })
+      setIsShowUpdateSectionModal(false);
       fetchSectionList(courseId);
     } catch (error) {
       handleErrorMessageDialog(error);
@@ -51,17 +52,17 @@ const CreateSectionModal = () => {
   };
 
   useEffect(() => {
-    if (isShowCreateSectionModal) {
-      setSectionTitle("");
-      setSectionContent("");
+    if (isShowUpdateSectionModal) {
+      setSectionTitle(section.title);
+      setSectionContent(section.content);
     }
-  }, [isShowCreateSectionModal]);
+  }, [isShowUpdateSectionModal]);
 
   return (
     <Modal
-      isOpen={isShowCreateSectionModal}
-      onClose={() => setIsShowCreateSectionModal(false)}
-      title="新增章節"
+      isOpen={isShowUpdateSectionModal}
+      onClose={() => setIsShowUpdateSectionModal(false)}
+      title="編輯章節"
       size="xl" // md | lg | full
     >
       <form className="px-2 py-1" onSubmit={handleSubmit}>
@@ -93,7 +94,7 @@ const CreateSectionModal = () => {
           <Button
             type="button"
             className="me-2"
-            onClick={() => setIsShowCreateSectionModal(false)}
+            onClick={() => setIsShowUpdateSectionModal(false)}
           >
             關閉
           </Button>
@@ -102,7 +103,7 @@ const CreateSectionModal = () => {
             className="bg-indigo-600 hover:bg-indigo-500"
             disabled={sectionTitle == ""}
           >
-            新增章節
+            編輯章節
           </Button>
         </div>
       </form>
@@ -110,4 +111,4 @@ const CreateSectionModal = () => {
   );
 };
 
-export default CreateSectionModal;
+export default UpdateSectionModal;
