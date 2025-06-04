@@ -34,18 +34,17 @@ const handleApiError = <T>(
 /**
  * 取得講師個人資料
  */
-export const fetchInstructorProfile =
-  async (): Promise<InstructorProfileResponseModel> => {
-    try {
-      const response = await axios.get("/api/v1/instructor/me");
-      return response.data;
-    } catch (error: unknown) {
-      return handleApiError<{ data: InstructorProfileModel }>(
-        error,
-        "無法取得講師資料，請稍後再試。"
-      );
-    }
-  };
+export const fetchInstructorProfile = async (): Promise<InstructorProfileResponseModel> => {
+  try {
+    const response = await axios.get("/api/v1/instructor/me");
+    return response.data;
+  } catch (error: unknown) {
+    return handleApiError<InstructorProfileModel>(
+      error,
+      "無法取得講師資料，請稍後再試。"
+    );
+  }
+};
 
 /**
  * 更新講師個人資料
@@ -57,9 +56,31 @@ export const updateInstructorProfile = async (
     const response = await axios.put("/api/v1/instructor/me", data);
     return response.data;
   } catch (error: unknown) {
-    return handleApiError<{ data: InstructorProfileModel }>(
+    return handleApiError<InstructorProfileModel>(
       error,
       "無法更新講師資料，請稍後再試。"
+    );
+  }
+};
+
+/**
+ * 上傳講師頭像
+ */
+export const uploadInstructorAvatar = async (file: File): Promise<ApiResponseModel<{ avatar: string }>> => {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const response = await axios.post("/api/v1/instructor/upload/avatar", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error: unknown) {
+    return handleApiError<{ avatar: string }>(
+      error,
+      "無法上傳頭像，請稍後再試。"
     );
   }
 };

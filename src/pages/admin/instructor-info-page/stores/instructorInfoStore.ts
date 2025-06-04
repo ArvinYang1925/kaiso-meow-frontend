@@ -4,6 +4,7 @@ import { toast } from "@/hooks/use-toast";
 import {
   fetchInstructorProfile,
   updateInstructorProfile,
+  uploadInstructorAvatar,
 } from "../services/instructor.service";
 import {
   InstructorProfileModel,
@@ -24,8 +25,11 @@ interface InstructorProfileAction {
   updateFormData: (fields: Partial<InstructorProfileModel>) => void;
   setAvatarPreview: (url: string) => void;
   setSelectedFile: (file: File | null) => void;
-  resetForm: () => void;
+  resetForm: () => Promise<void>;
+  uploadAvatar: (file: File) => Promise<void>;
 }
+
+const DEFAULT_AVATAR = "https://storage.googleapis.com/kaiso-meow-backend.firebasestorage.app/images/instructor_avatar/instructor-59f470c5-cae0-4053-a168-3de51253e470-1748317241181.png";
 
 export const useInstructorProfileStore = create<
   InstructorProfileState & InstructorProfileAction
@@ -34,10 +38,11 @@ export const useInstructorProfileStore = create<
     profile: {
       name: "",
       email: "",
-      profileUrl: "https://i.meee.com.tw/zQufAr7.png",
+      profileUrl: DEFAULT_AVATAR,
+      introduction: "",
     },
     isLoading: false,
-    avatarPreview: "https://i.meee.com.tw/zQufAr7.png",
+    avatarPreview: DEFAULT_AVATAR,
     selectedFile: null,
 
     fetchProfile: async () => {
@@ -47,14 +52,17 @@ export const useInstructorProfileStore = create<
       try {
         const response = await fetchInstructorProfile();
         if (response.status === "success" && response.data) {
-          const { name, email } = response.data.data;
+          // 修正：直接從 response.data 取得資料，因為後端 getMe API 直接回傳 data
+          const { id, name, email, profileUrl, introduction } = response.data;
           set((state) => {
             state.profile = {
+              id: id || "",
               name: name || "",
               email: email || "",
-              profileUrl: "https://i.meee.com.tw/zQufAr7.png",
+              profileUrl: profileUrl || DEFAULT_AVATAR,
+              introduction: introduction || "",
             };
-            state.avatarPreview = "https://i.meee.com.tw/zQufAr7.png";
+            state.avatarPreview = profileUrl || DEFAULT_AVATAR;
             state.isLoading = false;
           });
         } else {
@@ -81,15 +89,18 @@ export const useInstructorProfileStore = create<
       try {
         const response = await updateInstructorProfile(data);
         if (response.status === "success" && response.data) {
-          const { name, email, profileUrl } = response.data.data;
+          // 修正：後端 updateMe API 回傳的格式與 getMe 不同
+          // updateMe 回傳: { name, email, avatar }
+          // getMe 回傳: { id, name, email, profileUrl }
+          const { name, email, avatar } = response.data as { name: string; email: string; avatar: string };
           set((state) => {
             state.profile = {
+              ...state.profile,
               name: name || "",
               email: email || "",
-              profileUrl: profileUrl || "https://i.meee.com.tw/zQufAr7.png",
+              profileUrl: avatar || DEFAULT_AVATAR,
             };
-            state.avatarPreview =
-              profileUrl || "https://i.meee.com.tw/zQufAr7.png";
+            state.avatarPreview = avatar || DEFAULT_AVATAR;
           });
           toast({
             title: "儲存成功",
@@ -139,12 +150,38 @@ export const useInstructorProfileStore = create<
       });
     },
 
-    resetForm: () => {
-      const { profile } = get();
+    resetForm: async () => {
+      await get().fetchProfile();
       set((state) => {
-        state.avatarPreview = profile.profileUrl || "/src/assets/teacher.png";
         state.selectedFile = null;
       });
+    },
+
+    uploadAvatar: async (file) => {
+      if (file.size > 2 * 1024 * 1024) {
+        toast({
+          variant: "destructive",
+          title: "圖片大小超過 2MB 的限制，請重新上傳圖片"
+        });
+        return;
+      }
+      set((state) => { state.isLoading = true; });
+      try {
+        const response = await uploadInstructorAvatar(file);
+        if (response.status === "success" && response.data && response.data.avatar) {
+          set((state) => {
+            state.avatarPreview = response.data!.avatar;
+            if (state.profile) state.profile.profileUrl = response.data!.avatar;
+          });
+          toast({ title: "上傳成功", description: "講師大頭貼已更新。" });
+        } else {
+          toast({ variant: "destructive", title: "上傳失敗", description: response.message || "無法上傳大頭貼，請稍後再試。" });
+        }
+      } catch {
+        toast({ variant: "destructive", title: "上傳失敗", description: "無法上傳大頭貼，請稍後再試。" });
+      } finally {
+        set((state) => { state.isLoading = false; });
+      }
     },
   }))
 );

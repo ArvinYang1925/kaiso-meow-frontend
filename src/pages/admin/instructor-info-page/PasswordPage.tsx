@@ -130,7 +130,7 @@ export default function PasswordPage() {
               >
                 取消
               </Button>
-              <Button type="submit" disabled={isLoading}>
+              <Button type="submit" disabled={isLoading} className="bg-orange-600 hover:bg-orange-700 text-white">
                 {isLoading ? "更新中..." : "更新密碼"}
               </Button>
             </div>
