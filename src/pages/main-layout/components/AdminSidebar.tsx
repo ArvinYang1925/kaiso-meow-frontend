@@ -9,10 +9,10 @@ import {
   Tag,
   LogOut,
   UserCog,
-  EllipsisVertical,
   LucideIcon,
+  EllipsisVertical,
 } from "lucide-react";
-import { cn } from "@/lib/utils"; // shadcn 預設 lib，負責 class 合併
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/authStore";
 import {
@@ -23,6 +23,8 @@ import {
   DropdownMenuPortal,
 } from "@radix-ui/react-dropdown-menu";
 import { useNavigate, useParams } from "react-router-dom";
+import AvatarUser03 from "@/assets/homepage/avatar_user03.jpg";
+import CatschooLogo from "@/assets/catschool_logo.jpg";
 
 export default function AdminSidebar() {
   const [courseOpen, setCourseOpen] = useState(false);
@@ -51,8 +53,13 @@ export default function AdminSidebar() {
   return (
     <div className="h-screen w-64 bg-white border-r shadow-sm flex flex-col fixed left-0 top-0 z-50 overflow-y-auto md:overflow-y-hidden overflow-x-hidden">
       {/* Logo */}
-      <div className="p-6 font-bold text-xl border-b hidden md:block">
-        程式喵學院
+      <div className="p-4 border-b flex items-center gap-2">
+        <img
+          src={CatschooLogo}
+          alt="Catschoo Logo"
+          className="w-[42px] h-[32px] object-contain"
+        />
+        <span className="font-bold text-lg">程式喵學院</span>
       </div>
 
       {/* Menu */}
@@ -69,9 +76,9 @@ export default function AdminSidebar() {
           <Button
             onClick={() => {
               setCourseOpen(!courseOpen);
-              navigate(ADMIN_ROUTES.COURSES);
             }}
-            className="w-full gap-2"
+            variant="ghost"
+            className="w-full gap-2 bg-white hover:bg-slate-100 justify-start"
           >
             <span className="flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
@@ -79,30 +86,42 @@ export default function AdminSidebar() {
             </span>
             <ChevronDown
               className={cn(
-                "h-4 w-4 transform transition-transform",
+                "h-4 w-4 transform transition-transform ml-auto",
                 courseOpen && "rotate-180"
               )}
             />
           </Button>
 
           {courseOpen && (
-            <div className="pl-8 mt-2 space-y-1 text-sm text-light-700">
+            <div className="pl-4 mt-2 space-y-1 text-sm text-light-700 border-l-2 border-slate-200 ml-4">
               <SidebarSubItem
-                label="課程資訊"
-                onClick={() => handleCourseNavigation(ADMIN_ROUTES.COURSE_INFO)}
+                label="課程列表"
+                onClick={() => navigate(ADMIN_ROUTES.COURSELIST)}
               />
-              <SidebarSubItem
-                label="章節管理"
-                onClick={() =>
-                  handleCourseNavigation(ADMIN_ROUTES.CHAPTER_MANAGEMENT)
-                }
-              />
-              <SidebarSubItem
-                label="下架課程"
-                onClick={() =>
-                  handleCourseNavigation(ADMIN_ROUTES.DEACTIVATE_COURSE)
-                }
-              />
+              {courseId && (
+                <>
+                  <SidebarSubItem
+                    label="課程資訊"
+                    onClick={() =>
+                      handleCourseNavigation(ADMIN_ROUTES.COURSE_INFO)
+                    }
+                  />
+                  <SidebarSubItem
+                    label="章節管理"
+                    onClick={() =>
+                      handleCourseNavigation(ADMIN_ROUTES.SECTION_MANAGEMENT)
+                    }
+                  />
+                  <SidebarSubItem
+                    label="發佈/下架"
+                    onClick={() =>
+                      handleCourseNavigation(
+                        ADMIN_ROUTES.COURSE_PUBLISHING_MANAGEMENT
+                      )
+                    }
+                  />
+                </>
+              )}
             </div>
           )}
         </div>
@@ -125,19 +144,23 @@ export default function AdminSidebar() {
       </nav>
 
       {/* User Info + Dropdown */}
-      <div className="p-4 border-t flex items-center justify-between">
+      <div className="p-4 border-t flex items-center gap-3 bg-slate-50 hover:bg-slate-100">
         {/* Avatar */}
-        <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-sm font-bold">
-          {userInfo?.email?.charAt(0).toUpperCase()}
+        <div className="shrink-0">
+          <img
+            src={AvatarUser03}
+            alt="User Avatar"
+            className="h-10 w-10 rounded-full object-cover"
+          />
         </div>
 
         {/* Email & Role */}
-        <div className="flex flex-col flex-1 mx-3 overflow-hidden">
+        <div className="flex flex-col flex-1 min-w-0">
           <div className="text-sm font-medium truncate">
             {userInfo ? userInfo.email : ""}
           </div>
           <div className="text-xs text-gray-500 truncate">
-            {userInfo ? userInfo.role : ""}
+            講師 / 學院擁有者
           </div>
         </div>
 
@@ -147,9 +170,9 @@ export default function AdminSidebar() {
             <Button
               size="icon"
               variant="ghost"
-              className="h-8 w-8 bg-white hover:bg-gray-100"
+              className="h-8 w-8 hover:bg-slate-200"
             >
-              <EllipsisVertical className="h-8 w-8 text-gray-600" />
+              <EllipsisVertical className="h-5 w-5" />
             </Button>
           </DropdownMenuTrigger>
 
@@ -157,23 +180,20 @@ export default function AdminSidebar() {
             <DropdownMenuContent
               align="end"
               side="right"
-              alignOffset={-20}
-              sideOffset={24}
-              avoidCollisions={false}
-              className="flex flex-col bg-black text-white border-black -translate-y-full p-0 z-50"
+              className="w-[268px] bg-white border border-gray-200 shadow-lg rounded-md p-1 z-50"
             >
               <DropdownMenuItem
                 onClick={goToSettings}
-                className="flex flex-row items-center text-white hover:bg-gray-800 focus:bg-gray-800 px-4 pt-4 pb-2"
+                className="flex items-center gap-2 px-4 py-2.5 text-[14px] hover:bg-slate-50 cursor-pointer rounded-sm"
               >
-                <UserCog className="h-4 w-4 mr-2 text-white" />
+                <UserCog className="h-4 w-4" />
                 個人設定
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={handleLogout}
-                className="flex flex-row items-center text-white hover:bg-gray-800 focus:bg-gray-800 px-4 pt-2 pb-4"
+                className="flex items-center gap-2 px-4 py-2.5 text-[14px] hover:bg-slate-50 cursor-pointer rounded-sm"
               >
-                <LogOut className="h-4 w-4 mr-2 text-white" />
+                <LogOut className="h-4 w-4" />
                 登出
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -201,7 +221,11 @@ function SidebarItem({
 }: SidebarItemProps) {
   return (
     <Button
-      className={cn("w-full gap-2", isActive && "bg-gray-200")}
+      variant="ghost"
+      className={cn(
+        "w-full gap-2 bg-white hover:bg-slate-100 justify-start",
+        isActive && "bg-slate-100"
+      )}
       onClick={onClick}
     >
       <Icon className="h-4 w-4" />
@@ -224,7 +248,11 @@ function SidebarSubItem({
 }: SidebarSubItemProps) {
   return (
     <Button
-      className={cn("w-full gap-2", isActive && "bg-gray-200")}
+      variant="ghost"
+      className={cn(
+        "w-full gap-2 bg-white hover:bg-slate-100 justify-start",
+        isActive && "bg-slate-100"
+      )}
       onClick={onClick}
     >
       {label}

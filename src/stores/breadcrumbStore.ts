@@ -1,8 +1,13 @@
-import { create } from 'zustand';
-import { ADMIN_ROUTES } from '@/app/route-path';
-import { ROUTE_TITLES } from '@/app/route-titles';
-import { Params } from 'react-router-dom';
-import { BreadcrumbItem, RouteConfig, BreadcrumbState } from '@/types/breadcrumb';
+import { create } from "zustand";
+import { ADMIN_ROUTES } from "@/app/route-path";
+import { ROUTE_TITLES } from "@/app/route-titles";
+import { Params } from "react-router-dom";
+import {
+  BreadcrumbItem,
+  RouteConfig,
+  BreadcrumbState,
+} from "@/types/breadcrumb";
+import { getCourseById } from "../services/breadcrumb.service";
 
 const routeConfigs: Record<string, RouteConfig> = {
   dashboard: {
@@ -17,21 +22,25 @@ const routeConfigs: Record<string, RouteConfig> = {
         path: ADMIN_ROUTES.CREATE_COURSE,
         title: ROUTE_TITLES[ADMIN_ROUTES.CREATE_COURSE],
       },
-      ':courseId': {
+      list: {
+        path: ADMIN_ROUTES.COURSELIST,
+        title: ROUTE_TITLES[ADMIN_ROUTES.COURSELIST],
+      },
+      ":courseId": {
         path: `${ADMIN_ROUTES.COURSES}/:courseId`,
-        title: ':courseName',
+        title: ":courseName",
         children: {
           info: {
             path: `${ADMIN_ROUTES.COURSES}/:courseId/info`,
-            title: '課程資訊',
+            title: ROUTE_TITLES[ADMIN_ROUTES.COURSE_INFO],
           },
-          chapters: {
-            path: `${ADMIN_ROUTES.COURSES}/:courseId/chapters`,
-            title: ROUTE_TITLES[ADMIN_ROUTES.CHAPTER_MANAGEMENT],
+          sections: {
+            path: `${ADMIN_ROUTES.COURSES}/:courseId/sections`,
+            title: ROUTE_TITLES[ADMIN_ROUTES.SECTION_MANAGEMENT],
           },
-          deactivate: {
-            path: `${ADMIN_ROUTES.COURSES}/:courseId/deactivate`,
-            title: ROUTE_TITLES[ADMIN_ROUTES.DEACTIVATE_COURSE],
+          publishing: {
+            path: `${ADMIN_ROUTES.COURSES}/:courseId/publishing`,
+            title: ROUTE_TITLES[ADMIN_ROUTES.COURSE_PUBLISHING_MANAGEMENT],
           },
         },
       },
@@ -53,7 +62,7 @@ const routeConfigs: Record<string, RouteConfig> = {
     path: ADMIN_ROUTES.ME,
     title: ROUTE_TITLES[ADMIN_ROUTES.ME],
     children: {
-      'change-password': {
+      "change-password": {
         path: ADMIN_ROUTES.CHANGE_PASSWORD,
         title: ROUTE_TITLES[ADMIN_ROUTES.CHANGE_PASSWORD],
       },
@@ -65,19 +74,19 @@ const processRoute = (
   pathSnippets: string[],
   params: Params<string>,
   config: RouteConfig,
-  basePath: string = ''
+  basePath: string = ""
 ): BreadcrumbItem[] => {
   const items: BreadcrumbItem[] = [];
   let currentPath = basePath ? `${basePath}/${config.path}` : config.path;
 
   // 處理動態參數
-  if (config.path.includes(':courseId')) {
-    currentPath = currentPath.replace(':courseId', params.courseId || '');
+  if (config.path.includes(":courseId")) {
+    currentPath = currentPath.replace(":courseId", params.courseId || "");
   }
 
   // 處理動態標題
   let title = config.title;
-  if (title === ':courseName' && params.courseName) {
+  if (title === ":courseName" && params.courseName) {
     title = params.courseName;
   }
 
@@ -93,12 +102,25 @@ const processRoute = (
     const childConfig = config.children[childKey];
 
     if (childConfig) {
-      const childItems = processRoute(pathSnippets.slice(1), params, childConfig, currentPath);
+      const childItems = processRoute(
+        pathSnippets.slice(1),
+        params,
+        childConfig,
+        currentPath
+      );
       items.push(...childItems);
-    } else if (pathSnippets[1] === ':courseId' && config.children[':courseId']) {
+    } else if (
+      pathSnippets[1] === ":courseId" &&
+      config.children[":courseId"]
+    ) {
       // 特別處理課程 ID 的情況
-      const courseConfig = config.children[':courseId'];
-      const courseItems = processRoute(pathSnippets.slice(1), params, courseConfig, currentPath);
+      const courseConfig = config.children[":courseId"];
+      const courseItems = processRoute(
+        pathSnippets.slice(1),
+        params,
+        courseConfig,
+        currentPath
+      );
       items.push(...courseItems);
     }
   }
@@ -109,26 +131,26 @@ const processRoute = (
 export const useBreadcrumbStore = create<BreadcrumbState>((set) => ({
   items: [
     {
-      path: '/admin',
-      title: '管理後台',
+      path: "/admin",
+      title: "管理後台",
     },
   ],
-  setBreadcrumbs: (pathname, params) => {
+  setBreadcrumbs: async (pathname: string, params: Params) => {
     // 如果是變更密碼頁面，直接設定麵包屑
     if (pathname === ADMIN_ROUTES.CHANGE_PASSWORD) {
       set({
         items: [
           {
             path: ADMIN_ROUTES.HOME,
-            title: '管理後台',
+            title: "管理後台",
           },
           {
             path: ADMIN_ROUTES.ME,
-            title: '個人設定',
+            title: "個人設定",
           },
           {
             path: ADMIN_ROUTES.CHANGE_PASSWORD,
-            title: '變更密碼',
+            title: "變更密碼",
           },
         ],
       });
@@ -136,32 +158,31 @@ export const useBreadcrumbStore = create<BreadcrumbState>((set) => ({
     }
 
     // 如果是課程相關頁面，直接設定麵包屑
-    if (pathname.includes('/admin/courses/')) {
+    if (pathname.includes("/admin/courses/")) {
       const courseId = params.courseId;
-      const pathSnippets = pathname.split('/').filter((i) => i);
+      const pathSnippets = pathname.split("/").filter((i) => i);
       const lastPath = pathSnippets[pathSnippets.length - 1];
 
       // 根據課程 ID 獲取對應的課程名稱
-      let courseName = '課程';
+      let courseName = "課程";
       if (courseId) {
-        // 這裡應該從 API 或 store 獲取實際的課程名稱
-        // 目前先使用模擬數據
-        const mockCourses: Record<string, string> = {
-          '1': 'React 入門課程',
-          '2': 'TypeScript 進階課程',
-          '3': 'Vue.js 實戰課程'
-        };
-        courseName = mockCourses[courseId] || '課程';
+        try {
+          const courseData = await getCourseById(courseId);
+          courseName = courseData.title;
+        } catch (error) {
+          console.error("Error fetching course name:", error);
+          courseName = "課程";
+        }
       }
 
       const items = [
         {
-          path: '/admin',
-          title: '管理後台',
+          path: "/admin",
+          title: "管理後台",
         },
         {
-          path: '/admin/courses',
-          title: '課程',
+          path: "/admin/courses",
+          title: "課程",
         },
       ];
 
@@ -175,28 +196,28 @@ export const useBreadcrumbStore = create<BreadcrumbState>((set) => ({
 
       // 根據最後的路徑片段加入對應的標題
       switch (lastPath) {
-        case 'info':
+        case "info":
           items.push({
             path: `/admin/courses/${courseId}/info`,
-            title: '課程資訊',
+            title: "課程資訊",
           });
           break;
-        case 'chapters':
+        case "sessions":
           items.push({
-            path: `/admin/courses/${courseId}/chapters`,
-            title: '章節管理',
+            path: `/admin/courses/${courseId}/sessions`,
+            title: "課程章節",
           });
           break;
-        case 'deactivate':
+        case "publishing":
           items.push({
-            path: `/admin/courses/${courseId}/deactivate`,
-            title: '下架課程',
+            path: `/admin/courses/${courseId}/publishing`,
+            title: "發佈/下架",
           });
           break;
-        case 'create':
+        case "create":
           items.push({
-            path: '/admin/courses/create',
-            title: '建立課程',
+            path: "/admin/courses/create",
+            title: "建立課程",
           });
           break;
       }
@@ -205,11 +226,12 @@ export const useBreadcrumbStore = create<BreadcrumbState>((set) => ({
       return;
     }
 
-    const pathSnippets = pathname.split('/').filter((i) => i);
+    // 處理一般路由
+    const pathSnippets = pathname.split("/").filter((i) => i);
     const items: BreadcrumbItem[] = [
       {
-        path: '/admin',
-        title: '管理後台',
+        path: "/admin",
+        title: "管理後台",
       },
     ];
 
@@ -221,7 +243,7 @@ export const useBreadcrumbStore = create<BreadcrumbState>((set) => ({
         const routeItems = processRoute(pathSnippets, params, config);
         items.push(...routeItems);
       } else {
-        const currentPath = `/${pathSnippets.join('/')}`;
+        const currentPath = `/${pathSnippets.join("/")}`;
         const title = ROUTE_TITLES[currentPath as keyof typeof ROUTE_TITLES];
         if (title) {
           items.push({
@@ -233,10 +255,44 @@ export const useBreadcrumbStore = create<BreadcrumbState>((set) => ({
     }
 
     // 確保麵包屑項目是唯一的
-    const uniqueItems = items.filter((item, index, self) =>
-      index === self.findIndex((t) => t.path === item.path)
+    const uniqueItems = items.filter(
+      (item, index, self) =>
+        index === self.findIndex((t) => t.path === item.path)
     );
 
     set({ items: uniqueItems });
   },
-})); 
+  getBreadcrumbItems: async (
+    pathname: string,
+    params: Params
+  ): Promise<BreadcrumbItem[]> => {
+    const pathSnippets = pathname.split("/").filter((i) => i);
+    const items: BreadcrumbItem[] = [
+      {
+        path: "/admin",
+        title: "管理後台",
+      },
+    ];
+
+    if (pathSnippets.length > 0) {
+      const mainRoute = pathSnippets[0];
+      const config = routeConfigs[mainRoute];
+
+      if (config) {
+        const routeItems = processRoute(pathSnippets, params, config);
+        items.push(...routeItems);
+      } else {
+        const currentPath = `/${pathSnippets.join("/")}`;
+        const title = ROUTE_TITLES[currentPath as keyof typeof ROUTE_TITLES];
+        if (title) {
+          items.push({
+            path: currentPath,
+            title: title,
+          });
+        }
+      }
+    }
+
+    return items;
+  },
+}));
