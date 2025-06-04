@@ -1,4 +1,4 @@
-import { ApiResponseModel } from "./api.model";
+import { ApiResponseModel } from "../../models/api.model";
 
 /**
  * 講師個人資料

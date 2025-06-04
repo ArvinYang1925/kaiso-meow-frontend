@@ -1,4 +1,4 @@
-import { ApiResponseModel } from "./api.model";
+import { ApiResponseModel } from "../../models/api.model";
 
 /**
  * 密碼表單資料
