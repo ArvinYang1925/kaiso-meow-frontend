@@ -14,7 +14,7 @@ export const CLIENT_ROUTES = Object.freeze({
   ORDER: "/order/:courseId",
   /** 訂單結帳 callback 頁面 */
   CHECKOUT: "/checkout/:orderId",
-  COURSE_PLAYER: 'course-player'
+  COURSE_PLAYER: "course-player",
 });
 
 /** 後台 */
@@ -23,16 +23,18 @@ export const ADMIN_ROUTES = Object.freeze({
   HOME: "/admin",
   /** 數據儀表板 */
   DASHBOARD: "/admin/dashboard",
-  /** 課程 */
+  /** 課程管理 */
   COURSES: "/admin/courses",
+  /** 課程列表 */
+  COURSELIST: "/admin/courses/list",
   /** 開始創建課程 */
   CREATE_COURSE: "/admin/courses/create",
   /** 課程資訊 */
   COURSE_INFO: "/admin/courses/:courseId/info",
   /** 章節管理 */
-  CHAPTER_MANAGEMENT: "/admin/courses/:courseId/chapters",
-  /** 下架課程 */
-  DEACTIVATE_COURSE: "/admin/courses/:courseId/deactivate",
+  SECTION_MANAGEMENT: "/admin/courses/:courseId/sections",
+  /** 發佈/下架 */
+  COURSE_PUBLISHING_MANAGEMENT: "/admin/courses/:courseId/publishing",
   /** 學生列表 */
   STUDENTS: "/admin/students",
   /** 訂單管理*/
