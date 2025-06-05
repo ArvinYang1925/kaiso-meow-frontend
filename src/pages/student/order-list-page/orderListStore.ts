@@ -4,6 +4,7 @@ import { Order } from "./types";
 import { Pagination } from "@/services/types";
 import { fetchOrderList } from "./order-list.service";
 import { DEFAULT_PAGINATION } from "@/lib/constants";
+import { checkoutEcpay } from "../order-page/service/order.service";
 
 interface OrderListPageState {
   orderList: Order[];
@@ -14,11 +15,14 @@ interface OrderListPageState {
 
 interface OrderListPageAction {
   fetchOrder: (page: number, pageSize: number) => void;
+  checkoutEcpay: (orderId: string) => Promise<string>;
   setIsShowDialog: (isShowDialog: boolean) => void;
   resetStore: () => void;
 }
 
-export const useOrderListStore = create<OrderListPageState & OrderListPageAction>()(
+export const useOrderListStore = create<
+  OrderListPageState & OrderListPageAction
+>()(
   immer((set) => ({
     orderList: [],
     pagination: DEFAULT_PAGINATION,
@@ -40,6 +44,19 @@ export const useOrderListStore = create<OrderListPageState & OrderListPageAction
         set((state) => {
           state.isLoading = false;
         });
+      }
+    },
+    checkoutEcpay: async (orderId: string) => {
+      // 開始載入
+      set((state) => {
+        state.isLoading = true;
+      });
+      try {
+        const ecpayFormString = await checkoutEcpay(orderId);
+        return ecpayFormString;
+      } catch (error) {
+        console.error("Failed to checkoutOrder", error);
+        throw error;
       }
     },
     setIsShowDialog: (isShowDialog) => {
