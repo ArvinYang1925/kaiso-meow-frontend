@@ -21,10 +21,10 @@ interface CourseCardProps {
 
 const CourseCard: React.FC<CourseCardProps> = ({ course, index, onClick }) => {
   const [imageSrc, handleImageError] = useImageWithFallback(course.coverUrl);
-  
+
   // 格式化日期
   const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('zh-TW');
+    return new Date(date).toLocaleDateString("zh-TW");
   };
 
   return (
@@ -36,9 +36,11 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, index, onClick }) => {
       className="cursor-pointer"
       onClick={onClick}
     >
-      <Card className={`overflow-hidden hover:shadow-lg transition-all duration-300 ${
-        !course.isPublished ? 'opacity-90' : ''
-      }`}>
+      <Card
+        className={`overflow-hidden hover:shadow-lg transition-all duration-300 ${
+          !course.isPublished ? "opacity-90" : ""
+        }`}
+      >
         <CardHeader className="p-0 relative">
           <div className="relative">
             <motion.div
@@ -49,12 +51,12 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, index, onClick }) => {
                 src={imageSrc}
                 alt={course.title}
                 className={`w-full h-48 object-cover transition-all duration-300 ${
-                  !course.isPublished ? 'filter grayscale-50' : ''
+                  !course.isPublished ? "filter grayscale-50" : ""
                 }`}
                 onError={handleImageError}
               />
             </motion.div>
-            
+
             {/* 課程下架遮罩 */}
             {!course.isPublished && (
               <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
@@ -66,12 +68,14 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, index, onClick }) => {
             )}
           </div>
         </CardHeader>
-        
+
         <CardContent className="p-4">
           <div className="flex items-start justify-between mb-3">
-            <CardTitle className={`text-lg line-clamp-2 ${
-              !course.isPublished ? 'text-gray-600' : ''
-            }`}>
+            <CardTitle
+              className={`text-lg line-clamp-2 ${
+                !course.isPublished ? "text-gray-600" : ""
+              }`}
+            >
               {course.title}
             </CardTitle>
             {course.isFree && (
@@ -80,7 +84,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, index, onClick }) => {
               </span>
             )}
           </div>
-          
+
           <div className="space-y-2">
             {/* 講師資訊 */}
             <div className="flex items-center gap-2">
@@ -89,7 +93,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, index, onClick }) => {
                 講師：{course.instructorName || "未提供"}
               </span>
             </div>
-            
+
             {/* 學生數量 */}
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-gray-500" />
@@ -97,7 +101,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, index, onClick }) => {
                 {course.studentCount} 位學生
               </span>
             </div>
-            
+
             {/* 建立日期 */}
             <div className="text-xs text-gray-500 mt-3">
               建立於 {formatDate(course.createdAt)}
@@ -113,14 +117,9 @@ export default function CourseManagementListPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { setBreadcrumbs } = useBreadcrumbStore();
-  
+
   // 使用課程 store
-  const {
-    courses,
-    pagination,
-    isLoading,
-    fetchCourses,
-  } = useCourseStore();
+  const { courses, pagination, isLoading, fetchCourses } = useCourseStore();
 
   useEffect(() => {
     // 設置麵包屑
@@ -165,7 +164,7 @@ export default function CourseManagementListPage() {
         <p className="text-gray-500 text-md mb-8">
           建立一個新課程來轉換您的知識和經驗成為收入
         </p>
-        <Button 
+        <Button
           onClick={() => navigate(ADMIN_ROUTES.CREATE_COURSE)}
           className="bg-orange-600 hover:bg-orange-700 text-white"
         >
@@ -188,7 +187,7 @@ export default function CourseManagementListPage() {
           )}
         </div>
         {!isLoading && courses.length > 0 && (
-          <Button 
+          <Button
             onClick={() => navigate(ADMIN_ROUTES.CREATE_COURSE)}
             className="bg-orange-600 hover:bg-orange-700 text-white"
           >
@@ -250,7 +249,9 @@ export default function CourseManagementListPage() {
               return (
                 <Button
                   key={page}
-                  variant={page === pagination.currentPage ? "outline" : "ghost"}
+                  variant={
+                    page === pagination.currentPage ? "outline" : "ghost"
+                  }
                   size="sm"
                   className={
                     page === pagination.currentPage

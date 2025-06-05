@@ -1,9 +1,7 @@
 // ============================
 //  Course 型別定義
 // ============================
-
-// 引入公用 API 回應模型
-import { ApiResponseModel } from "@/models/api.model";
+import { ApiResponseModel } from "@/pages/admin/models/api.model";
 
 // 課程篩選條件模型
 export type CourseFilterModel = {

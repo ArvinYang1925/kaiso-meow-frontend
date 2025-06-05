@@ -158,7 +158,7 @@ export default function CoursesCreatePage() {
         URL.revokeObjectURL(fileObjectUrl);
       }
     };
-  }, []);
+  }, [clearFormAndState, fileObjectUrl]);
 
   // 管理 selectedFile 的 object URL
   useEffect(() => {
@@ -175,7 +175,7 @@ export default function CoursesCreatePage() {
         setFileObjectUrl(null);
       }
     }
-  }, [selectedFile]);
+  }, [selectedFile, fileObjectUrl]);
 
   // 處理圖片上傳的函數
   const handleUploadImage = useCallback(
@@ -710,9 +710,9 @@ export default function CoursesCreatePage() {
                         {hasCustomImage && (
                           <Button
                             type="button"
-                            variant="destructive"
+                            variant="outline"
                             size="sm"
-                            className="absolute top-2 right-2 h-8 w-8 p-0 rounded-full shadow-lg"
+                            className="absolute top-2 right-2 h-8 w-8 p-0 rounded-full shadow-lg bg-red-500 border-red-500 text-white hover:bg-red-600 hover:border-red-600"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleRemoveCover();
@@ -784,5 +784,3 @@ export default function CoursesCreatePage() {
     </div>
   );
 }
-
-
