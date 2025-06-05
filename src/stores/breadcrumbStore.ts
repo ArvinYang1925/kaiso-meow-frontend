@@ -182,44 +182,66 @@ export const useBreadcrumbStore = create<BreadcrumbState>((set) => ({
         },
         {
           path: "/admin/courses",
-          title: "課程",
+          title: "課程管理",
         },
       ];
 
-      // 如果有課程 ID，加入課程名稱
+      // 處理課程相關的麵包屑
       if (courseId) {
-        items.push({
-          path: `/admin/courses/${courseId}`,
-          title: courseName,
-        });
-      }
+        // 根據最後的路徑片段決定如何處理麵包屑
+        switch (lastPath) {
+          case "create":
+            // 這是創建課程頁面，不需要課程名稱層級
+            items.push({
+              path: "/admin/courses/create",
+              title: "建立課程",
+            });
+            break;
 
-      // 根據最後的路徑片段加入對應的標題
-      switch (lastPath) {
-        case "info":
-          items.push({
-            path: `/admin/courses/${courseId}/info`,
-            title: "課程資訊",
-          });
-          break;
-        case "sessions":
-          items.push({
-            path: `/admin/courses/${courseId}/sessions`,
-            title: "課程章節",
-          });
-          break;
-        case "publishing":
-          items.push({
-            path: `/admin/courses/${courseId}/publishing`,
-            title: "發佈/下架",
-          });
-          break;
-        case "create":
-          items.push({
-            path: "/admin/courses/create",
-            title: "建立課程",
-          });
-          break;
+          case "info":
+            // 課程資訊頁面：課程名稱指向課程列表，然後顯示課程資訊
+            items.push({
+              path: "/admin/courses",
+              title: courseName,
+            });
+            items.push({
+              path: `/admin/courses/${courseId}/info`,
+              title: "課程資訊",
+            });
+            break;
+
+          case "sections":
+            // 章節管理頁面：課程名稱指向課程資訊頁面，然後顯示當前頁面
+            items.push({
+              path: `/admin/courses/${courseId}/info`,
+              title: courseName,
+            });
+            items.push({
+              path: `/admin/courses/${courseId}/sections`,
+              title: "章節管理",
+            });
+            break;
+
+          case "publishing":
+            // 發佈管理頁面：課程名稱指向課程資訊頁面，然後顯示當前頁面
+            items.push({
+              path: `/admin/courses/${courseId}/info`,
+              title: courseName,
+            });
+            items.push({
+              path: `/admin/courses/${courseId}/publishing`,
+              title: "發佈/下架",
+            });
+            break;
+
+          default:
+            // 如果是課程根頁面或其他情況，預設跳轉到 info
+            items.push({
+              path: `/admin/courses/${courseId}/info`,
+              title: courseName,
+            });
+            break;
+        }
       }
 
       set({ items });
