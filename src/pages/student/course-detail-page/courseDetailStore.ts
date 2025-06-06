@@ -1,10 +1,6 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import {
-    CourseDetailResponse
-    // , fetchCourseDetail 
-} from './course-detail.service'
-import { mockCourseDetail } from './mockData';
+import { CourseDetailResponse, fetchCourseDetail } from './course-detail.service'
 
 interface CourseDetailState {
     courseDetail: CourseDetailResponse | null;
@@ -19,21 +15,36 @@ interface CourseDetailAction {
 
 export const useCourseDetailStore = create<CourseDetailState & CourseDetailAction>()(
     immer((set) => ({
-        courseDetail: mockCourseDetail,
+        courseDetail: {
+            id: '',
+            title: '',
+            subtitle: '',
+            description: '',
+            highlight: '',
+            duration: 0,
+            isPublished: false,
+            price: 0,
+            isFree: false,
+            coverUrl: '',
+            instructor: {
+                id: '',
+                name: '',
+                profileUrl: ''
+            },
+            sections: []
+        },
         isLoading: false,
         error: null,
 
-        fetchCourseDetailById: async (
-            // courseId: string
-        ) => {
+        fetchCourseDetailById: async (courseId: string) => {
             set((state) => {
                 state.isLoading = true;
                 state.error = null;
             });
             try {
-                // const data = await fetchCourseDetail(courseId);
+                const data = await fetchCourseDetail(courseId);
                 set((state) => {
-                    //   state.courseDetail = data;
+                    state.courseDetail = data;
                     state.isLoading = false;
                 });
             } catch (error: any) {

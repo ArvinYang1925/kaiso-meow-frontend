@@ -14,6 +14,7 @@ const CourseCardListComponent: React.FC = () => {
       {courseCardList.map((course) => (
         <CourseCard
           id={course.id}
+          key={course.id}
           title={course.title}
           instructorName={course.instructorName}
           coverUrl={course.coverUrl}
