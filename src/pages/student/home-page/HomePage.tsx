@@ -1,21 +1,16 @@
-import { useEffect } from "react";
-// import { useAuthStore } from "@/stores/authStore";
-import ExpertRecommendationComponent from "@/pages/student/home-page/components/ExpertRecommendationComponent";
-import CourseCardListComponent from "./components/CourseCardListComponent";
-import NewsLetterComponent from "./components/NewsletterComponent";
+/** 頁面元件 */
 import BannerComponent from "./components/BannerComponent";
-// import { useHomePageStore } from "./store/homePageStore";
-import decorationSvg from "@/assets/homepage/decoration.svg";
+import CourseCardListComponent from "./components/CourseCardListComponent";
 import InstructorIntroComponent from "./components/InstructorIntroComponent";
+import StudentRecommendationsComponent from "./components/studentRecommendationsComponent";
+import ExpertRecommendationComponent from "@/pages/student/home-page/components/ExpertRecommendationComponent";
+import NewsLetterComponent from "./components/NewsletterComponent";
+/** 頁面裝飾圖片 */
+import decorationSvg from "@/assets/homepage/decoration.svg";
 import topLeftDecor from "@/assets/homepage/top-left-course-card.png";
 import bottomRightDecor from "@/assets/homepage/right-down-course-card.png";
-import StudentRecommendationsComponent from "./components/studentRecommendationsComponent";
 
 export const HomePage: React.FC = () => {
-  useEffect(() => {
-    // fetchCourseCardList();
-  }, []);
-
   return (
     <>
       <BannerComponent />
