@@ -1,22 +1,24 @@
 import React, { useState } from "react";
 import { learningService } from "@/services/learningService";
-import { Section } from "@/types/course";
+import { Section, CourseSectionsApiResponse } from "@/types/course";
 
 const ApiTest: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [section, setSection] = useState<Section | null>(null);
+  const [courseSections, setCourseSections] =
+    useState<CourseSectionsApiResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Example courseId and sectionId from your API response
   const exampleCourseId = "aef5acc5-dd71-428d-83e2-e17b01964c3f";
   const exampleSectionId = "d770b502-a2a9-4721-916f-66a4413069af";
 
-  const testApiConnection = async () => {
+  const testSectionApi = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      console.log("Testing API with:", {
+      console.log("Testing Section API with:", {
         courseId: exampleCourseId,
         sectionId: exampleSectionId,
       });
@@ -26,16 +28,47 @@ const ApiTest: React.FC = () => {
         exampleSectionId
       );
 
-      console.log("API Response:", response);
+      console.log("Section API Response:", response);
 
       if (response.status === "success") {
         setSection(response.data.section);
       } else {
-        setError(`API Error: ${response.message}`);
+        setError(`Section API Error: ${response.message}`);
       }
     } catch (err: any) {
-      console.error("API Test Error:", err);
-      setError(`Connection Error: ${err.message || "Unknown error"}`);
+      console.error("Section API Test Error:", err);
+      setError(`Section Connection Error: ${err.message || "Unknown error"}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const testCourseSectionsApi = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      console.log(
+        "Testing Course Sections API with courseId:",
+        exampleCourseId
+      );
+
+      const response = await learningService.getCourseSectionsList(
+        exampleCourseId
+      );
+
+      console.log("Course Sections API Response:", response);
+
+      if (response.status === "success") {
+        setCourseSections(response);
+      } else {
+        setError(`Course Sections API Error: ${response.message}`);
+      }
+    } catch (err: any) {
+      console.error("Course Sections API Test Error:", err);
+      setError(
+        `Course Sections Connection Error: ${err.message || "Unknown error"}`
+      );
     } finally {
       setLoading(false);
     }
@@ -47,25 +80,41 @@ const ApiTest: React.FC = () => {
         API Connection Test
       </h2>
 
-      <div className="mb-6">
-        <p className="text-gray-600 mb-2">
-          <strong>Endpoint:</strong> GET /api/v1/courses/{`{courseId}`}
-          /sections/{`{sectionId}`}
-        </p>
-        <p className="text-gray-600 mb-2">
+      <div className="mb-6 space-y-4">
+        <div>
+          <p className="text-gray-600 mb-2">
+            <strong>Section Endpoint:</strong> GET /api/v1/courses/
+            {`{courseId}`}/sections/{`{sectionId}`}
+          </p>
+          <button
+            onClick={testSectionApi}
+            disabled={loading}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed mr-2"
+          >
+            {loading ? "Testing..." : "Test Section API"}
+          </button>
+        </div>
+
+        <div>
+          <p className="text-gray-600 mb-2">
+            <strong>Course Sections Endpoint:</strong> GET /api/v1/courses/
+            {`{courseId}`}/sections
+          </p>
+          <button
+            onClick={testCourseSectionsApi}
+            disabled={loading}
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Testing..." : "Test Course Sections API"}
+          </button>
+        </div>
+
+        <p className="text-gray-600 text-sm">
           <strong>Test Course ID:</strong> {exampleCourseId}
         </p>
-        <p className="text-gray-600 mb-4">
+        <p className="text-gray-600 text-sm">
           <strong>Test Section ID:</strong> {exampleSectionId}
         </p>
-
-        <button
-          onClick={testApiConnection}
-          disabled={loading}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? "Testing..." : "Test API Connection"}
-        </button>
       </div>
 
       {error && (
@@ -75,10 +124,56 @@ const ApiTest: React.FC = () => {
         </div>
       )}
 
-      {section && (
+      {courseSections && (
         <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
           <h3 className="text-green-800 font-semibold mb-4">
-            ✅ API Connection Successful!
+            ✅ Course Sections API Success!
+          </h3>
+
+          <div className="mb-4">
+            <h4 className="font-semibold text-gray-800 mb-2">Course Info:</h4>
+            <ul className="space-y-1 text-sm text-gray-700">
+              <li>
+                <strong>Course ID:</strong> {courseSections.data.course.id}
+              </li>
+              <li>
+                <strong>Course Title:</strong>{" "}
+                {courseSections.data.course.title}
+              </li>
+              <li>
+                <strong>Total Sections:</strong>{" "}
+                {courseSections.data.sections.length}
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-semibold text-gray-800 mb-2">Sections List:</h4>
+            <div className="max-h-48 overflow-y-auto bg-gray-50 p-3 rounded">
+              {courseSections.data.sections.map((section, index) => (
+                <div
+                  key={section.id}
+                  className="border-b border-gray-200 py-2 last:border-b-0"
+                >
+                  <div className="text-sm">
+                    <span className="font-medium">
+                      {section.order}. {section.title}
+                    </span>
+                    <div className="text-gray-600 text-xs">
+                      ID: {section.id}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {section && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <h3 className="text-blue-800 font-semibold mb-4">
+            ✅ Section API Success!
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -155,19 +250,31 @@ const ApiTest: React.FC = () => {
       )}
 
       <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <h3 className="text-blue-800 font-semibold mb-2">Usage Example:</h3>
+        <h3 className="text-blue-800 font-semibold mb-2">Usage Examples:</h3>
         <pre className="text-sm text-gray-700 bg-white p-3 rounded overflow-x-auto">
           {`// Import the service
 import { learningService } from "@/services/learningService";
 
-// Use in your component
+// Get course sections for sidebar
+const fetchCourseSections = async () => {
+  try {
+    const response = await learningService.getCourseSectionsList(courseId);
+    if (response.status === "success") {
+      const { course, sections } = response.data;
+      // Use course title and sections list...
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
+
+// Get specific section details
 const fetchSection = async () => {
   try {
     const response = await learningService.getCourseSection(
       courseId, 
       sectionId
     );
-    
     if (response.status === "success") {
       const sectionData = response.data.section;
       // Use the section data...

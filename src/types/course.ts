@@ -53,3 +53,21 @@ export interface SectionApiResponse {
     section: Section;
   };
 }
+
+export interface CourseSectionsApiResponse {
+  status: string;
+  message: string;
+  data: {
+    course: {
+      id: string;
+      title: string;
+    };
+    sections: {
+      id: string;
+      title: string;
+      order: number;
+      content: string;
+      videoUrl: string;
+    }[];
+  };
+}

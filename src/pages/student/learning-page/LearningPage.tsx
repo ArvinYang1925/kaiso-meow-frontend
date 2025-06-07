@@ -7,69 +7,6 @@ import SectionContent from "@/components/features/SectionContent";
 import { Section, CourseSection, SectionApiResponse } from "@/types/course";
 import { learningService } from "@/services/learningService";
 
-// Mock data to simulate the API response structure
-const mockSectionData: SectionApiResponse = {
-  status: "success",
-  message: "成功取得章節資料",
-  data: {
-    section: {
-      id: "uuid-section-2",
-      title: "Express 框架介紹",
-      content: `<p><a href="http://google.com" rel="noopener noreferrer" target="_blank"><strong>http://google.com</strong></a></p>
-                <p><a href="http://www.xxx.com.tw" rel="noopener noreferrer" target="_blank">http://www.xxx.com.tw</a></p>
-                <p>在這個章節中，我們將深入了解 Express 框架的核心概念和基本用法。Express 是 Node.js 最受歡迎的 Web 應用程式框架之一，它提供了豐富的功能來建立 Web 應用程式和 API。</p>
-                <h3>學習目標</h3>
-                <ul>
-                  <li>理解 Express 框架的基本概念</li>
-                  <li>學會建立基本的 Express 應用程式</li>
-                  <li>了解路由和中間件的使用方法</li>
-                </ul>`,
-      videoUrl:
-        "http://sample.vodobox.net/skate_phantom_flex_4k/skate_phantom_flex_4k.m3u8",
-      courseId: "uuid-course-1",
-      order: 2,
-      progress: {
-        isCompleted: false,
-      },
-      nextSection: {
-        id: "uuid-section-3",
-        title: "路由與中間件",
-      },
-      prevSection: {
-        id: "uuid-section-1",
-        title: "Node.js 基礎入門",
-      },
-    },
-  },
-};
-
-const mockSections: CourseSection[] = [
-  {
-    id: "uuid-section-1",
-    title: "Node.js 基礎入門",
-    order: 1,
-    isCompleted: true,
-  },
-  {
-    id: "uuid-section-2",
-    title: "Express 框架介紹",
-    order: 2,
-    isCompleted: false,
-  },
-  {
-    id: "uuid-section-3",
-    title: "路由與中間件",
-    order: 3,
-    isCompleted: false,
-  },
-  {
-    id: "uuid-section-4",
-    title: "模板引擎與視圖",
-    order: 4,
-    isCompleted: false,
-  },
-];
-
 const LearningPage: React.FC = () => {
   const { courseId, sectionId } = useParams<{
     courseId: string;
@@ -77,16 +14,58 @@ const LearningPage: React.FC = () => {
   }>();
 
   const [currentSection, setCurrentSection] = useState<Section | null>(null);
+  const [courseSections, setCourseSections] = useState<CourseSection[]>([]);
+  const [courseTitle, setCourseTitle] = useState<string>("課程");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   // const [useHLSPlayer, setUseHLSPlayer] = useState(false);
 
-  // Mock course progress
+  // Course progress calculation based on actual sections
   const courseProgress = {
-    completedSections: 1,
-    totalSections: 6,
-    percentage: 25,
+    completedSections: courseSections.filter((section) => section.isCompleted)
+      .length,
+    totalSections: courseSections.length,
+    percentage:
+      courseSections.length > 0
+        ? Math.round(
+            (courseSections.filter((section) => section.isCompleted).length /
+              courseSections.length) *
+              100
+          )
+        : 0,
   };
+
+  // Fetch course sections list
+  useEffect(() => {
+    const fetchCourseSections = async () => {
+      if (!courseId) return;
+
+      try {
+        const response = await learningService.getCourseSectionsList(courseId);
+
+        if (response.status === "success") {
+          // Transform API response to CourseSection format
+          const sections: CourseSection[] = response.data.sections.map(
+            (section) => ({
+              id: section.id,
+              title: section.title,
+              order: section.order,
+              isCompleted: false, // TODO: Get this from user progress API
+              isActive: section.id === sectionId,
+            })
+          );
+
+          setCourseSections(sections);
+          setCourseTitle(response.data.course.title);
+        }
+      } catch (err) {
+        console.error("Error fetching course sections:", err);
+        setError("無法載入課程章節列表");
+      }
+    };
+
+    fetchCourseSections();
+  }, [courseId, sectionId]);
 
   useEffect(() => {
     const fetchSectionData = async () => {
@@ -114,12 +93,6 @@ const LearningPage: React.FC = () => {
       } catch (err) {
         console.error("Error fetching section data:", err);
         setError("獲取章節資料時發生錯誤");
-
-        // Fallback to mock data for development
-        if (import.meta.env.DEV) {
-          console.warn("Falling back to mock data");
-          setCurrentSection(mockSectionData.data.section);
-        }
       } finally {
         setLoading(false);
       }
@@ -129,9 +102,12 @@ const LearningPage: React.FC = () => {
   }, [courseId, sectionId]);
 
   const handleSectionClick = (newSectionId: string) => {
-    // In a real app, you would navigate to the new section
-    console.log("Navigate to section:", newSectionId);
-    // window.location.href = `/course/${courseId}/section/${newSectionId}`;
+    // Navigate to the new section
+    if (courseId && newSectionId !== sectionId) {
+      window.location.href = `/learning/${courseId}/${newSectionId}`;
+      // Or use router navigation:
+      // navigate(`/learning/${courseId}/${newSectionId}`);
+    }
   };
 
   const handlePrevious = () => {
@@ -205,9 +181,9 @@ const LearningPage: React.FC = () => {
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
       <CourseSidebar
-        courseTitle={currentSection.courseName || "課程"}
-        currentSectionId={currentSection.id}
-        sections={mockSections}
+        courseTitle={courseTitle}
+        currentSectionId={currentSection?.id || sectionId || ""}
+        sections={courseSections}
         onSectionClick={handleSectionClick}
         progress={courseProgress}
       />
@@ -230,7 +206,6 @@ const LearningPage: React.FC = () => {
             {/* Using only VideoJS player for now */}
             <VideoPlayer
               src={currentSection.videoUrl1 || currentSection.videoUrl || ""}
-              // src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
               type={
                 currentSection.videoUrl1?.includes(".m3u8")
                   ? "application/x-mpegURL"

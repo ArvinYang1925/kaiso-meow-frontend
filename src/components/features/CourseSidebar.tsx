@@ -45,44 +45,10 @@ const CourseSidebar: React.FC<CourseSidebarProps> = ({
         <div className="p-4">
           <h2 className="text-sm font-medium text-gray-900 mb-4">課程內容</h2>
 
-          {/* Chapter sections */}
+          {/* Course sections from API */}
           <div className="space-y-1">
-            <div className="text-sm font-medium text-gray-900 mb-2">
-              第1章：介紹與環境建置
-            </div>
-            <div className="pl-4 space-y-1 mb-4">
-              <SectionItem
-                title="元件 (Component) 的基本建立"
-                isActive={false}
-                isCompleted={true}
-                onClick={() => {}}
-              />
-              <SectionItem
-                title="Props：組件之間的資料傳遞"
-                isActive={true}
-                isCompleted={false}
-                onClick={() => {}}
-                isHighlighted
-              />
-              <SectionItem
-                title="狀態 (State) 與 useState Hook"
-                isActive={false}
-                isCompleted={false}
-                onClick={() => {}}
-              />
-              <SectionItem
-                title="事件處理與表單式綁定"
-                isActive={false}
-                isCompleted={false}
-                onClick={() => {}}
-              />
-            </div>
-
-            <div className="text-sm font-medium text-gray-900 mb-2">
-              第2章：React 基礎
-            </div>
-            <div className="pl-4 space-y-1 mb-4">
-              {sections.map((section) => (
+            {sections.length > 0 ? (
+              sections.map((section) => (
                 <SectionItem
                   key={section.id}
                   title={section.title}
@@ -90,45 +56,12 @@ const CourseSidebar: React.FC<CourseSidebarProps> = ({
                   isCompleted={section.isCompleted}
                   onClick={() => onSectionClick(section.id)}
                 />
-              ))}
-            </div>
-
-            <div className="text-sm font-medium text-gray-900 mb-2">
-              第3章：React 進階：組件生命週期
-            </div>
-            <div className="pl-4 space-y-1 mb-4">
-              <SectionItem
-                title="React Router 基礎與安裝"
-                isActive={false}
-                isCompleted={false}
-                onClick={() => {}}
-              />
-              <SectionItem
-                title="處理頁面 404 頁面設定"
-                isActive={false}
-                isCompleted={false}
-                onClick={() => {}}
-                isHighlighted
-              />
-              <SectionItem
-                title="程式碼瀏覽精 (Programmatic Navigation)"
-                isActive={false}
-                isCompleted={false}
-                onClick={() => {}}
-              />
-            </div>
-
-            <div className="text-sm font-medium text-gray-900 mb-2">
-              第4章：表單處理與驗證
-            </div>
-
-            <div className="text-sm font-medium text-gray-900 mb-2">
-              第5章：React 路由管理
-            </div>
-
-            <div className="text-sm font-medium text-gray-900 mb-2">
-              第6章：狀態管理工具 Redux
-            </div>
+              ))
+            ) : (
+              <div className="text-sm text-gray-500 text-center py-8">
+                載入課程章節中...
+              </div>
+            )}
           </div>
         </div>
       </div>
