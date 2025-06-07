@@ -14,7 +14,10 @@ export const CLIENT_ROUTES = Object.freeze({
   ORDER: "/order/:courseId",
   /** 訂單結帳 callback 頁面 */
   CHECKOUT: "/checkout/:orderId",
-  COURSE_PLAYER: 'course-player'
+  /** 課程播放器 */
+  COURSE_PLAYER: "/course-player",
+  /** 學習頁面 */
+  LEARNING: "/my-learning/:courseId/section/:sectionId",
 });
 
 /** 後台 */

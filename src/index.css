@@ -3,6 +3,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Video player styles */
+@import './styles/video-player.css';
+
 /* 自定義 theme */
 :root {
   --background: 0 0% 100%;

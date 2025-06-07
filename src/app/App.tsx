@@ -47,6 +47,8 @@ import InstructorCourseDeactivatePage from "@/pages/admin/instructor-course-page
 /** 前台結帳 callback 頁面 */
 import CheckoutPage from "@/pages/student/checkout-page/CheckoutPage";
 import CoursePlayerPage from "@/pages/student/course-player-page/CoursePlayerPage";
+/** 學習頁面 */
+import LearningPage from "@/pages/student/learning-page/LearningPage";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -102,6 +104,16 @@ function App() {
             <CoursePlayerPage
               src={"https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"}
             />
+          }
+        />
+
+        {/* 學習頁面 - 獨立布局 */}
+        <Route
+          path={CLIENT_ROUTES.LEARNING}
+          element={
+            // <ProtectedRoute requiredRole={Role.STUDENT}>
+            <LearningPage />
+            // </ProtectedRoute>
           }
         />
 

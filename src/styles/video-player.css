@@ -1,0 +1,66 @@
+/* Video.js customizations for the learning page */
+.video-js {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 16/9;
+}
+
+.video-js .vjs-big-play-button {
+  background-color: rgba(255, 107, 0, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  font-size: 24px;
+  line-height: 80px;
+  margin-top: -40px;
+  margin-left: -40px;
+}
+
+.video-js .vjs-big-play-button:hover {
+  background-color: rgba(255, 107, 0, 1);
+}
+
+.video-js .vjs-control-bar {
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.8) 100%);
+  height: 60px;
+}
+
+.video-js .vjs-play-control:hover,
+.video-js .vjs-volume-menu-button:hover,
+.video-js .vjs-fullscreen-control:hover {
+  color: #ff6b00;
+}
+
+.video-js .vjs-progress-control .vjs-progress-holder {
+  height: 6px;
+}
+
+.video-js .vjs-progress-control .vjs-play-progress {
+  background-color: #ff6b00;
+}
+
+.video-js .vjs-progress-control .vjs-load-progress {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Loading spinner customization */
+.video-js .vjs-loading-spinner {
+  border-color: #ff6b00 transparent transparent transparent;
+}
+
+/* Responsive video container */
+@media (max-width: 768px) {
+  .video-js {
+    font-size: 14px;
+  }
+  
+  .video-js .vjs-big-play-button {
+    width: 60px;
+    height: 60px;
+    font-size: 18px;
+    line-height: 60px;
+    margin-top: -30px;
+    margin-left: -30px;
+  }
+} 
