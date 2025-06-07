@@ -2,7 +2,7 @@ import { useEffect, useMemo } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Plus, Pencil, Trash2, CloudUpload } from "lucide-react";
+import { Plus, Pencil, Trash2, CloudUpload, GripVertical } from "lucide-react";
 import { useBreadcrumbStore } from "@/stores/breadcrumbStore";
 import { ReactSortable } from "react-sortablejs";
 import { useSectionManagementStore } from "./store/sectionManagementStore";
@@ -86,9 +86,14 @@ export default function SectionManagementPage() {
         title: "章節狀態",
         description: "章節順序已變更",
       });
-      fetchSectionList(courseId);
     } catch (error) {
-      handleErrorMessageDialog(error);
+      console.error('Drag end error:', error);
+      //先還原更新順序
+      setSectionList(mutableItems);
+      showCommonDialog({
+        title: "章節狀態",
+        description: "章節順序更新錯誤，請稍後再試",
+      });
     }
   };
 
@@ -135,6 +140,7 @@ export default function SectionManagementPage() {
                 <ReactSortable
                   tag="ul"
                   list={mutableItems}
+                  handle=".cursor-move"
                   // setList={(newList) => setSectionList(newList)} // 單純更新畫面
                   setList={() => {}} // 不讓 Sortable 自動改 state，統一交給 onEnd 處理
                   animation={1000}
@@ -162,7 +168,12 @@ export default function SectionManagementPage() {
                       className="border rounded-lg p-4 bg-white mb-4 shadow"
                     >
                       <div className="flex justify-between items-center">
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-3">
+                          {/* 拖曳手柄 */}
+                          <div className="cursor-move p-1 text-gray-400 hover:text-gray-600">
+                            <GripVertical className="h-4 w-4" />
+                          </div>
+
                           <Button
                             variant="ghost"
                             size="default"

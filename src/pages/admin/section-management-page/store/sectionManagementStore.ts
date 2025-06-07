@@ -151,7 +151,7 @@ export const useSectionManagementStore = create<
       });
       try {
         const data = await updateSectionOrder(courseId, newSectionOrderList);
-        console.log("update status res in store", data);
+        console.log("update section order in store", data);
         set((state) => {
           state.sectionList = data;
           state.isLoading = false;
