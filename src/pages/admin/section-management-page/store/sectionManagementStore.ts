@@ -6,10 +6,12 @@ import {
   updateSection,
   deleteSection,
   updateSectionPublishedStatus,
+  updateSectionOrder,
 } from "../services/section-management.service";
 import {
   CreateSectionRequestModel,
   Section,
+  SectionOrder,
   UpdateSectionPublishedStatusRequestModel,
   UpdateSectionRequestModel,
 } from "../services/type";
@@ -18,7 +20,6 @@ interface SectionManagementState {
   sectionList: Section[];
   section: Section;
   isLoading: boolean;
-  error: string | null;
   isShowCreateSectionModal: boolean;
   isShowUpdateSectionModal: boolean;
 }
@@ -38,6 +39,7 @@ interface SectionManagementAction {
     sectionId: string,
     data: UpdateSectionPublishedStatusRequestModel
   ) => Promise<void>;
+  updateSectionOrder: (courseId: string, newSectionOrderList: SectionOrder[]) => Promise<void>;
   setSectionList: (newSectionList: Section[]) => void;
   setCurrentSection: (currentSection: Section) => void;
   setIsShowCreateSectionModal: (isShowModal: boolean) => void;
@@ -57,7 +59,6 @@ export const useSectionManagementStore = create<
       isPublished: false,
     },
     isLoading: false,
-    error: null,
     isShowCreateSectionModal: false,
     isShowUpdateSectionModal: false,
 
@@ -70,7 +71,6 @@ export const useSectionManagementStore = create<
     fetchSectionList: async (courseId) => {
       set((state) => {
         state.isLoading = true;
-        state.error = null;
       });
       try {
         const data = await fetchSectionList(courseId);
@@ -79,16 +79,13 @@ export const useSectionManagementStore = create<
           state.isLoading = false;
         });
       } catch (error: any) {
-        set((state) => {
-          state.error = error?.message || "取得章節資料失敗";
-          state.isLoading = false;
-        });
+        console.error("Failed to fetch section list", error.response.data);
+        throw error;
       }
     },
     createSection: async (sectionId, reqData) => {
       set((state) => {
         state.isLoading = true;
-        state.error = null;
       });
       try {
         const data = await createSection(sectionId, reqData);
@@ -97,16 +94,13 @@ export const useSectionManagementStore = create<
           state.isLoading = false;
         });
       } catch (error: any) {
-        set((state) => {
-          state.error = error?.message || "新增章節資料失敗";
-          state.isLoading = false;
-        });
+        console.error("Failed to create section", error.response.data);
+        throw error;
       }
     },
     updateSection: async (sectionId, reqData) => {
       set((state) => {
         state.isLoading = true;
-        state.error = null;
       });
       try {
         const data = await updateSection(sectionId, reqData);
@@ -115,27 +109,22 @@ export const useSectionManagementStore = create<
           state.isLoading = false;
         });
       } catch (error: any) {
-        set((state) => {
-          state.error = error?.message || "更新章節資料失敗";
-          state.isLoading = false;
-        });
+        console.error("Failed to update section", error.response.data);
+        throw error;
       }
     },
     deleteSection: async (sectionId) => {
       set((state) => {
         state.isLoading = true;
-        state.error = null;
       });
       try {
         const data = await deleteSection(sectionId);
         console.log("delete res in store", data);
-        set((state) => {
-          // state.section = data;
-          state.isLoading = false;
-        });
       } catch (error: any) {
+        console.error("Failed to delete section", error.response.data);
+        throw error;
+      } finally {
         set((state) => {
-          state.error = error?.message || "刪除章節資料失敗";
           state.isLoading = false;
         });
       }
@@ -143,7 +132,6 @@ export const useSectionManagementStore = create<
     updateSectionPublishedStatus: async (sectionId, reqData) => {
       set((state) => {
         state.isLoading = true;
-        state.error = null;
       });
       try {
         const data = await updateSectionPublishedStatus(sectionId, reqData);
@@ -153,13 +141,26 @@ export const useSectionManagementStore = create<
           state.isLoading = false;
         });
       } catch (error: any) {
-        set((state) => {
-          state.error = error?.message || "更新章節順序失敗";
-          state.isLoading = false;
-        });
+        console.log('error in update section status', error)
+        throw error;
       }
     },
-
+    updateSectionOrder: async (courseId, newSectionOrderList) => {
+      set((state) => {
+        state.isLoading = true;
+      });
+      try {
+        const data = await updateSectionOrder(courseId, newSectionOrderList);
+        console.log("update status res in store", data);
+        set((state) => {
+          state.sectionList = data;
+          state.isLoading = false;
+        });
+      } catch (error: any) {
+        console.log('error in section order', error)
+        throw error;
+      }
+    },
     setIsShowCreateSectionModal: (isShowCreateModal) => {
       set((state) => {
         state.isShowCreateSectionModal = isShowCreateModal;

@@ -26,6 +26,7 @@ export default function SectionManagementPage() {
     fetchSectionList,
     deleteSection,
     updateSectionPublishedStatus,
+    updateSectionOrder,
     setSectionList,
     setCurrentSection,
     setIsShowCreateSectionModal,
@@ -39,6 +40,7 @@ export default function SectionManagementPage() {
     [sectionList]
   );
 
+  /** 更新章節狀態 */
   const handleUpdatePublishedStatus = async (
     sectionId: string,
     isPublished: boolean
@@ -60,6 +62,7 @@ export default function SectionManagementPage() {
     }
   };
 
+  /** 刪除章節 */
   const handleDeleteSection = async (sectionId: string) => {
     if (!courseId) return;
     try {
@@ -70,13 +73,23 @@ export default function SectionManagementPage() {
       });
       fetchSectionList(courseId);
     } catch (error) {
-      console.log("error", error);
       handleErrorMessageDialog(error);
     }
   };
 
-  const sendUpdateOrderRequest = (data: SectionOrder[]) => {
-    console.log("發了api, 資料：", data);
+  /** 更新章節順序 */
+  const sendUpdateOrderRequest = async (data: SectionOrder[]) => {
+    if (!courseId) return;
+    try {
+      await updateSectionOrder(courseId, data);
+      showCommonDialog({
+        title: "章節狀態",
+        description: "章節順序已變更",
+      });
+      fetchSectionList(courseId);
+    } catch (error) {
+      handleErrorMessageDialog(error);
+    }
   };
 
   const handleOpenUpdateModal = (section: Section) => {

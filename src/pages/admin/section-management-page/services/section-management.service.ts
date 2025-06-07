@@ -31,7 +31,7 @@ export const deleteSection = async (
     sectionId: string
 ): Promise<BaseApiResponseModel> => {
     const response = await axios.delete(`/api/v1/instructor/sections/${sectionId}/`);
-    return response.data;
+    return response.data.data;
 };
 
 /** 發佈/取消發佈章節 */
