@@ -8,13 +8,14 @@ type ModalProps = {
   onClose: () => void;
   title?: string;
   children: React.ReactNode;
-  size?: "md" | "lg" | "full"; // 新增尺寸參數
+  size?: "md" | "xl" | "lg" | "full"; // 新增尺寸參數
   footer?: React.ReactNode; // 新增 footer 區塊
 };
 
 const sizeClasses = {
-  md: "w-[400px]",
-  lg: "w-[600px]",
+  md: "w-[400px] h-full",
+  lg: "w-[600px] h-full",
+  xl: "w-[1000px] h-full",
   full: "w-full h-full rounded-none",
 };
 

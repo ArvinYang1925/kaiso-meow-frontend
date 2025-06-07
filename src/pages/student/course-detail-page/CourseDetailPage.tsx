@@ -1,10 +1,9 @@
 import { useParams } from "react-router-dom";
 import { useCourseDetailStore } from "./courseDetailStore";
-import React from "@/assets/homepage/react-course-card.jpg";
 import HeroComponent from "./components/HeroComponent";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import FAQAccordion from "@/components/features/FAQAccordion";
 import { CourseAccordion } from "./components/CourseAccordion";
 import { Button } from "@/components/ui/button";
@@ -19,11 +18,17 @@ const CourseDetailPage = () => {
   const faqRef = useRef<HTMLDivElement>(null);
 
   const { courseId } = useParams();
-  const { courseDetail } = useCourseDetailStore();
+  const { courseDetail, fetchCourseDetailById } = useCourseDetailStore();
 
   const navigate = useNavigate();
   const { createOrderPreview } = useOrderStore();
   const { showCommonDialog } = useDialogStore();
+
+  useEffect(() => {
+    if (courseId) {
+      fetchCourseDetailById(courseId);
+    }
+  }, []);
 
   if (!courseDetail) return <div>載入中...</div>;
 
@@ -102,32 +107,7 @@ const CourseDetailPage = () => {
           </Tabs>
           <div className="courseIntroSection scroll-mt-24" ref={courseIntroRef}>
             <h2 className="mb-10 font-medium text-3xl">課程簡介</h2>
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
-              repellendus molestiae maiores veniam corporis delectus similique
-              fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
-              repellendus molestiae maiores veniam corporis delectus similique
-              fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
-              repellendus molestiae maiores veniam corporis delectus similique
-              fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
-              repellendus molestiae maiores veniam corporis delectus similique
-              fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
-              repellendus molestiae maiores veniam corporis delectus similique
-              fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
-              repellendus molestiae maiores veniam corporis delectus similique
-              fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
-              repellendus molestiae maiores veniam corporis delectus similique
-              fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos eum
-              repellendus molestiae maiores veniam corporis delectus similique
-              fugiat perspiciatis adipisci reprehenderit rem sunt nisi fuga
-            </p>
+            <p>{courseDetail.description}</p>
           </div>
           <div
             className="chapterContentSection scroll-mt-24"
@@ -148,7 +128,7 @@ const CourseDetailPage = () => {
 
         <div className="card-section basis-1/3">
           <Card className="p-6 space-y-4">
-            <img src={React} className="rounded-lg" alt="" />
+            <img src={courseDetail?.coverUrl} className="rounded-lg" alt="" />
             <p className="price text-orange-500 font-medium text-2xl">
               NT$ {courseDetail.price.toLocaleString()}
             </p>

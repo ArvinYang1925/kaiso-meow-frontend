@@ -104,6 +104,7 @@ export const LoginForm: React.FC = () => {
 
           <div className="btn-wrapper flex justify-end">
             <Button
+              type="button"
               className="bg-gray-400 hover:bg-gray-500"
               onClick={() => setIsShowPasswordForgotForm(true)}
             >

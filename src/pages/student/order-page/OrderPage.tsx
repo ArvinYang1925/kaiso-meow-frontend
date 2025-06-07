@@ -5,7 +5,6 @@ import { ChevronLeft } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useOrderStore } from "./store/orderStore";
 import catAvatar from "@/assets/cat-avatar.jpg";
-import React from "@/assets/homepage/react-course-card.jpg";
 import { useDialogStore } from "@/stores/commonDialogStore";
 import { handleErrorMessageDialog } from "@/lib/helper";
 import { useNavigate, useParams } from "react-router-dom";
@@ -17,6 +16,7 @@ import {
   formatCouponDiscount,
   formatPrice,
 } from "@/lib/priceHelper";
+import { useState } from "react";
 
 type FormData = {
   name: string;
@@ -48,6 +48,7 @@ const OrderPage = () => {
 
   const { showCommonDialog } = useDialogStore();
   const { courseId } = useParams();
+  const [isShowCouponErrorHint, setIsShowCouponErrorHint] = useState(false);
 
   /** 套用折扣碼 */
   const handleApplyCoupon = async () => {
@@ -56,12 +57,14 @@ const OrderPage = () => {
     if (couponCode && orderData.originalPrice) {
       try {
         const reqData = { couponCode, originalPrice: orderData.originalPrice };
-        applyCoupon(reqData);
+        await applyCoupon(reqData);
         showCommonDialog({
           title: "success",
           description: "折扣碼套用成功",
         });
+        setIsShowCouponErrorHint(false);
       } catch (error) {
+        setIsShowCouponErrorHint(true);
         handleErrorMessageDialog(error);
       }
     } else {
@@ -89,6 +92,8 @@ const OrderPage = () => {
     try {
       /** response 為綠界的 form HTML 字串 */
       const response = await createOrder(reqData);
+      /** 免費課程，就不打綠界 */
+      if (response == "") return;
       const wrapper = document.createElement("div");
       wrapper.innerHTML = response;
       const form = wrapper.querySelector("form");
@@ -182,7 +187,7 @@ const OrderPage = () => {
             />
 
             <div className="coupon-wrapper">
-              <div className="btn-group flex items-end mb-2">
+              <div className="btn-wrapper flex items-end">
                 <FormValidateInput
                   id="couponId"
                   className="flex-1 me-2"
@@ -203,9 +208,16 @@ const OrderPage = () => {
                   套用
                 </Button>
               </div>
-              <span className="text-slate-500 text-sm font-normal">
-                若無優惠請略過
-              </span>
+              {isShowCouponErrorHint ? (
+                <span className="text-red-500 text-sm font-normal">
+                  {`您的優惠券 ${getValues("couponId")}
+                  無效。請重新檢查代碼是否填寫有誤及英文字母大小寫是否符合。`}
+                </span>
+              ) : (
+                <span className="text-slate-500 text-sm font-normal">
+                  若無優惠請略過
+                </span>
+              )}
             </div>
           </form>
         </div>
@@ -221,7 +233,11 @@ const OrderPage = () => {
             </CardHeader>
             <CardContent className="border-b">
               <div className="grid grid-cols-2 gap-4 p-4 md:py-6">
-                <img src={React} className="rounded-xl" alt="react" />
+                <img
+                  src={courseData.cover_url}
+                  className="rounded-xl"
+                  alt="課程縮圖"
+                />
                 <div className="text">
                   <h2 className="font-medium text-xl md:text-2xl mb-4">
                     {courseData.title}
