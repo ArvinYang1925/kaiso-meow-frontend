@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ADMIN_ROUTES } from "@/app/route-path";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useInstructorProfileStore } from "@/pages/admin/instructor-info-page/stores/instructorInfoStore";
 import cloudUpload from "@/assets/cloud-upload.svg";
+import { useDropzone } from "react-dropzone";
+import { Trash2 } from "lucide-react";
+
+const DEFAULT_AVATAR = "https://storage.googleapis.com/kaiso-meow-backend.firebasestorage.app/images/instructor_avatar/instructor-59f470c5-cae0-4053-a168-3de51253e470-1748317241181.png";
 
 // 表單驗證規則
 const formSchema = z.object({
@@ -21,17 +25,17 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function InstructorInfoPage() {
   const navigate = useNavigate();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [isPageDragActive, setIsPageDragActive] = useState(false);
 
   const {
     profile,
     isLoading,
     avatarPreview,
-    selectedFile,
     fetchProfile,
     updateProfile,
     setAvatarPreview,
-    setSelectedFile,
+    uploadAvatar,
     resetForm,
   } = useInstructorProfileStore();
 
@@ -42,6 +46,51 @@ export default function InstructorInfoPage() {
       name: "",
       email: "",
     },
+  });
+
+  // Dropzone for modal (全頁拖曳)
+  const {
+    getRootProps: getModalRootProps,
+    getInputProps: getModalInputProps,
+    isDragActive: isModalDragActive,
+    fileRejections,
+  } = useDropzone({
+    accept: { "image/*": [".jpeg", ".jpg", ".png", ".gif"] },
+    maxSize: 2 * 1024 * 1024,
+    maxFiles: 1,
+    noClick: false,
+    noDrag: false,
+    onDrop: async (acceptedFiles) => {
+      if (acceptedFiles && acceptedFiles.length > 0) {
+        await uploadAvatar(acceptedFiles[0]);
+        setShowUploadModal(false);
+        setIsPageDragActive(false);
+      }
+    },
+    onDragEnter: () => setIsPageDragActive(true),
+    onDragLeave: () => setIsPageDragActive(false),
+  });
+
+  // 全頁 Dropzone（拖曳時顯示遮罩）
+  const {
+    getRootProps: getPageRootProps,
+    getInputProps: getPageInputProps,
+    isDragActive: isPageDragActiveGlobal,
+  } = useDropzone({
+    accept: { "image/*": [".jpeg", ".jpg", ".png", ".gif"] },
+    maxSize: 2 * 1024 * 1024,
+    maxFiles: 1,
+    noClick: true,
+    noDrag: false,
+    onDrop: async (acceptedFiles) => {
+      if (acceptedFiles && acceptedFiles.length > 0) {
+        await uploadAvatar(acceptedFiles[0]);
+        setShowUploadModal(false);
+        setIsPageDragActive(false);
+      }
+    },
+    onDragEnter: () => setIsPageDragActive(true),
+    onDragLeave: () => setIsPageDragActive(false),
   });
 
   /** 初始載入資料 */
@@ -59,48 +108,13 @@ export default function InstructorInfoPage() {
     }
   }, [form, profile]);
 
-  // 處理檔案選擇
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-
-      // 建立預覽 URL
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatarPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  // 觸發檔案選擇
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
   // 表單提交處理
   const onSubmit = async (data: FormValues) => {
-    let avatarUrl = profile.profileUrl;
-
-    // 如果有選擇新頭像，需要先上傳圖片
-    if (selectedFile) {
-      // 這裡應該有上傳圖片的邏輯
-      // 假設上傳後會返回圖片URL
-      // 範例：const uploadResult = await uploadImage(selectedFile);
-      // avatarUrl = uploadResult.url;
-
-      // 因為沒有實際的上傳邏輯，這裡暫時使用預覽URL
-      avatarUrl = avatarPreview;
-    }
-
     try {
       await updateProfile({
         name: data.name,
-        profileUrl: avatarUrl,
+        avatar: avatarPreview,
       });
-      // 重置選擇的檔案
-      setSelectedFile(null);
     } catch (error) {
       console.error("Failed to update profile:", error);
     }
@@ -115,6 +129,9 @@ export default function InstructorInfoPage() {
     });
     // 重置頭像
     resetForm();
+    setAvatarPreview(profile.profileUrl || "");
+    // 導航回後台首頁
+    navigate(ADMIN_ROUTES.DASHBOARD);
   };
 
   // 變更密碼按鈕處理
@@ -134,7 +151,8 @@ export default function InstructorInfoPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div {...getPageRootProps()} className="container mx-auto py-8 relative">
+      <input {...getPageInputProps()} />
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold">個人設定</h1>
       </div>
@@ -145,36 +163,50 @@ export default function InstructorInfoPage() {
             {/* 頭像區塊 */}
             <div className="space-y-4">
               <Label className="block">頭像</Label>
-              <div className="flex flex-col space-y-4">
-                <div className="w-48 flex justify-center">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="w-fit flex items-center bg-transparent hover:bg-transparent text-black hover:text-blue-500 p-0"
-                    onClick={handleUploadClick}
-                  >
-                    <img
-                      src={cloudUpload}
-                      alt="上傳圖標"
-                      className="w-4 h-4 mr-2 filter-blue-500"
-                    />
-                    上傳新頭像
-                  </Button>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleFileSelect}
-                  />
-                </div>
-                <div className="relative">
-                  <div className="h-48 w-48 rounded-md flex items-center justify-center overflow-hidden border border-gray-300">
+              <div className="flex flex-col items-start gap-2">
+                <div className="w-[200px] flex flex-col items-center">
+                  {/* 按鈕切換顯示 */}
+                  {avatarPreview ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="mb-2 flex items-center justify-center w-full shadow-none border-none bg-transparent hover:bg-transparent focus:ring-0 focus:outline-none text-black hover:text-blue-600 group"
+                      onClick={() => {
+                        setAvatarPreview("");
+                      }}
+                    >
+                      <Trash2
+                        size={18}
+                        className="mr-2 text-blue-600 group-hover:text-blue-600 transition-colors"
+                      />
+                      取消上傳
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="mb-2 flex items-center justify-center w-full shadow-none border-none bg-transparent hover:bg-transparent focus:ring-0 focus:outline-none text-black hover:text-blue-600"
+                      onClick={() => setShowUploadModal(true)}
+                    >
+                      <img
+                        src={cloudUpload}
+                        alt="上傳圖標"
+                        className="w-4 h-4 mr-2 filter-blue-500"
+                      />
+                      上傳新的大頭照
+                    </Button>
+                  )}
+                  <div className="w-[200px] h-[200px] border border-gray-300 rounded-xl overflow-hidden flex items-center justify-center bg-gray-50">
                     <img
                       src={avatarPreview}
-                      alt="個人頭像"
-                      className="h-full w-full object-cover"
+                      alt="頭像"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = DEFAULT_AVATAR;
+                      }}
                     />
                   </div>
                 </div>
@@ -219,17 +251,88 @@ export default function InstructorInfoPage() {
             </div>
 
             {/* 按鈕區塊 */}
-            <div className="flex justify-start space-x-4">
+            <div className="flex justify-end space-x-4">
               <Button type="button" variant="outline" onClick={handleCancel}>
                 取消
               </Button>
-              <Button type="submit" disabled={isLoading}>
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="bg-orange-600 hover:bg-orange-700 text-white"
+              >
                 {isLoading ? "更新中..." : "更新"}
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
+
+      {/* 全頁上傳 Modal */}
+      {showUploadModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div
+            {...getModalRootProps()}
+            className="fixed inset-0 flex items-center justify-center"
+            style={{ cursor: "pointer" }}
+          >
+            <input {...getModalInputProps()} />
+            <div
+              className={`bg-white rounded-2xl border-2 border-dashed border-blue-400 shadow-2xl p-10 flex flex-col items-center transition-all ${
+                isPageDragActive || isModalDragActive
+                  ? "bg-blue-50 border-blue-500"
+                  : ""
+              }`}
+              style={{ minWidth: 340, minHeight: 260 }}
+            >
+              <img
+                src={cloudUpload}
+                alt="上傳圖標"
+                className="w-10 h-10 mb-4"
+              />
+              <div className="font-bold text-lg text-blue-600 mb-2 text-center">
+                {isPageDragActive || isModalDragActive
+                  ? "放開以上傳圖片"
+                  : "拖曳圖片到此處或點擊以上傳"}
+              </div>
+              <div className="text-slate-500 text-base text-center">
+                僅支援 JPG、PNG，最大 2MB
+              </div>
+              {fileRejections && fileRejections.length > 0 && (
+                <div className="text-red-500 text-sm mt-2">
+                  檔案格式或大小不符，請選擇 2MB 以內的圖片檔案。
+                </div>
+              )}
+              <Button
+                type="button"
+                variant="ghost"
+                className="mt-6"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowUploadModal(false);
+                  setIsPageDragActive(false);
+                }}
+              >
+                取消
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 全頁拖曳時遮罩提示 */}
+      {isPageDragActiveGlobal && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center pointer-events-none transition">
+          <div className="bg-white/95 rounded-2xl p-10 flex flex-col items-center shadow-2xl border-2 border-blue-400 border-dashed">
+            <img src={cloudUpload} alt="上傳圖標" className="w-10 h-10 mb-4" />
+            <div className="font-bold text-2xl text-blue-600 mb-2 text-center">
+              拖曳圖片到此處以上傳大頭照
+            </div>
+            <div className="text-slate-500 text-base text-center">
+              僅支援 JPG、PNG，最大 2MB
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -38,12 +38,13 @@ import CouponListPage from "@/pages/admin/coupon-list-page/CouponListPage";
 import CourseDetailPage from "@/pages/student/course-detail-page/CourseDetailPage";
 /** 前台訂單詳細頁面 */
 import OrderPage from "@/pages/student/order-page/OrderPage";
+/** 後台章節管理頁面 */
+import SectionManagementPage from "@/pages/admin/section-management-page/SectionManagementPage";
 /** 後台課程管理頁面 */
-import InstructorCoursePage from "@/pages/admin/instructor-course-page/instructorCoursePage";
-import InstructorCourseCreatePage from "@/pages/admin/instructor-course-page/instructorCourseCreatePage";
-import InstructorCourseDetailPage from "@/pages/admin/instructor-course-page/instructorCourseDetailPage";
-import InstructorCourseChaptersPage from "@/pages/admin/instructor-course-page/instructorCourseChaptersPage";
-import InstructorCourseDeactivatePage from "@/pages/admin/instructor-course-page/instructorCourseDeactivatePage";
+import CourseManagementListPage from "@/pages/admin/course-management-page/CourseManagementListPage";
+import CourseManagementCreatePage from "@/pages/admin/course-management-page/CourseManagementCreatePage";
+import CourseManagementDetailPage from "@/pages/admin/course-management-page/CourseManagementDetailPage";
+import CourseManagementPublishingPage from "@/pages/admin/course-management-page/CourseManagementPublishingPage";
 /** 前台結帳 callback 頁面 */
 import CheckoutPage from "@/pages/student/checkout-page/CheckoutPage";
 import CoursePlayerPage from "@/pages/student/course-player-page/CoursePlayerPage";
@@ -173,26 +174,30 @@ function App() {
             element={<InstructorOrderListPage />}
           />
           <Route path={ADMIN_ROUTES.COUPONS} element={<CouponListPage />} />
-          {/* 課程相關路由 */}
+          {/* 課程管理相關路由 */}
           <Route
             path={ADMIN_ROUTES.COURSES}
-            element={<InstructorCoursePage />}
+            element={<CourseManagementListPage />}
+          />
+          <Route
+            path={ADMIN_ROUTES.COURSELIST}
+            element={<CourseManagementListPage />}
           />
           <Route
             path={ADMIN_ROUTES.CREATE_COURSE}
-            element={<InstructorCourseCreatePage />}
+            element={<CourseManagementCreatePage />}
           />
           <Route
             path={ADMIN_ROUTES.COURSE_INFO}
-            element={<InstructorCourseDetailPage />}
+            element={<CourseManagementDetailPage />}
           />
           <Route
-            path={ADMIN_ROUTES.CHAPTER_MANAGEMENT}
-            element={<InstructorCourseChaptersPage />}
+            path={ADMIN_ROUTES.COURSE_PUBLISHING_MANAGEMENT}
+            element={<CourseManagementPublishingPage />}
           />
           <Route
-            path={ADMIN_ROUTES.DEACTIVATE_COURSE}
-            element={<InstructorCourseDeactivatePage />}
+            path={ADMIN_ROUTES.SECTION_MANAGEMENT}
+            element={<SectionManagementPage />}
           />
           <Route
             path={ADMIN_ROUTES.SECTION_MANAGEMENT}
