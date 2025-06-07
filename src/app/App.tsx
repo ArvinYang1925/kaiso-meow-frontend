@@ -48,6 +48,8 @@ import CourseManagementPublishingPage from "@/pages/admin/course-management-page
 /** 前台結帳 callback 頁面 */
 import CheckoutPage from "@/pages/student/checkout-page/CheckoutPage";
 import CoursePlayerPage from "@/pages/student/course-player-page/CoursePlayerPage";
+/** 後台章節管理頁面 */
+import SectionManagementPage from "@/pages/admin/section-management-page/SectionManagementPage";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -192,6 +194,10 @@ function App() {
           <Route
             path={ADMIN_ROUTES.COURSE_PUBLISHING_MANAGEMENT}
             element={<CourseManagementPublishingPage />}
+          />
+          <Route
+            path={ADMIN_ROUTES.SECTION_MANAGEMENT}
+            element={<SectionManagementPage />}
           />
           <Route
             path={ADMIN_ROUTES.SECTION_MANAGEMENT}
