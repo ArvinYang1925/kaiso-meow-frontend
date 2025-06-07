@@ -1,5 +1,5 @@
 import axios from "@/services/axiosInstance"; //很重要，這邊必須確認呼叫到的是 axiosInstance!!
-import { Section, CreateSectionRequestModel, UpdateSectionRequestModel, UpdateSectionPublishedStatusRequestModel, SectionOrder } from './type'
+import { Section, CreateSectionRequestModel, UpdateSectionRequestModel, UpdateSectionPublishedStatusRequestModel, SectionOrder, Video, VideoStatus, CreateAiSectionDraftRequestModel } from './type'
 import { BaseApiResponseModel } from "@/services/types";
 
 /** 查詢某課程的所有章節列表 */
@@ -47,4 +47,34 @@ export const updateSectionOrder = async (courseId: string, newSectionOrderList: 
     const response = await axios.put(`/api/v1/instructor/courses/${courseId}/sections/sort`, newSectionOrderList);
     return response.data.data;
 };
+
+/** 批次新增章節 */
+export const batchCreateSection = async (courseId: string, sections: CreateSectionRequestModel[]): Promise<Section[]> => {
+    const response = await axios.post(`/api/v1/instructor/courses/${courseId}/sections/batch`, { sections });
+    return response.data.data;
+};
+
+/** AI 章節草稿產生 */
+export const createAiSectionsDraft = async (courseId: string, data: CreateAiSectionDraftRequestModel): Promise<Section[]> => {
+    const response = await axios.post(`/api/v1/instructor/courses/${courseId}/ai-generated-sections`, data);
+    return response.data.data;
+};
+
+/** 上傳影片 (檔案) */
+export const createVideo = async (sectionId: string, file: File): Promise<Video> => {
+    const response = await axios.post(`/api/v1/instructor/sections/${sectionId}/video`, file);
+    return response.data.data;
+}
+
+/** 刪除影片 (檔案) */
+export const deleteVideo = async (sectionId: string): Promise<Video> => {
+    const response = await axios.delete(`/api/v1/instructor/sections/${sectionId}/video`);
+    return response.data.data;
+}
+
+/** 查詢轉檔狀態 */
+export const fetchVideoStatus = async (sectionId: string): Promise<VideoStatus> => {
+    const response = await axios.get(`/api/v1/instructor/sections/${sectionId}/video`);
+    return response.data.data;
+}
 

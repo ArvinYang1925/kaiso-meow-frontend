@@ -29,3 +29,25 @@ export type SectionOrder = {
     id: string;
     order: number;
 };
+
+/** AI 章節草稿產生 - 請求資料 */
+export type CreateAiSectionDraftRequestModel = {
+    sectionIdea?: string;
+    description: string;
+    expectedSectionCount?: number;
+}
+
+
+/** 上傳影片 - 回應資料 */
+export type Video = {
+    id: string;
+    title: string;
+    uploadStatus: string;
+}
+
+/** 查詢轉檔狀態 - 回應資料 */
+export type VideoStatus = {
+    uploadStatus: "no_video" | "pending" | "processing" | "completed" | "failed";
+    videoUrl: null | string;
+    errorType?: "transcode" | "upload" | "unknown";
+}

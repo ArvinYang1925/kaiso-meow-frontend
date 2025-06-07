@@ -2,7 +2,14 @@ import { useEffect, useMemo } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Plus, Pencil, Trash2, CloudUpload, GripVertical } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  CloudUpload,
+  GripVertical,
+  Upload,
+} from "lucide-react";
 import { useBreadcrumbStore } from "@/stores/breadcrumbStore";
 import { ReactSortable } from "react-sortablejs";
 import { useSectionManagementStore } from "./store/sectionManagementStore";
@@ -13,6 +20,8 @@ import InitialPageComponent from "./components/InitialPageComponent";
 import clsx from "clsx";
 import { handleErrorMessageDialog } from "@/lib/helper";
 import { useDialogStore } from "@/stores/commonDialogStore";
+import UploadVideoModal from "./components/UploadVideoModal";
+import EditVideoModal from "./components/EditVideoModal";
 
 export default function SectionManagementPage() {
   const { courseId } = useParams();
@@ -31,6 +40,8 @@ export default function SectionManagementPage() {
     setCurrentSection,
     setIsShowCreateSectionModal,
     setIsShowUpdateSectionModal,
+    setIsShowUploadVideoModal,
+    // setIsShowEditVideoModal,
   } = useSectionManagementStore();
   //courseId a1315061-ab3a-4e4d-b553-13cc125ecb10
 
@@ -87,7 +98,7 @@ export default function SectionManagementPage() {
         description: "章節順序已變更",
       });
     } catch (error) {
-      console.error('Drag end error:', error);
+      console.error("Drag end error:", error);
       //先還原更新順序
       setSectionList(mutableItems);
       showCommonDialog({
@@ -170,13 +181,17 @@ export default function SectionManagementPage() {
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
                           {/* 拖曳手柄 */}
-                          <div className="cursor-move p-1 text-gray-400 hover:text-gray-600">
+                          <div
+                            className="cursor-move p-1 text-gray-400 hover:text-gray-600"
+                            title="更新章節順序"
+                          >
                             <GripVertical className="h-4 w-4" />
                           </div>
 
                           <Button
                             variant="ghost"
                             size="default"
+                            title="變更章節發布狀態"
                             onClick={() =>
                               handleUpdatePublishedStatus(
                                 section.id,
@@ -197,6 +212,15 @@ export default function SectionManagementPage() {
                           <Button
                             variant="outline"
                             size="icon"
+                            title="上傳影片"
+                            onClick={() => setIsShowUploadVideoModal(true)}
+                          >
+                            <Upload className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            title="編輯章節內容"
                             onClick={() => handleOpenUpdateModal(section)}
                           >
                             <Pencil className="h-4 w-4" />
@@ -204,6 +228,7 @@ export default function SectionManagementPage() {
                           <Button
                             variant="outline"
                             size="icon"
+                            title="刪除章節"
                             onClick={() => handleDeleteSection(section.id)}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -218,9 +243,12 @@ export default function SectionManagementPage() {
           </Card>
         </>
       )}
-      {/* 新增與編輯 modal */}
+      {/* 新增與編輯章節 modal */}
       <CreateSectionModal />
       <UpdateSectionModal />
+      {/* 新增與編輯影片 modal */}
+      <UploadVideoModal />
+      <EditVideoModal />
     </div>
   );
 }
