@@ -7,7 +7,7 @@ import {
   deleteSection,
   updateSectionPublishedStatus,
   updateSectionOrder,
-  createVideo,
+  // createVideo,
   deleteVideo,
   fetchVideoStatus
 } from "../services/section-management.service";
@@ -20,12 +20,14 @@ import {
   Video,
   VideoStatus,
 } from "../services/type";
+import axios from "axios";
 
 interface SectionManagementState {
   sectionList: Section[];
   section: Section;
   video: Video;
   videoStatus: VideoStatus;
+  videoFileName: string;
   isLoading: boolean;
   isShowCreateSectionModal: boolean;
   isShowUpdateSectionModal: boolean;
@@ -58,6 +60,7 @@ interface SectionManagementAction {
   setIsShowUpdateSectionModal: (isShowModal: boolean) => void;
   setIsShowUploadVideoModal: (isShowModal: boolean) => void;
   setIsShowEditVideoModal: (isShowModal: boolean) => void;
+  setVideoFileName: (fileName: string) => void;
 }
 
 export const useSectionManagementStore = create<
@@ -82,6 +85,7 @@ export const useSectionManagementStore = create<
       videoUrl: null,
       errorType: undefined
     },
+    videoFileName: '',
     isLoading: false,
     isShowCreateSectionModal: false,
     isShowUpdateSectionModal: false,
@@ -192,14 +196,29 @@ export const useSectionManagementStore = create<
         state.isLoading = true;
       });
       try {
-        const data = await createVideo(sectionId, file);
+        const formData = new FormData();
+        formData.append("file", file); // key 要和後端預期的對應
+
+        const token = localStorage.getItem("token"); // 或從其他地方取得
+        const response = await axios.post(`/api/v1/instructor/sections/${sectionId}/video`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data", // axios 會自動補上 boundary
+              Authorization: `Bearer ${token}`,
+            },
+          })
+        console.log('in store create video', response.data.data)
         set((state) => {
-          state.video = data;
-          state.isLoading = false;
+          state.video = response.data.data;
         });
       } catch (error) {
         console.log('error in createVideo', error)
         throw error;
+      } finally {
+        set((state) => {
+          state.isLoading = false;
+        });
       }
     },
     deleteVideo: async (sectionId) => {
@@ -255,6 +274,11 @@ export const useSectionManagementStore = create<
     setCurrentSection: (currentSection) => {
       set((state) => {
         state.section = currentSection;
+      });
+    },
+    setVideoFileName: (fileName) => {
+      set((state) => {
+        state.videoFileName = fileName;
       });
     },
   }))

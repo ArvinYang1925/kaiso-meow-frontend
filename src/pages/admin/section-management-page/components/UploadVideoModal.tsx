@@ -2,56 +2,26 @@ import Modal from "@/components/common/Modal";
 import { useSectionManagementStore } from "../store/sectionManagementStore";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { handleErrorMessageDialog } from "@/lib/helper";
-// import { useDialogStore } from "@/stores/commonDialogStore";
-import { useDropzone } from "react-dropzone";
-import { Upload } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
+import UploadVideoDropzoneSection from "./UploadVideoDropzoneSection";
 
 const UploadVideoModal = () => {
   const {
     isShowUploadVideoModal,
-    section,
+    videoFileName,
+    isLoading,
     setIsShowUploadVideoModal,
-    createVideo,
+    setVideoFileName,
   } = useSectionManagementStore();
 
-  // const { showCommonDialog } = useDialogStore();
-
-  const { getRootProps, getInputProps, acceptedFiles } = useDropzone({
-    accept: {
-      "video/*": [], // 接受所有影片格式，如 .mp4, .mov, .avi 等
-    },
-    maxFiles: 1,
-    maxSize: 100 * 1024 * 1024, // 最大檔案大小 100MB（可依需求調整）
-    onDrop: async (acceptedFiles) => {
-      console.log("選取的影片檔案：", acceptedFiles);
-
-      if (acceptedFiles.length > 0) {
-        const file = acceptedFiles[0];
-
-        try {
-          const response = await createVideo(section.id, file);
-          console.log("上傳成功", response);
-          //     showCommonDialog({
-          //       title: "上傳成功",
-          //       description: "",
-          //     });
-          //     setIsShowUploadVideoModal(false);
-        } catch (error) {
-          console.error("上傳失敗", error);
-          handleErrorMessageDialog(error);
-        }
-      }
-    },
-  });
+  const [dropzoneKey, setDropzoneKey] = useState(0);
 
   useEffect(() => {
     if (isShowUploadVideoModal) {
-      // 初始化清空上傳檔案
+      setVideoFileName("");
+      setDropzoneKey((prev) => prev + 1); // 每次開啟 modal 就更新 key
     }
   }, [isShowUploadVideoModal]);
-
-  const [isHovering, setIsHovering] = useState(false);
 
   return (
     <Modal
@@ -61,34 +31,16 @@ const UploadVideoModal = () => {
       size="xl" // md | lg | full
     >
       <div className="px-2 py-6">
-        {/* 上傳拖曳區 */}
-        <div
-          className="flex flex-col items-center h-100 py-40 mb-8 cursor-pointer"
-          onPointerEnter={() => setIsHovering(true)}
-          onPointerLeave={() => setIsHovering(false)}
-          style={{
-            border: "6px dashed #eee",
-            background: isHovering ? "#f9fafb" : "transparent",
-          }}
-          {...getRootProps()}
-        >
-          <input {...getInputProps()} />
-          <p className="mb-4 font-medium text-2xl text-slate-400">
-            請將影片拖曳至此，或點擊選擇上傳檔案
-          </p>
-          <p className="mb-8 text-slate-400">
-            接受所有影片格式，如 .mp4, .mov, .avi 等，最大檔案大小 100MB。
-          </p>
-          <Upload className="h-16 w-16 text-slate-300" />
-          <ul>
-            {acceptedFiles.map((file) => (
-              <li key={file.name}>
-                {file.name} - {file.size} bytes
-              </li>
-            ))}
-          </ul>
-        </div>
-        {/* 上傳拖曳區 */}
+        {!isLoading && videoFileName == "" ? (
+          <UploadVideoDropzoneSection key={dropzoneKey} />
+        ) : (
+          <div className="flex items-center gap-3 p-4 bg-yellow-50 text-yellow-800 rounded-xl shadow-sm border border-yellow-200 animate-pulse">
+            <LoaderCircle className="w-5 h-5 animate-spin text-yellow-500" />
+            <p className="text-sm font-medium">
+              {videoFileName} 正在上傳中，請稍候...
+            </p>
+          </div>
+        )}
         <div className="btn-wrap flex justify-end mt-4">
           <Button
             type="button"
