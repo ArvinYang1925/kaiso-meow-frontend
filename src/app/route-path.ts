@@ -45,8 +45,6 @@ export const ADMIN_ROUTES = Object.freeze({
   CHANGE_PASSWORD: "/admin/me/change-password",
   /** 優惠券 */
   COUPONS: "/admin/coupons",
-  /** 章節管理 */
-  SECTION_MANAGEMENT: "/admin/courses/:courseId/sections",
 });
 
 /** 公共權限頁面 */
