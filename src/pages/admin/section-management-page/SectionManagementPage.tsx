@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -10,7 +10,6 @@ import {
   GripVertical,
   Upload,
 } from "lucide-react";
-import { useBreadcrumbStore } from "@/stores/breadcrumbStore";
 import { ReactSortable } from "react-sortablejs";
 import { useSectionManagementStore } from "./store/sectionManagementStore";
 import { Section, SectionOrder } from "./services/type";
@@ -25,8 +24,6 @@ import EditVideoModal from "./components/EditVideoModal";
 
 export default function SectionManagementPage() {
   const { courseId } = useParams();
-  const location = useLocation();
-  const { setBreadcrumbs } = useBreadcrumbStore();
   const { showCommonDialog } = useDialogStore();
 
   const {
@@ -43,7 +40,6 @@ export default function SectionManagementPage() {
     setIsShowUploadVideoModal,
     // setIsShowEditVideoModal,
   } = useSectionManagementStore();
-  //courseId a1315061-ab3a-4e4d-b553-13cc125ecb10
 
   // 做 shallow copy，避免傳入 immer readonly proxy
   const mutableItems = useMemo(
@@ -114,23 +110,12 @@ export default function SectionManagementPage() {
   };
 
   useEffect(() => {
-    //取章節資料
+    //以課程id，取得章節資料
     console.log("courseId", courseId);
     if (courseId) {
       fetchSectionList(courseId);
     }
-
-    // TODO: 從 API 獲取章節列表和課程資訊
-    const mockCourseInfo = {
-      title: "React 入門課程",
-    };
-
-    // 設置麵包屑
-    setBreadcrumbs(location.pathname, {
-      courseId,
-      courseName: mockCourseInfo.title,
-    });
-  }, [courseId, location.pathname, setBreadcrumbs]);
+  }, [courseId]);
 
   return (
     <div className="p-6">
@@ -213,7 +198,10 @@ export default function SectionManagementPage() {
                             variant="outline"
                             size="icon"
                             title="上傳影片"
-                            onClick={() => setIsShowUploadVideoModal(true)}
+                            onClick={() => {
+                              setIsShowUploadVideoModal(true);
+                              setCurrentSection(section)
+                            }}
                           >
                             <Upload className="h-4 w-4" />
                           </Button>

@@ -7,6 +7,9 @@ import {
   deleteSection,
   updateSectionPublishedStatus,
   updateSectionOrder,
+  createVideo,
+  deleteVideo,
+  fetchVideoStatus
 } from "../services/section-management.service";
 import {
   CreateSectionRequestModel,
@@ -14,11 +17,15 @@ import {
   SectionOrder,
   UpdateSectionPublishedStatusRequestModel,
   UpdateSectionRequestModel,
+  Video,
+  VideoStatus,
 } from "../services/type";
 
 interface SectionManagementState {
   sectionList: Section[];
   section: Section;
+  video: Video;
+  videoStatus: VideoStatus;
   isLoading: boolean;
   isShowCreateSectionModal: boolean;
   isShowUpdateSectionModal: boolean;
@@ -42,6 +49,9 @@ interface SectionManagementAction {
     data: UpdateSectionPublishedStatusRequestModel
   ) => Promise<void>;
   updateSectionOrder: (courseId: string, newSectionOrderList: SectionOrder[]) => Promise<void>;
+  createVideo: (sectionId: string, file: File) => Promise<void>;
+  deleteVideo: (sectionId: string) => Promise<void>;
+  fetchVideoStatus: (sectionId: string) => Promise<void>;
   setSectionList: (newSectionList: Section[]) => void;
   setCurrentSection: (currentSection: Section) => void;
   setIsShowCreateSectionModal: (isShowModal: boolean) => void;
@@ -61,6 +71,16 @@ export const useSectionManagementStore = create<
       videoUrl: "",
       content: "",
       isPublished: false,
+    },
+    video: {
+      id: '',
+      title: '',
+      uploadStatus: ''
+    },
+    videoStatus: {
+      uploadStatus: 'no_video',
+      videoUrl: null,
+      errorType: undefined
     },
     isLoading: false,
     isShowCreateSectionModal: false,
@@ -164,6 +184,51 @@ export const useSectionManagementStore = create<
         });
       } catch (error: any) {
         console.log('error in section order', error)
+        throw error;
+      }
+    },
+    createVideo: async (sectionId, file) => {
+      set((state) => {
+        state.isLoading = true;
+      });
+      try {
+        const data = await createVideo(sectionId, file);
+        set((state) => {
+          state.video = data;
+          state.isLoading = false;
+        });
+      } catch (error) {
+        console.log('error in createVideo', error)
+        throw error;
+      }
+    },
+    deleteVideo: async (sectionId) => {
+      set((state) => {
+        state.isLoading = true;
+      });
+      try {
+        const data = await deleteVideo(sectionId)
+        set((state) => {
+          state.section = data; //turn videoUrl into null
+          state.isLoading = false;
+        });
+      } catch (error) {
+        console.log('error in deleteVideo', error)
+        throw error;
+      }
+    },
+    fetchVideoStatus: async (sectionId) => {
+      set((state) => {
+        state.isLoading = true;
+      });
+      try {
+        const data = await fetchVideoStatus(sectionId)
+        set((state) => {
+          state.videoStatus = data;
+          state.isLoading = false;
+        });
+      } catch (error) {
+        console.log('error in fetchVideoStatus', error)
         throw error;
       }
     },

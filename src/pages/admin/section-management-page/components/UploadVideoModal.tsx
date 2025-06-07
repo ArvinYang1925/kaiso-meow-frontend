@@ -2,8 +2,7 @@ import Modal from "@/components/common/Modal";
 import { useSectionManagementStore } from "../store/sectionManagementStore";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-// import { useParams } from "react-router-dom";
-// import { handleErrorMessageDialog } from "@/lib/helper";
+import { handleErrorMessageDialog } from "@/lib/helper";
 // import { useDialogStore } from "@/stores/commonDialogStore";
 import { useDropzone } from "react-dropzone";
 import { Upload } from "lucide-react";
@@ -11,10 +10,12 @@ import { Upload } from "lucide-react";
 const UploadVideoModal = () => {
   const {
     isShowUploadVideoModal,
+    section,
     setIsShowUploadVideoModal,
-    // createSection,
-    // fetchSectionList,
+    createVideo,
   } = useSectionManagementStore();
+
+  // const { showCommonDialog } = useDialogStore();
 
   const { getRootProps, getInputProps, acceptedFiles } = useDropzone({
     accept: {
@@ -22,36 +23,27 @@ const UploadVideoModal = () => {
     },
     maxFiles: 1,
     maxSize: 100 * 1024 * 1024, // 最大檔案大小 100MB（可依需求調整）
-    onDrop: (acceptedFiles) => {
+    onDrop: async (acceptedFiles) => {
       console.log("選取的影片檔案：", acceptedFiles);
+
+      if (acceptedFiles.length > 0) {
+        const file = acceptedFiles[0];
+
+        try {
+          const response = await createVideo(section.id, file);
+          console.log("上傳成功", response);
+          //     showCommonDialog({
+          //       title: "上傳成功",
+          //       description: "",
+          //     });
+          //     setIsShowUploadVideoModal(false);
+        } catch (error) {
+          console.error("上傳失敗", error);
+          handleErrorMessageDialog(error);
+        }
+      }
     },
   });
-
-  // const { showCommonDialog } = useDialogStore();
-
-  // const { courseId } = useParams();
-
-  // const handleUploadVideo = async (e: React.FormEvent<HTMLFormElement>) => {
-  //   if (!courseId) return;
-  //   e.preventDefault();
-
-  //   // const reqData = {
-  //   //   title: sectionTitle,
-  //   //   content: sectionContent,
-  //   // };
-
-  //   try {
-  //     //   await createSection(courseId, reqData);
-  //     showCommonDialog({
-  //       title: "新增成功",
-  //       description: "",
-  //     });
-  //     setIsShowUploadVideoModal(false);
-  //     fetchSectionList(courseId);
-  //   } catch (error) {
-  //     handleErrorMessageDialog(error);
-  //   }
-  // };
 
   useEffect(() => {
     if (isShowUploadVideoModal) {
@@ -85,7 +77,7 @@ const UploadVideoModal = () => {
             請將影片拖曳至此，或點擊選擇上傳檔案
           </p>
           <p className="mb-8 text-slate-400">
-            接受所有影片格式，如 .mp4, .mov, .avi 等
+            接受所有影片格式，如 .mp4, .mov, .avi 等，最大檔案大小 100MB。
           </p>
           <Upload className="h-16 w-16 text-slate-300" />
           <ul>

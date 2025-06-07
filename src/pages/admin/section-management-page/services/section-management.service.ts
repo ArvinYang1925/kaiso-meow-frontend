@@ -67,7 +67,7 @@ export const createVideo = async (sectionId: string, file: File): Promise<Video>
 }
 
 /** 刪除影片 (檔案) */
-export const deleteVideo = async (sectionId: string): Promise<Video> => {
+export const deleteVideo = async (sectionId: string): Promise<Section> => {
     const response = await axios.delete(`/api/v1/instructor/sections/${sectionId}/video`);
     return response.data.data;
 }
