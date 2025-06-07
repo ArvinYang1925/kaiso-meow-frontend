@@ -2,8 +2,10 @@ export interface Section {
   id: string;
   title: string;
   content: string;
-  videoUrl: string;
+  videoUrl?: string;
+  videoUrl1?: string;
   courseId: string;
+  courseName?: string;
   order: number;
   progress: {
     isCompleted: boolean;
@@ -11,11 +13,11 @@ export interface Section {
   nextSection?: {
     id: string;
     title: string;
-  };
+  } | null;
   prevSection?: {
     id: string;
     title: string;
-  };
+  } | null;
 }
 
 export interface CourseProgress {

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import VideoPlayer from "@/components/features/VideoPlayer";
+// import HLSVideoPlayer from "@/components/features/HLSVideoPlayer";
 import CourseSidebar from "@/components/features/CourseSidebar";
 import SectionContent from "@/components/features/SectionContent";
 import { Section, CourseSection, SectionApiResponse } from "@/types/course";
+import { learningService } from "@/services/learningService";
 
 // Mock data to simulate the API response structure
 const mockSectionData: SectionApiResponse = {
@@ -22,7 +24,8 @@ const mockSectionData: SectionApiResponse = {
                   <li>學會建立基本的 Express 應用程式</li>
                   <li>了解路由和中間件的使用方法</li>
                 </ul>`,
-      videoUrl: "https://example.com/videos/express-intro.mp4",
+      videoUrl:
+        "http://sample.vodobox.net/skate_phantom_flex_4k/skate_phantom_flex_4k.m3u8",
       courseId: "uuid-course-1",
       order: 2,
       progress: {
@@ -75,6 +78,8 @@ const LearningPage: React.FC = () => {
 
   const [currentSection, setCurrentSection] = useState<Section | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  // const [useHLSPlayer, setUseHLSPlayer] = useState(false);
 
   // Mock course progress
   const courseProgress = {
@@ -84,20 +89,44 @@ const LearningPage: React.FC = () => {
   };
 
   useEffect(() => {
-    // Simulate API call
     const fetchSectionData = async () => {
-      setLoading(true);
+      if (!courseId || !sectionId) {
+        setError("課程ID或章節ID缺失");
+        setLoading(false);
+        return;
+      }
 
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      try {
+        setLoading(true);
+        setError(null);
 
-      // In a real app, you would fetch data based on sectionId
-      setCurrentSection(mockSectionData.data.section);
-      setLoading(false);
+        // Use the real API call
+        const response = await learningService.getCourseSection(
+          courseId,
+          sectionId
+        );
+
+        if (response.status === "success") {
+          setCurrentSection(response.data.section);
+        } else {
+          setError(response.message || "獲取章節資料失敗");
+        }
+      } catch (err) {
+        console.error("Error fetching section data:", err);
+        setError("獲取章節資料時發生錯誤");
+
+        // Fallback to mock data for development
+        if (import.meta.env.DEV) {
+          console.warn("Falling back to mock data");
+          setCurrentSection(mockSectionData.data.section);
+        }
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchSectionData();
-  }, [sectionId]);
+  }, [courseId, sectionId]);
 
   const handleSectionClick = (newSectionId: string) => {
     // In a real app, you would navigate to the new section
@@ -132,7 +161,29 @@ const LearningPage: React.FC = () => {
     return (
       <div className="flex h-screen">
         <div className="w-80 bg-gray-100 animate-pulse"></div>
-        <div className="flex-1 bg-gray-50 animate-pulse"></div>
+        <div className="flex-1 bg-gray-50 animate-pulse flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+            <p className="text-gray-600">載入章節資料中...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-red-600 mb-2">載入失敗</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            重新載入
+          </button>
+        </div>
       </div>
     );
   }
@@ -154,7 +205,7 @@ const LearningPage: React.FC = () => {
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
       <CourseSidebar
-        courseTitle="React 前端開發實戰"
+        courseTitle={currentSection.courseName || "課程"}
         currentSectionId={currentSection.id}
         sections={mockSections}
         onSectionClick={handleSectionClick}
@@ -166,12 +217,51 @@ const LearningPage: React.FC = () => {
         {/* Video Player */}
         <div className="bg-black flex-shrink-0">
           <div className="max-w-full mx-auto">
+            {/* Player Toggle Button - Commented out for now */}
+            {/* <div className="absolute top-2 right-2 z-10">
+              <button
+                onClick={() => setUseHLSPlayer(!useHLSPlayer)}
+                className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+              >
+                {useHLSPlayer ? 'Use VideoJS' : 'Use HLS Player'}
+              </button>
+            </div> */}
+
+            {/* Using only VideoJS player for now */}
             <VideoPlayer
-              src={currentSection.videoUrl}
+              src={currentSection.videoUrl1 || currentSection.videoUrl || ""}
+              // src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+              type={
+                currentSection.videoUrl1?.includes(".m3u8")
+                  ? "application/x-mpegURL"
+                  : undefined
+              }
               onProgress={handleVideoProgress}
               onEnded={handleVideoEnded}
               className="w-full"
             />
+
+            {/* HLS Player - Commented out for now */}
+            {/* {useHLSPlayer ? (
+              <HLSVideoPlayer
+                src={currentSection.videoUrl1 || currentSection.videoUrl || ""}
+                onProgress={handleVideoProgress}
+                onEnded={handleVideoEnded}
+                className="w-full"
+              />
+            ) : (
+              <VideoPlayer
+                src={currentSection.videoUrl1 || currentSection.videoUrl || ""}
+                type={
+                  currentSection.videoUrl1?.includes(".m3u8")
+                    ? "application/x-mpegURL"
+                    : undefined
+                }
+                onProgress={handleVideoProgress}
+                onEnded={handleVideoEnded}
+                className="w-full"
+              />
+            )} */}
           </div>
         </div>
 

@@ -1,14 +1,27 @@
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 import { SectionApiResponse, Section } from "@/types/course";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
-
 export const learningService = {
-  // Fetch section data by ID
+  // Fetch section data by courseId and sectionId (new endpoint)
+  async getCourseSection(
+    courseId: string,
+    sectionId: string
+  ): Promise<SectionApiResponse> {
+    try {
+      const response = await axiosInstance.get(
+        `/api/v1/courses/${courseId}/sections/${sectionId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching course section:", error);
+      throw error;
+    }
+  },
+
+  // Fetch section data by ID (legacy endpoint)
   async getSection(sectionId: string): Promise<SectionApiResponse> {
     try {
-      const response = await axios.get(`${API_BASE_URL}/sections/${sectionId}`);
+      const response = await axiosInstance.get(`/api/v1/sections/${sectionId}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching section:", error);
@@ -22,8 +35,8 @@ export const learningService = {
     progress: { isCompleted: boolean; currentTime?: number }
   ): Promise<void> {
     try {
-      await axios.put(
-        `${API_BASE_URL}/sections/${sectionId}/progress`,
+      await axiosInstance.put(
+        `/api/v1/sections/${sectionId}/progress`,
         progress
       );
     } catch (error) {
@@ -35,8 +48,8 @@ export const learningService = {
   // Get course sections list
   async getCourseSections(courseId: string) {
     try {
-      const response = await axios.get(
-        `${API_BASE_URL}/courses/${courseId}/sections`
+      const response = await axiosInstance.get(
+        `/api/v1/courses/${courseId}/sections`
       );
       return response.data;
     } catch (error) {
@@ -48,7 +61,7 @@ export const learningService = {
   // Mark section as completed
   async markAsCompleted(sectionId: string): Promise<void> {
     try {
-      await axios.post(`${API_BASE_URL}/sections/${sectionId}/complete`);
+      await axiosInstance.post(`/api/v1/sections/${sectionId}/complete`);
     } catch (error) {
       console.error("Error marking section as completed:", error);
       throw error;
@@ -73,7 +86,8 @@ export const mockSectionResponse: SectionApiResponse = {
                   <li>學會建立基本的 Express 應用程式</li>
                   <li>了解路由和中間件的使用方法</li>
                 </ul>`,
-      videoUrl: "https://example.com/videos/express-intro.mp4",
+      videoUrl:
+        "http://sample.vodobox.net/skate_phantom_flex_4k/skate_phantom_flex_4k.m3u8",
       courseId: "uuid-course-1",
       order: 2,
       progress: {
