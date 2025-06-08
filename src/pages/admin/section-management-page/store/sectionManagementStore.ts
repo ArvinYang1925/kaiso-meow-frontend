@@ -7,6 +7,8 @@ import {
   deleteSection,
   updateSectionPublishedStatus,
   updateSectionOrder,
+  deleteVideo,
+  fetchVideoStatus
 } from "../services/section-management.service";
 import {
   CreateSectionRequestModel,
@@ -14,16 +16,26 @@ import {
   SectionOrder,
   UpdateSectionPublishedStatusRequestModel,
   UpdateSectionRequestModel,
+  Video,
+  VideoStatus,
 } from "../services/type";
+import axios, { AxiosResponse } from "axios";
+import { ApiDataResponse } from "@/services/types";
 
 interface SectionManagementState {
   sectionList: Section[];
   section: Section;
+  currentSectionId: string;
+  video: Video;
+  videoStatus: VideoStatus;
+  videoFileName: string;
   isLoading: boolean;
   isShowCreateSectionModal: boolean;
   isShowUpdateSectionModal: boolean;
   isShowUploadVideoModal: boolean;
   isShowEditVideoModal: boolean;
+  isShowVideoStatusModal: boolean;
+  isShowAiSectionGeneratorModal: boolean;
 }
 
 interface SectionManagementAction {
@@ -42,12 +54,19 @@ interface SectionManagementAction {
     data: UpdateSectionPublishedStatusRequestModel
   ) => Promise<void>;
   updateSectionOrder: (courseId: string, newSectionOrderList: SectionOrder[]) => Promise<void>;
+  createVideo: (sectionId: string, file: File) => Promise<AxiosResponse<ApiDataResponse<Video>>>;//Promise<AxiosResponse<BaseApiResponseModel, any>>
+  deleteVideo: (sectionId: string) => Promise<void>;
+  fetchVideoStatus: (sectionId: string) => Promise<VideoStatus>;
   setSectionList: (newSectionList: Section[]) => void;
+  setCurrentSectionId: (currentSectionId: string) => void;
   setCurrentSection: (currentSection: Section) => void;
   setIsShowCreateSectionModal: (isShowModal: boolean) => void;
   setIsShowUpdateSectionModal: (isShowModal: boolean) => void;
   setIsShowUploadVideoModal: (isShowModal: boolean) => void;
   setIsShowEditVideoModal: (isShowModal: boolean) => void;
+  setVideoFileName: (fileName: string) => void;
+  setIsShowVideoStatusModal: (isShowModal: boolean) => void;
+  setIsShowAiSectionGeneratorModal: (isShowModal: boolean) => void;
 }
 
 export const useSectionManagementStore = create<
@@ -62,11 +81,25 @@ export const useSectionManagementStore = create<
       content: "",
       isPublished: false,
     },
+    video: {
+      id: '',
+      title: '',
+      uploadStatus: ''
+    },
+    videoStatus: {
+      uploadStatus: 'no_video',
+      videoUrl: null,
+      errorType: undefined
+    },
+    currentSectionId: '',
+    videoFileName: '',
     isLoading: false,
     isShowCreateSectionModal: false,
     isShowUpdateSectionModal: false,
     isShowUploadVideoModal: false,
     isShowEditVideoModal: false,
+    isShowVideoStatusModal: false,
+    isShowAiSectionGeneratorModal: false,
 
     setSectionList: (newSectionList) => {
       set((state) => {
@@ -160,11 +193,75 @@ export const useSectionManagementStore = create<
         console.log("update section order in store", data);
         set((state) => {
           state.sectionList = data;
-          state.isLoading = false;
         });
       } catch (error: any) {
         console.log('error in section order', error)
         throw error;
+      } finally {
+        set((state) => {
+          state.isLoading = false;
+        });
+      }
+    },
+    createVideo: async (sectionId, file) => {
+      set((state) => {
+        state.isLoading = true;
+      });
+      try {
+        const formData = new FormData();
+        formData.append("file", file); // key 要和後端預期的對應
+
+        const token = localStorage.getItem("token"); // 或從其他地方取得
+        if (!token) throw new Error("Token not found");
+
+        const response = await axios.post<ApiDataResponse<Video>>(`/api/v1/instructor/sections/${sectionId}/video`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data", // axios 會自動補上 boundary
+              Authorization: `Bearer ${token}`,
+            },
+          })
+        console.log('in store create video', response.data)
+        return response
+      } catch (error) {
+        console.log('error in createVideo', error)
+        throw error;
+      } finally {
+        set((state) => {
+          state.isLoading = false;
+        });
+      }
+    },
+    deleteVideo: async (sectionId) => {
+      set((state) => {
+        state.isLoading = true;
+      });
+      try {
+        const data = await deleteVideo(sectionId)
+        set((state) => {
+          state.section = data; //turn videoUrl into null
+          state.isLoading = false;
+        });
+      } catch (error) {
+        console.log('error in deleteVideo', error)
+        throw error;
+      }
+    },
+    fetchVideoStatus: async (sectionId) => {
+      set((state) => {
+        state.isLoading = true;
+      });
+      try {
+        const data = await fetchVideoStatus(sectionId)
+        return data
+      } catch (error) {
+        console.log('error in fetchVideoStatus', error)
+        throw error;
+      } finally {
+        set((state) => {
+          state.isLoading = false;
+        });
       }
     },
     setIsShowCreateSectionModal: (isShowCreateModal) => {
@@ -187,9 +284,29 @@ export const useSectionManagementStore = create<
         state.isShowEditVideoModal = isShowModal;
       });
     },
+    setIsShowVideoStatusModal: (isShowModal) => {
+      set((state) => {
+        state.isShowVideoStatusModal = isShowModal;
+      });
+    },
+    setIsShowAiSectionGeneratorModal: (isShowModal) => {
+      set((state) => {
+        state.isShowAiSectionGeneratorModal = isShowModal;
+      });
+    },
     setCurrentSection: (currentSection) => {
       set((state) => {
         state.section = currentSection;
+      });
+    },
+    setVideoFileName: (fileName) => {
+      set((state) => {
+        state.videoFileName = fileName;
+      });
+    },
+    setCurrentSectionId: (sectionId) => {
+      set((state) => {
+        state.currentSectionId = sectionId;
       });
     },
   }))
