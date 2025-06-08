@@ -184,11 +184,14 @@ export const useSectionManagementStore = create<
         console.log("update section order in store", data);
         set((state) => {
           state.sectionList = data;
-          state.isLoading = false;
         });
       } catch (error: any) {
         console.log('error in section order', error)
         throw error;
+      } finally {
+        set((state) => {
+          state.isLoading = false;
+        });
       }
     },
     createVideo: async (sectionId, file) => {

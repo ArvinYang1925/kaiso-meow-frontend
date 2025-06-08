@@ -44,7 +44,7 @@ export const updateSectionPublishedStatus = async (sectionId: string,
 
 /** 更新章節順序 */
 export const updateSectionOrder = async (courseId: string, newSectionOrderList: SectionOrder[]): Promise<Section[]> => {
-    const response = await axios.put(`/api/v1/instructor/courses/${courseId}/sections/sort`, newSectionOrderList);
+    const response = await axios.put(`/api/v1/instructor/courses/${courseId}/sections/sort`, { sections: newSectionOrderList });
     return response.data.data;
 };
 
@@ -74,7 +74,7 @@ export const deleteVideo = async (sectionId: string): Promise<Section> => {
 
 /** 查詢轉檔狀態 */
 export const fetchVideoStatus = async (sectionId: string): Promise<VideoStatus> => {
-    const response = await axios.get(`/api/v1/instructor/sections/${sectionId}/video`);
+    const response = await axios.get(`/api/v1/instructor/sections/${sectionId}/video/status`);
     return response.data.data;
 }
 

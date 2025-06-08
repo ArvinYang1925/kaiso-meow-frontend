@@ -21,6 +21,8 @@ import { handleErrorMessageDialog } from "@/lib/helper";
 import { useDialogStore } from "@/stores/commonDialogStore";
 import UploadVideoModal from "./components/UploadVideoModal";
 import EditVideoModal from "./components/EditVideoModal";
+import { Switch } from "@/components/ui/switch";
+import axios from "axios";
 
 export default function SectionManagementPage() {
   const { courseId } = useParams();
@@ -29,17 +31,21 @@ export default function SectionManagementPage() {
   const {
     isLoading,
     sectionList,
+    videoStatus,
     fetchSectionList,
     deleteSection,
     updateSectionPublishedStatus,
     updateSectionOrder,
+    fetchVideoStatus,
     setSectionList,
     setCurrentSection,
     setIsShowCreateSectionModal,
     setIsShowUpdateSectionModal,
     setIsShowUploadVideoModal,
-    // setIsShowEditVideoModal,
+    setIsShowEditVideoModal,
   } = useSectionManagementStore();
+
+  console.log("sec ma", isLoading);
 
   // 做 shallow copy，避免傳入 immer readonly proxy
   const mutableItems = useMemo(
@@ -97,10 +103,27 @@ export default function SectionManagementPage() {
       console.error("Drag end error:", error);
       //先還原更新順序
       setSectionList(mutableItems);
+      if (error instanceof axios.AxiosError) {
+        showCommonDialog({
+          title: "章節狀態",
+          description: `${error?.response?.data.message}`,
+        });
+      }
+    }
+  };
+
+  /** 取得影片轉檔狀態 */
+  const handleFetchVideoStatus = async (sectionId: string) => {
+    try {
+      await fetchVideoStatus(sectionId);
+      console.log("res status", videoStatus);
+      const { uploadStatus, videoUrl } = videoStatus || {};
       showCommonDialog({
-        title: "章節狀態",
-        description: "章節順序更新錯誤，請稍後再試",
+        title: `影片轉檔狀態：${uploadStatus}`,
+        description: `${videoUrl ?? ''}`,
       });
+    } catch (error) {
+      handleErrorMessageDialog(error);
     }
   };
 
@@ -119,7 +142,8 @@ export default function SectionManagementPage() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold">章節管理</h1>
+      <h1 className="text-2xl font-bold mb-2">章節管理</h1>
+      <p className="text-slate-500">總計：{sectionList.length} 個章節</p>
       {sectionList.length == 0 && !isLoading ? (
         <InitialPageComponent />
       ) : (
@@ -173,38 +197,72 @@ export default function SectionManagementPage() {
                             <GripVertical className="h-4 w-4" />
                           </div>
 
+                          <div className="flex flex-col me-1">
+                            <span
+                              className={`text-xs ${
+                                section.isPublished
+                                  ? "text-green-500"
+                                  : "text-slate-500"
+                              }`}
+                            >
+                              {section.isPublished ? "已發布" : "未發布"}
+                            </span>
+                            <Switch
+                              id="publish-toggle"
+                              checked={section.isPublished}
+                              onCheckedChange={() =>
+                                handleUpdatePublishedStatus(
+                                  section.id,
+                                  section.isPublished
+                                )
+                              }
+                              disabled={isLoading}
+                              className="scale-75 data-[state=checked]:bg-green-500 bg-slate-300"
+                            />
+                          </div>
+                          <h3 className="font-medium">{section.title}</h3>
+                        </div>
+                        <div className="flex gap-3">
                           <Button
                             variant="ghost"
                             size="default"
-                            title="變更章節發布狀態"
-                            onClick={() =>
-                              handleUpdatePublishedStatus(
-                                section.id,
-                                section.isPublished
-                              )
-                            }
+                            title="取得影片轉檔狀態"
+                            onClick={() => handleFetchVideoStatus(section.id)}
                           >
                             <CloudUpload
                               className={clsx("h-6 w-6", {
-                                "text-indigo-500": section.isPublished,
-                                "text-slate-400": !section.isPublished,
+                                "text-indigo-500": section.videoUrl !== null,
+                                "text-slate-400": section.videoUrl == null,
                               })}
                             />
                           </Button>
-                          <h3 className="font-medium">{section.title}</h3>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            title="上傳影片"
-                            onClick={() => {
-                              setIsShowUploadVideoModal(true);
-                              setCurrentSection(section)
-                            }}
-                          >
-                            <Upload className="h-4 w-4" />
-                          </Button>
+
+                          {section.videoUrl == null ? (
+                            <Button
+                              variant="outline"
+                              size="default"
+                              title="上傳影片"
+                              onClick={() => {
+                                setIsShowUploadVideoModal(true);
+                                setCurrentSection(section);
+                              }}
+                            >
+                              <Upload className="h-4 w-4 me-1" /> 上傳影片
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="default"
+                              title="更新影片"
+                              onClick={() => {
+                                setIsShowEditVideoModal(true);
+                                setCurrentSection(section);
+                              }}
+                            >
+                              <Upload className="h-4 w-4 me-1" /> 更新影片
+                            </Button>
+                          )}
+
                           <Button
                             variant="outline"
                             size="icon"
