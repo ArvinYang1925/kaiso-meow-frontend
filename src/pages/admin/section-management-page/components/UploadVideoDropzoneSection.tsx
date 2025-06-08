@@ -1,9 +1,9 @@
-import { useDialogStore } from "@/stores/commonDialogStore";
 import { Upload } from "lucide-react";
 import { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useParams } from "react-router-dom";
 import { useSectionManagementStore } from "../store/sectionManagementStore";
+import { useVideoManagementStore } from "../store/videoManagementStore";
 import { handleErrorMessageDialog } from "@/lib/helper";
 
 const UploadVideoDropzoneSection = () => {
@@ -12,12 +12,13 @@ const UploadVideoDropzoneSection = () => {
   const {
     section,
     setIsShowUploadVideoModal,
+    setIsShowVideoStatusModal,
     createVideo,
-    fetchSectionList,
     setVideoFileName,
+    setCurrentSectionId,
   } = useSectionManagementStore();
 
-  const { showCommonDialog } = useDialogStore();
+  const { addVideo } = useVideoManagementStore();
 
   const [isHovering, setIsHovering] = useState(false);
 
@@ -35,13 +36,16 @@ const UploadVideoDropzoneSection = () => {
         const file = acceptedFiles[0];
         setVideoFileName(file.name);
         try {
-          await createVideo(section.id, file);
-          showCommonDialog({
-            title: "上傳成功",
-            description: ``,
-          });
-          fetchSectionList(courseId);
+          const response = await createVideo(section.id, file);
           setIsShowUploadVideoModal(false);
+
+          const { data } = response.data;
+
+          addVideo(data);
+
+          //開啟狀態監控 Modal
+          setCurrentSectionId(data.id);
+          setIsShowVideoStatusModal(true);
         } catch (error) {
           console.error("上傳失敗", error);
           handleErrorMessageDialog(error);

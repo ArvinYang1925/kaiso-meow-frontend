@@ -2,14 +2,11 @@ import Modal from "@/components/common/Modal";
 import { useSectionManagementStore } from "../store/sectionManagementStore";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { LoaderCircle } from "lucide-react";
 import UploadVideoDropzoneSection from "./UploadVideoDropzoneSection";
 
 const UploadVideoModal = () => {
   const {
     isShowUploadVideoModal,
-    videoFileName,
-    isLoading,
     setIsShowUploadVideoModal,
     setVideoFileName,
   } = useSectionManagementStore();
@@ -31,16 +28,7 @@ const UploadVideoModal = () => {
       size="xl" // md | lg | full
     >
       <div className="px-2 py-6">
-        {!isLoading && videoFileName == "" ? (
-          <UploadVideoDropzoneSection key={dropzoneKey} />
-        ) : (
-          <div className="flex items-center gap-3 p-4 bg-yellow-50 text-yellow-800 rounded-xl shadow-sm border border-yellow-200 animate-pulse">
-            <LoaderCircle className="w-5 h-5 animate-spin text-yellow-500" />
-            <p className="text-sm font-medium">
-              {videoFileName} 正在上傳中，請稍候...
-            </p>
-          </div>
-        )}
+        <UploadVideoDropzoneSection key={dropzoneKey} />
         <div className="btn-wrap flex justify-end mt-4">
           <Button
             type="button"

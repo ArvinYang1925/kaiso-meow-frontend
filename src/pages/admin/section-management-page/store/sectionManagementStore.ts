@@ -7,7 +7,6 @@ import {
   deleteSection,
   updateSectionPublishedStatus,
   updateSectionOrder,
-  // createVideo,
   deleteVideo,
   fetchVideoStatus
 } from "../services/section-management.service";
@@ -20,11 +19,13 @@ import {
   Video,
   VideoStatus,
 } from "../services/type";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
+import { ApiDataResponse } from "@/services/types";
 
 interface SectionManagementState {
   sectionList: Section[];
   section: Section;
+  currentSectionId: string;
   video: Video;
   videoStatus: VideoStatus;
   videoFileName: string;
@@ -33,6 +34,7 @@ interface SectionManagementState {
   isShowUpdateSectionModal: boolean;
   isShowUploadVideoModal: boolean;
   isShowEditVideoModal: boolean;
+  isShowVideoStatusModal: boolean;
 }
 
 interface SectionManagementAction {
@@ -51,16 +53,18 @@ interface SectionManagementAction {
     data: UpdateSectionPublishedStatusRequestModel
   ) => Promise<void>;
   updateSectionOrder: (courseId: string, newSectionOrderList: SectionOrder[]) => Promise<void>;
-  createVideo: (sectionId: string, file: File) => Promise<void>;
+  createVideo: (sectionId: string, file: File) => Promise<AxiosResponse<ApiDataResponse<Video>>>;//Promise<AxiosResponse<BaseApiResponseModel, any>>
   deleteVideo: (sectionId: string) => Promise<void>;
   fetchVideoStatus: (sectionId: string) => Promise<VideoStatus>;
   setSectionList: (newSectionList: Section[]) => void;
+  setCurrentSectionId: (currentSectionId: string) => void;
   setCurrentSection: (currentSection: Section) => void;
   setIsShowCreateSectionModal: (isShowModal: boolean) => void;
   setIsShowUpdateSectionModal: (isShowModal: boolean) => void;
   setIsShowUploadVideoModal: (isShowModal: boolean) => void;
   setIsShowEditVideoModal: (isShowModal: boolean) => void;
   setVideoFileName: (fileName: string) => void;
+  setIsShowVideoStatusModal: (isShowModal: boolean) => void;
 }
 
 export const useSectionManagementStore = create<
@@ -85,12 +89,14 @@ export const useSectionManagementStore = create<
       videoUrl: null,
       errorType: undefined
     },
+    currentSectionId: '',
     videoFileName: '',
     isLoading: false,
     isShowCreateSectionModal: false,
     isShowUpdateSectionModal: false,
     isShowUploadVideoModal: false,
     isShowEditVideoModal: false,
+    isShowVideoStatusModal: false,
 
     setSectionList: (newSectionList) => {
       set((state) => {
@@ -203,7 +209,9 @@ export const useSectionManagementStore = create<
         formData.append("file", file); // key 要和後端預期的對應
 
         const token = localStorage.getItem("token"); // 或從其他地方取得
-        const response = await axios.post(`/api/v1/instructor/sections/${sectionId}/video`,
+        if (!token) throw new Error("Token not found");
+
+        const response = await axios.post<ApiDataResponse<Video>>(`/api/v1/instructor/sections/${sectionId}/video`,
           formData,
           {
             headers: {
@@ -211,10 +219,8 @@ export const useSectionManagementStore = create<
               Authorization: `Bearer ${token}`,
             },
           })
-        console.log('in store create video', response.data.data)
-        set((state) => {
-          state.video = response.data.data;
-        });
+        console.log('in store create video', response.data)
+        return response
       } catch (error) {
         console.log('error in createVideo', error)
         throw error;
@@ -275,6 +281,11 @@ export const useSectionManagementStore = create<
         state.isShowEditVideoModal = isShowModal;
       });
     },
+    setIsShowVideoStatusModal: (isShowModal) => {
+      set((state) => {
+        state.isShowVideoStatusModal = isShowModal;
+      });
+    },
     setCurrentSection: (currentSection) => {
       set((state) => {
         state.section = currentSection;
@@ -283,6 +294,11 @@ export const useSectionManagementStore = create<
     setVideoFileName: (fileName) => {
       set((state) => {
         state.videoFileName = fileName;
+      });
+    },
+    setCurrentSectionId: (sectionId) => {
+      set((state) => {
+        state.currentSectionId = sectionId;
       });
     },
   }))

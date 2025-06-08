@@ -23,6 +23,7 @@ import UploadVideoModal from "./components/UploadVideoModal";
 import EditVideoModal from "./components/EditVideoModal";
 import { Switch } from "@/components/ui/switch";
 import axios from "axios";
+import { VideoStatusModal } from "./components/VideoStatusModal";
 
 export default function SectionManagementPage() {
   const { courseId } = useParams();
@@ -30,7 +31,9 @@ export default function SectionManagementPage() {
 
   const {
     isLoading,
+    isShowVideoStatusModal,
     sectionList,
+    currentSectionId,
     fetchSectionList,
     deleteSection,
     updateSectionPublishedStatus,
@@ -42,6 +45,7 @@ export default function SectionManagementPage() {
     setIsShowUpdateSectionModal,
     setIsShowUploadVideoModal,
     setIsShowEditVideoModal,
+    setIsShowVideoStatusModal,
   } = useSectionManagementStore();
 
   // 做 shallow copy，避免傳入 immer readonly proxy
@@ -223,7 +227,11 @@ export default function SectionManagementPage() {
                             variant="ghost"
                             size="default"
                             title="取得影片轉檔狀態"
-                            onClick={() => handleFetchVideoStatus(section.id)}
+                            onClick={() => {
+                              if (!courseId) return;
+                              handleFetchVideoStatus(section.id);
+                              fetchSectionList(courseId);
+                            }}
                           >
                             <CloudUpload
                               className={clsx("h-6 w-6", {
@@ -295,6 +303,13 @@ export default function SectionManagementPage() {
       {/* 新增與編輯影片 modal */}
       <UploadVideoModal />
       <EditVideoModal />
+      {/* 影片狀態 modal */}
+      <VideoStatusModal
+        isOpen={isShowVideoStatusModal}
+        onClose={() => setIsShowVideoStatusModal(false)}
+        sectionId={currentSectionId}
+        autoCloseOnComplete={true}
+      />
     </div>
   );
 }
