@@ -19,28 +19,37 @@ const LearningPage: React.FC = () => {
   const [courseTitle, setCourseTitle] = useState<string>("課程");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [courseProgress, setCourseProgress] = useState({
+    completedSections: 0,
+    totalSections: 0,
+    percentage: 0,
+  });
   // const [useHLSPlayer, setUseHLSPlayer] = useState(false);
 
-  // Course progress calculation based on actual sections
-  // const courseProgress = {
-  //   completedSections: courseSections.filter((section) => section.isCompleted)
-  //     .length,
-  //   totalSections: courseSections.length,
-  //   percentage:
-  //     courseSections.length > 0
-  //       ? Math.round(
-  //           (courseSections.filter((section) => section.isCompleted).length /
-  //             courseSections.length) *
-  //             100
-  //         )
-  //       : 0,
-  // };
+  // Fetch course progress
+  useEffect(() => {
+    const fetchCourseProgress = async () => {
+      if (!courseId) return;
 
-  const courseProgress = {
-    completedSections: 1,
-    totalSections: 6,
-    percentage: 25,
-  };
+      try {
+        const response = await learningService.getCourseProgress(courseId);
+
+        if (response.status === "success") {
+          const { progress } = response.data;
+          setCourseProgress({
+            completedSections: progress.completedSections,
+            totalSections: progress.totalSections,
+            percentage: Math.round(progress.percentage),
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching course progress:", err);
+        // Keep default progress values on error
+      }
+    };
+
+    fetchCourseProgress();
+  }, [courseId]);
 
   // Fetch course sections list
   useEffect(() => {
@@ -129,14 +138,8 @@ const LearningPage: React.FC = () => {
   const handleSectionClick = (newSectionId: string) => {
     // Navigate to the new section
     if (courseId && newSectionId !== sectionId) {
-      // Reset current section to prevent race conditions
-      setCurrentSection(null);
-      setLoading(true);
-
-      // Small delay to allow video player cleanup
-      setTimeout(() => {
-        navigate(`/my-learning/${courseId}/section/${newSectionId}`);
-      }, 100);
+      // Navigate immediately without delays to prevent race conditions
+      navigate(`/my-learning/${courseId}/section/${newSectionId}`);
     }
   };
 

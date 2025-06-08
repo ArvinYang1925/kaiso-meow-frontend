@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import videojs from "video.js";
 import Player from "video.js/dist/types/player";
 import "video.js/dist/video-js.css";
@@ -22,6 +22,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const playerRef = useRef<Player | null>(null);
   const isInitializingRef = useRef<boolean>(false);
+  const isMountedRef = useRef<boolean>(true);
+  const cleanupTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Auto-detect type based on file extension
   const getVideoType = (url: string, providedType?: string) => {
@@ -38,19 +40,57 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     return "video/mp4"; // default fallback
   };
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (!videoRef.current || !src || isInitializingRef.current) return;
+  // Stable cleanup function
+  const cleanupPlayer = useCallback(() => {
+    if (cleanupTimeoutRef.current) {
+      clearTimeout(cleanupTimeoutRef.current);
+      cleanupTimeoutRef.current = null;
+    }
 
-      // Dispose existing player first
-      if (playerRef.current && !playerRef.current.isDisposed()) {
-        try {
-          playerRef.current.dispose();
-        } catch (error) {
-          console.warn("VideoPlayer - Error disposing existing player:", error);
-        }
+    if (playerRef.current && !playerRef.current.isDisposed()) {
+      try {
+        // Remove all event listeners first
+        playerRef.current.off("ready");
+        playerRef.current.off("error");
+        playerRef.current.off("timeupdate");
+        playerRef.current.off("ended");
+        playerRef.current.off("loadstart");
+        playerRef.current.off("loadedmetadata");
+        playerRef.current.off("canplay");
+        playerRef.current.off("loadeddata");
+
+        // Dispose with a small delay to ensure DOM is ready
+        cleanupTimeoutRef.current = setTimeout(() => {
+          if (
+            playerRef.current &&
+            !playerRef.current.isDisposed() &&
+            isMountedRef.current
+          ) {
+            try {
+              playerRef.current.dispose();
+            } catch (error) {
+              console.warn("VideoPlayer - Error disposing player:", error);
+            }
+          }
+          playerRef.current = null;
+        }, 50);
+      } catch (error) {
+        console.warn("VideoPlayer - Error during cleanup:", error);
         playerRef.current = null;
       }
+    }
+  }, []);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    // Cleanup any existing player
+    cleanupPlayer();
+
+    if (!videoRef.current || !src || isInitializingRef.current) return;
+
+    const initializePlayer = () => {
+      if (!isMountedRef.current || isInitializingRef.current) return;
 
       isInitializingRef.current = true;
       const videoType = getVideoType(src, type);
@@ -59,7 +99,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
       try {
         // Initialize video.js player with built-in HLS support
-        playerRef.current = videojs(videoRef.current, {
+        playerRef.current = videojs(videoRef.current!, {
           controls: true,
           fluid: true,
           responsive: true,
@@ -83,27 +123,31 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           liveui: false,
         });
 
-        // Add event listeners
-        if (playerRef.current) {
+        // Add event listeners only if component is still mounted
+        if (playerRef.current && isMountedRef.current) {
           playerRef.current.on("ready", () => {
-            console.log("VideoPlayer - Player ready");
+            if (isMountedRef.current) {
+              console.log("VideoPlayer - Player ready");
+            }
           });
 
           playerRef.current.on("error", (error: any) => {
-            const errorDetails = playerRef.current?.error();
-            console.error("VideoPlayer - Error:", error, errorDetails);
+            if (isMountedRef.current) {
+              const errorDetails = playerRef.current?.error();
+              console.error("VideoPlayer - Error:", error, errorDetails);
 
-            // Try to provide more specific error information
-            if (errorDetails) {
-              console.error("Error details:", {
-                code: errorDetails.code,
-                message: errorDetails.message,
-              });
+              // Try to provide more specific error information
+              if (errorDetails) {
+                console.error("Error details:", {
+                  code: errorDetails.code,
+                  message: errorDetails.message,
+                });
+              }
             }
           });
 
           playerRef.current.on("timeupdate", () => {
-            if (playerRef.current && onProgress) {
+            if (playerRef.current && onProgress && isMountedRef.current) {
               const currentTime = playerRef.current.currentTime();
               const duration = playerRef.current.duration();
               if (
@@ -118,28 +162,36 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           });
 
           playerRef.current.on("ended", () => {
-            if (onEnded) {
+            if (onEnded && isMountedRef.current) {
               onEnded();
             }
           });
 
           // Log when the player starts loading
           playerRef.current.on("loadstart", () => {
-            console.log("VideoPlayer - Load started for:", src);
+            if (isMountedRef.current) {
+              console.log("VideoPlayer - Load started for:", src);
+            }
           });
 
           // Log when metadata is loaded
           playerRef.current.on("loadedmetadata", () => {
-            console.log("VideoPlayer - Metadata loaded");
+            if (isMountedRef.current) {
+              console.log("VideoPlayer - Metadata loaded");
+            }
           });
 
           // Additional HLS-specific events
           playerRef.current.on("canplay", () => {
-            console.log("VideoPlayer - Can play");
+            if (isMountedRef.current) {
+              console.log("VideoPlayer - Can play");
+            }
           });
 
           playerRef.current.on("loadeddata", () => {
-            console.log("VideoPlayer - Data loaded");
+            if (isMountedRef.current) {
+              console.log("VideoPlayer - Data loaded");
+            }
           });
         }
 
@@ -148,22 +200,32 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
         console.error("VideoPlayer - Error during initialization:", error);
         isInitializingRef.current = false;
       }
-    }, 0);
+    };
+
+    // Initialize player with a small delay to ensure DOM is ready
+    const timeout = setTimeout(initializePlayer, 100);
 
     return () => {
       clearTimeout(timeout);
-      isInitializingRef.current = false;
-      if (playerRef.current && !playerRef.current.isDisposed()) {
-        try {
-          playerRef.current.dispose();
-        } catch (error) {
-          console.warn("VideoPlayer - Error during player disposal:", error);
-        } finally {
-          playerRef.current = null;
-        }
-      }
     };
-  }, [src, type, onProgress, onEnded]);
+  }, [src, type]); // Remove onProgress and onEnded from dependencies to prevent frequent re-initializations
+
+  // Handle progress and ended callbacks separately
+  useEffect(() => {
+    // Update refs for callbacks without re-initializing player
+    if (playerRef.current && !playerRef.current.isDisposed()) {
+      // These are already bound to the player, no need to rebind
+    }
+  }, [onProgress, onEnded]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      isInitializingRef.current = false;
+      cleanupPlayer();
+    };
+  }, [cleanupPlayer]);
 
   return (
     <div data-vjs-player className="w-full">

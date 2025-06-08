@@ -17,6 +17,19 @@ export const learningService = {
     }
   },
 
+  // Fetch course progress
+  async getCourseProgress(courseId: string) {
+    try {
+      const response = await axiosInstance.get(
+        `/api/v1/courses/${courseId}/progress`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching course progress:", error);
+      throw error;
+    }
+  },
+
   // Fetch section data by courseId and sectionId (new endpoint)
   async getCourseSection(
     courseId: string,
