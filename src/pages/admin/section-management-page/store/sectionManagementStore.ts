@@ -53,7 +53,7 @@ interface SectionManagementAction {
   updateSectionOrder: (courseId: string, newSectionOrderList: SectionOrder[]) => Promise<void>;
   createVideo: (sectionId: string, file: File) => Promise<void>;
   deleteVideo: (sectionId: string) => Promise<void>;
-  fetchVideoStatus: (sectionId: string) => Promise<void>;
+  fetchVideoStatus: (sectionId: string) => Promise<VideoStatus>;
   setSectionList: (newSectionList: Section[]) => void;
   setCurrentSection: (currentSection: Section) => void;
   setIsShowCreateSectionModal: (isShowModal: boolean) => void;
@@ -245,13 +245,14 @@ export const useSectionManagementStore = create<
       });
       try {
         const data = await fetchVideoStatus(sectionId)
-        set((state) => {
-          state.videoStatus = data;
-          state.isLoading = false;
-        });
+        return data
       } catch (error) {
         console.log('error in fetchVideoStatus', error)
         throw error;
+      } finally {
+        set((state) => {
+          state.isLoading = false;
+        });
       }
     },
     setIsShowCreateSectionModal: (isShowCreateModal) => {

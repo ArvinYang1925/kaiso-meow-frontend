@@ -31,7 +31,6 @@ export default function SectionManagementPage() {
   const {
     isLoading,
     sectionList,
-    videoStatus,
     fetchSectionList,
     deleteSection,
     updateSectionPublishedStatus,
@@ -44,8 +43,6 @@ export default function SectionManagementPage() {
     setIsShowUploadVideoModal,
     setIsShowEditVideoModal,
   } = useSectionManagementStore();
-
-  console.log("sec ma", isLoading);
 
   // 做 shallow copy，避免傳入 immer readonly proxy
   const mutableItems = useMemo(
@@ -115,12 +112,11 @@ export default function SectionManagementPage() {
   /** 取得影片轉檔狀態 */
   const handleFetchVideoStatus = async (sectionId: string) => {
     try {
-      await fetchVideoStatus(sectionId);
-      console.log("res status", videoStatus);
-      const { uploadStatus, videoUrl } = videoStatus || {};
+      const response = await fetchVideoStatus(sectionId);
+      const { uploadStatus, videoUrl } = response || {};
       showCommonDialog({
-        title: `影片轉檔狀態：${uploadStatus}`,
-        description: `${videoUrl ?? ''}`,
+        title: `影片轉檔狀態：${uploadStatus ?? ""}`,
+        description: `${videoUrl ?? ""}`,
       });
     } catch (error) {
       handleErrorMessageDialog(error);
@@ -231,8 +227,12 @@ export default function SectionManagementPage() {
                           >
                             <CloudUpload
                               className={clsx("h-6 w-6", {
-                                "text-indigo-500": section.videoUrl !== null,
-                                "text-slate-400": section.videoUrl == null,
+                                "text-indigo-500": /^https?:\/\//.test(
+                                  section.videoUrl || ""
+                                ),
+                                "text-slate-400": !/^https?:\/\//.test(
+                                  section.videoUrl || ""
+                                ),
                               })}
                             />
                           </Button>
