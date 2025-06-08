@@ -1,7 +1,7 @@
 import axiosInstance from "./axiosInstance";
 import {
   SectionApiResponse,
-  Section,
+  // Section,
   CourseSectionsApiResponse,
 } from "@/types/course";
 
