@@ -88,6 +88,8 @@ const VideoJSDemo = () => {
   const [status, setStatus] = useState({ message: "", type: "" });
   const [playbackRate, setPlaybackRate] = useState(1);
 
+  console.log("isloading", isLoading);
+  
   const playerRef = useRef<any>(null);
 
   // Show status message

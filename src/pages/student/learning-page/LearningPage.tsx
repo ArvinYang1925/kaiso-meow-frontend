@@ -4,7 +4,9 @@ import VideoPlayer from "@/components/features/VideoPlayer";
 // import HLSVideoPlayer from "@/components/features/HLSVideoPlayer";
 import CourseSidebar from "@/components/features/CourseSidebar";
 import SectionContent from "@/components/features/SectionContent";
-import { Section, CourseSection, SectionApiResponse } from "@/types/course";
+import { Section, CourseSection,
+  //  SectionApiResponse
+   } from "@/types/course";
 import { learningService } from "@/services/learningService";
 
 const LearningPage: React.FC = () => {

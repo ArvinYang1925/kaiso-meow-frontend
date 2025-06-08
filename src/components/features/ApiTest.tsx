@@ -150,7 +150,7 @@ const ApiTest: React.FC = () => {
           <div>
             <h4 className="font-semibold text-gray-800 mb-2">Sections List:</h4>
             <div className="max-h-48 overflow-y-auto bg-gray-50 p-3 rounded">
-              {courseSections.data.sections.map((section, index) => (
+              {courseSections.data.sections.map((section) => (
                 <div
                   key={section.id}
                   className="border-b border-gray-200 py-2 last:border-b-0"
