@@ -24,6 +24,7 @@ import EditVideoModal from "./components/EditVideoModal";
 import { Switch } from "@/components/ui/switch";
 import axios from "axios";
 import { VideoStatusModal } from "./components/VideoStatusModal";
+import AiSectionGeneratorModal from "./components/AiSectionGeneratorModal";
 
 export default function SectionManagementPage() {
   const { courseId } = useParams();
@@ -143,7 +144,10 @@ export default function SectionManagementPage() {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-2">章節管理</h1>
-      <p className="text-slate-500">總計：{sectionList.length} 個章節</p>
+      {sectionList.length > 0 && (
+        <p className="text-slate-500">總計：{sectionList.length} 個章節</p>
+      )}
+
       {sectionList.length == 0 && !isLoading ? (
         <InitialPageComponent />
       ) : (
@@ -297,6 +301,8 @@ export default function SectionManagementPage() {
           </Card>
         </>
       )}
+      {/* AI 章節快手 modal */}
+      <AiSectionGeneratorModal />
       {/* 新增與編輯章節 modal */}
       <CreateSectionModal />
       <UpdateSectionModal />

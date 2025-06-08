@@ -35,6 +35,7 @@ interface SectionManagementState {
   isShowUploadVideoModal: boolean;
   isShowEditVideoModal: boolean;
   isShowVideoStatusModal: boolean;
+  isShowAiSectionGeneratorModal: boolean;
 }
 
 interface SectionManagementAction {
@@ -65,6 +66,7 @@ interface SectionManagementAction {
   setIsShowEditVideoModal: (isShowModal: boolean) => void;
   setVideoFileName: (fileName: string) => void;
   setIsShowVideoStatusModal: (isShowModal: boolean) => void;
+  setIsShowAiSectionGeneratorModal: (isShowModal: boolean) => void;
 }
 
 export const useSectionManagementStore = create<
@@ -97,6 +99,7 @@ export const useSectionManagementStore = create<
     isShowUploadVideoModal: false,
     isShowEditVideoModal: false,
     isShowVideoStatusModal: false,
+    isShowAiSectionGeneratorModal: false,
 
     setSectionList: (newSectionList) => {
       set((state) => {
@@ -284,6 +287,11 @@ export const useSectionManagementStore = create<
     setIsShowVideoStatusModal: (isShowModal) => {
       set((state) => {
         state.isShowVideoStatusModal = isShowModal;
+      });
+    },
+    setIsShowAiSectionGeneratorModal: (isShowModal) => {
+      set((state) => {
+        state.isShowAiSectionGeneratorModal = isShowModal;
       });
     },
     setCurrentSection: (currentSection) => {
