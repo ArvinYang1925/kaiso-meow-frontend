@@ -1,4 +1,3 @@
-import React from "@/assets/homepage/react-course-card.jpg";
 import { useCourseDetailStore } from "../courseDetailStore";
 import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
 import logo from "@/assets/catschool_logo.svg";
@@ -11,7 +10,7 @@ const HeroComponent = () => {
       <div className="relative w-full h-[596px] overflow-hidden">
         {/* 背景圖模糊 */}
         <img
-          src={React}
+          src={courseDetail?.coverUrl}
           alt="Background"
           className="absolute inset-0 w-full object-cover blur-md scale-125"
         />
@@ -24,7 +23,7 @@ const HeroComponent = () => {
           <div className="container">
             <div className="grid grid-cols-2 gap-8 items-center">
               <img
-                src={React}
+                src={courseDetail?.coverUrl}
                 alt="Foreground"
                 className="rounded-lg w-full self-center"
               />

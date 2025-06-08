@@ -94,7 +94,7 @@ export const Header = () => {
             ) : (
               <>
                 <Button
-                  className="me-2 bg-orange-600"
+                  className="me-2 bg-orange-600 hover:bg-orange-500"
                   onClick={() => navigate(PUBLIC_ROUTES.AUTH)}
                 >
                   登入 / 註冊

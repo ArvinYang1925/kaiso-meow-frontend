@@ -4,7 +4,6 @@ import axios from 'axios';
 import { createNewsletter, fetchCourseCardList, NewsletterFormData } from '../services/home-page.service';
 import { CourseItem, CourseListResponse } from '../services/types'
 import { BaseApiResponseModel } from '@/services/types';
-import { courseCardList } from '../data/courseCardData';
 interface HomePageState {
     courseCardList: CourseItem[];
 }
@@ -15,7 +14,7 @@ interface HomePageAction {
 
 export const useHomePageStore = create<HomePageState & HomePageAction>()(
     immer((set) => ({
-        courseCardList: courseCardList,
+        courseCardList: [],
         fetchCourseCardList: async () => {
             try {
                 const response = await fetchCourseCardList(1, 9);
