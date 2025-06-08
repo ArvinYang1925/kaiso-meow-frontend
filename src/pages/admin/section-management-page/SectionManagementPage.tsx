@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -10,7 +10,6 @@ import {
   GripVertical,
   Upload,
 } from "lucide-react";
-import { useBreadcrumbStore } from "@/stores/breadcrumbStore";
 import { ReactSortable } from "react-sortablejs";
 import { useSectionManagementStore } from "./store/sectionManagementStore";
 import { Section, SectionOrder } from "./services/type";
@@ -22,28 +21,33 @@ import { handleErrorMessageDialog } from "@/lib/helper";
 import { useDialogStore } from "@/stores/commonDialogStore";
 import UploadVideoModal from "./components/UploadVideoModal";
 import EditVideoModal from "./components/EditVideoModal";
+import { Switch } from "@/components/ui/switch";
+import axios from "axios";
+import { VideoStatusModal } from "./components/VideoStatusModal";
+import AiSectionGeneratorModal from "./components/AiSectionGeneratorModal";
 
 export default function SectionManagementPage() {
   const { courseId } = useParams();
-  const location = useLocation();
-  const { setBreadcrumbs } = useBreadcrumbStore();
   const { showCommonDialog } = useDialogStore();
 
   const {
     isLoading,
+    isShowVideoStatusModal,
     sectionList,
+    currentSectionId,
     fetchSectionList,
     deleteSection,
     updateSectionPublishedStatus,
     updateSectionOrder,
+    fetchVideoStatus,
     setSectionList,
     setCurrentSection,
     setIsShowCreateSectionModal,
     setIsShowUpdateSectionModal,
     setIsShowUploadVideoModal,
-    // setIsShowEditVideoModal,
+    setIsShowEditVideoModal,
+    setIsShowVideoStatusModal,
   } = useSectionManagementStore();
-  //courseId a1315061-ab3a-4e4d-b553-13cc125ecb10
 
   // 做 shallow copy，避免傳入 immer readonly proxy
   const mutableItems = useMemo(
@@ -101,10 +105,26 @@ export default function SectionManagementPage() {
       console.error("Drag end error:", error);
       //先還原更新順序
       setSectionList(mutableItems);
+      if (error instanceof axios.AxiosError) {
+        showCommonDialog({
+          title: "章節狀態",
+          description: `${error?.response?.data.message}`,
+        });
+      }
+    }
+  };
+
+  /** 取得影片轉檔狀態 */
+  const handleFetchVideoStatus = async (sectionId: string) => {
+    try {
+      const response = await fetchVideoStatus(sectionId);
+      const { uploadStatus, videoUrl } = response || {};
       showCommonDialog({
-        title: "章節狀態",
-        description: "章節順序更新錯誤，請稍後再試",
+        title: `影片轉檔狀態：${uploadStatus ?? ""}`,
+        description: `${videoUrl ?? ""}`,
       });
+    } catch (error) {
+      handleErrorMessageDialog(error);
     }
   };
 
@@ -114,27 +134,20 @@ export default function SectionManagementPage() {
   };
 
   useEffect(() => {
-    //取章節資料
+    //以課程id，取得章節資料
     console.log("courseId", courseId);
     if (courseId) {
       fetchSectionList(courseId);
     }
-
-    // TODO: 從 API 獲取章節列表和課程資訊
-    const mockCourseInfo = {
-      title: "React 入門課程",
-    };
-
-    // 設置麵包屑
-    setBreadcrumbs(location.pathname, {
-      courseId,
-      courseName: mockCourseInfo.title,
-    });
-  }, [courseId, location.pathname, setBreadcrumbs]);
+  }, [courseId]);
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold">章節管理</h1>
+      <h1 className="text-2xl font-bold mb-2">章節管理</h1>
+      {sectionList.length > 0 && (
+        <p className="text-slate-500">總計：{sectionList.length} 個章節</p>
+      )}
+
       {sectionList.length == 0 && !isLoading ? (
         <InitialPageComponent />
       ) : (
@@ -188,35 +201,80 @@ export default function SectionManagementPage() {
                             <GripVertical className="h-4 w-4" />
                           </div>
 
+                          <div className="flex flex-col me-1">
+                            <span
+                              className={`text-xs ${
+                                section.isPublished
+                                  ? "text-green-500"
+                                  : "text-slate-500"
+                              }`}
+                            >
+                              {section.isPublished ? "已發布" : "未發布"}
+                            </span>
+                            <Switch
+                              id="publish-toggle"
+                              checked={section.isPublished}
+                              onCheckedChange={() =>
+                                handleUpdatePublishedStatus(
+                                  section.id,
+                                  section.isPublished
+                                )
+                              }
+                              disabled={isLoading}
+                              className="scale-75 data-[state=checked]:bg-green-500 bg-slate-300"
+                            />
+                          </div>
+                          <h3 className="font-medium">{section.title}</h3>
+                        </div>
+                        <div className="flex gap-3">
                           <Button
                             variant="ghost"
                             size="default"
-                            title="變更章節發布狀態"
-                            onClick={() =>
-                              handleUpdatePublishedStatus(
-                                section.id,
-                                section.isPublished
-                              )
-                            }
+                            title="取得影片轉檔狀態"
+                            onClick={() => {
+                              if (!courseId) return;
+                              handleFetchVideoStatus(section.id);
+                              fetchSectionList(courseId);
+                            }}
                           >
                             <CloudUpload
                               className={clsx("h-6 w-6", {
-                                "text-indigo-500": section.isPublished,
-                                "text-slate-400": !section.isPublished,
+                                "text-indigo-500": /^https?:\/\//.test(
+                                  section.videoUrl || ""
+                                ),
+                                "text-slate-400": !/^https?:\/\//.test(
+                                  section.videoUrl || ""
+                                ),
                               })}
                             />
                           </Button>
-                          <h3 className="font-medium">{section.title}</h3>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            title="上傳影片"
-                            onClick={() => setIsShowUploadVideoModal(true)}
-                          >
-                            <Upload className="h-4 w-4" />
-                          </Button>
+
+                          {section.videoUrl == null ? (
+                            <Button
+                              variant="outline"
+                              size="default"
+                              title="上傳影片"
+                              onClick={() => {
+                                setIsShowUploadVideoModal(true);
+                                setCurrentSection(section);
+                              }}
+                            >
+                              <Upload className="h-4 w-4 me-1" /> 上傳影片
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="default"
+                              title="更新影片"
+                              onClick={() => {
+                                setIsShowEditVideoModal(true);
+                                setCurrentSection(section);
+                              }}
+                            >
+                              <Upload className="h-4 w-4 me-1" /> 更新影片
+                            </Button>
+                          )}
+
                           <Button
                             variant="outline"
                             size="icon"
@@ -243,12 +301,21 @@ export default function SectionManagementPage() {
           </Card>
         </>
       )}
+      {/* AI 章節快手 modal */}
+      <AiSectionGeneratorModal />
       {/* 新增與編輯章節 modal */}
       <CreateSectionModal />
       <UpdateSectionModal />
       {/* 新增與編輯影片 modal */}
       <UploadVideoModal />
       <EditVideoModal />
+      {/* 影片狀態 modal */}
+      <VideoStatusModal
+        isOpen={isShowVideoStatusModal}
+        onClose={() => setIsShowVideoStatusModal(false)}
+        sectionId={currentSectionId}
+        autoCloseOnComplete={true}
+      />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import AdminSidebar from "./components/AdminSidebar";
 import { Breadcrumbs } from "./components/Breadcrumbs";
 import CatschooLogo from "@/assets/catschool_logo.jpg";
+import { CommonDialog } from "@/components/common/CommonDialog";
 
 export function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -55,6 +56,7 @@ export function AdminLayout() {
         {/* 主要內容 */}
         <main className="flex-1 overflow-auto bg-gray-100">
           <Outlet />
+          <CommonDialog />
         </main>
       </div>
     </div>
