@@ -77,6 +77,12 @@ export type ApiResponse<T> = {
   data: T;
 };
 
+export type ApiDataResponse<T> = {
+  status: 'success' | 'failed';
+  message: string;
+  data: T;
+};
+
 export type Pagination = {
   currentPage: number;
   pageSize: number;
