@@ -71,3 +71,24 @@ export interface CourseSectionsApiResponse {
     }[];
   };
 }
+
+// New types for My Learning page
+export interface MyCourse {
+  courseId: string;
+  title: string;
+  coverUrl: string;
+  progressPercentage: number;
+  instructorName: string;
+}
+
+export interface MyLearningApiResponse {
+  status: string;
+  message: string;
+  data: MyCourse[];
+  pagination: {
+    currentPage: number;
+    pageSize: number;
+    totalPages: number;
+    totalItems: number;
+  };
+}

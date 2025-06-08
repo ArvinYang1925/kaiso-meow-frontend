@@ -1,9 +1,5 @@
 import axiosInstance from "./axiosInstance";
-import {
-  SectionApiResponse,
-  // Section,
-  CourseSectionsApiResponse,
-} from "@/types/course";
+import { SectionApiResponse, CourseSectionsApiResponse } from "@/types/course";
 
 export const learningService = {
   // Fetch course sections list for sidebar menu

@@ -52,6 +52,8 @@ import CoursePlayerPage from "@/pages/student/course-player-page/CoursePlayerPag
 import LearningPage from "@/pages/student/learning-page/LearningPage";
 /** 後台儀表板頁面 */
 import DashboardPage from "@/pages/admin/dashboard-page/DashboardPage";
+/** 我的學習頁面 */
+import MyLearningPage from "@/pages/student/my-learning-page/MyLearningPage";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -129,6 +131,14 @@ function App() {
         {/* 前台 */}
         <Route path={CLIENT_ROUTES.HOME} element={<StudentLayout />}>
           <Route index element={<HomePage />} />
+          <Route
+            path={CLIENT_ROUTES.MY_LEARNING}
+            element={
+              <ProtectedRoute requiredRole={Role.STUDENT}>
+                <MyLearningPage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path={CLIENT_ROUTES.PROFILE}
             element={

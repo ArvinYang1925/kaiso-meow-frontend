@@ -21,6 +21,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const playerRef = useRef<Player | null>(null);
+  const isInitializingRef = useRef<boolean>(false);
 
   // Auto-detect type based on file extension
   const getVideoType = (url: string, providedType?: string) => {
@@ -39,117 +40,149 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      if (!videoRef.current) return;
+      if (!videoRef.current || !src || isInitializingRef.current) return;
 
+      // Dispose existing player first
+      if (playerRef.current && !playerRef.current.isDisposed()) {
+        try {
+          playerRef.current.dispose();
+        } catch (error) {
+          console.warn("VideoPlayer - Error disposing existing player:", error);
+        }
+        playerRef.current = null;
+      }
+
+      isInitializingRef.current = true;
       const videoType = getVideoType(src, type);
 
       console.log("VideoPlayer - Initializing with:", { src, type: videoType });
 
-      // Initialize video.js player with built-in HLS support
-      playerRef.current = videojs(videoRef.current, {
-        controls: true,
-        fluid: true,
-        responsive: true,
-        playbackRates: [0.5, 1, 1.25, 1.5, 2],
-        // Use VideoJS 8's built-in HLS support
-        html5: {
-          hls: {
-            enableLowInitialPlaylist: true,
-            smoothQualityChange: true,
-            overrideNative: true,
-            withCredentials: false,
+      try {
+        // Initialize video.js player with built-in HLS support
+        playerRef.current = videojs(videoRef.current, {
+          controls: true,
+          fluid: true,
+          responsive: true,
+          playbackRates: [0.5, 1, 1.25, 1.5, 2],
+          // Use VideoJS 8's built-in HLS support
+          html5: {
+            hls: {
+              enableLowInitialPlaylist: true,
+              smoothQualityChange: true,
+              overrideNative: true,
+              withCredentials: false,
+            },
           },
-        },
-        sources: [
-          {
-            src,
-            type: videoType,
-          },
-        ],
-        // Simplified options for better compatibility
-        liveui: false,
-      });
-
-      // Add event listeners
-      if (playerRef.current) {
-        playerRef.current.on("ready", () => {
-          console.log("VideoPlayer - Player ready");
+          sources: [
+            {
+              src,
+              type: videoType,
+            },
+          ],
+          // Simplified options for better compatibility
+          liveui: false,
         });
 
-        playerRef.current.on("error", (error: any) => {
-          const errorDetails = playerRef.current?.error();
-          console.error("VideoPlayer - Error:", error, errorDetails);
+        // Add event listeners
+        if (playerRef.current) {
+          playerRef.current.on("ready", () => {
+            console.log("VideoPlayer - Player ready");
+          });
 
-          // Try to provide more specific error information
-          if (errorDetails) {
-            console.error("Error details:", {
-              code: errorDetails.code,
-              message: errorDetails.message,
-            });
-          }
-        });
+          playerRef.current.on("error", (error: any) => {
+            const errorDetails = playerRef.current?.error();
+            console.error("VideoPlayer - Error:", error, errorDetails);
 
-        playerRef.current.on("timeupdate", () => {
-          if (playerRef.current && onProgress) {
-            const currentTime = playerRef.current.currentTime();
-            const duration = playerRef.current.duration();
-            if (
-              currentTime !== undefined &&
-              duration !== undefined &&
-              !isNaN(currentTime) &&
-              !isNaN(duration)
-            ) {
-              onProgress(currentTime, duration);
+            // Try to provide more specific error information
+            if (errorDetails) {
+              console.error("Error details:", {
+                code: errorDetails.code,
+                message: errorDetails.message,
+              });
             }
-          }
-        });
+          });
 
-        playerRef.current.on("ended", () => {
-          if (onEnded) {
-            onEnded();
-          }
-        });
+          playerRef.current.on("timeupdate", () => {
+            if (playerRef.current && onProgress) {
+              const currentTime = playerRef.current.currentTime();
+              const duration = playerRef.current.duration();
+              if (
+                currentTime !== undefined &&
+                duration !== undefined &&
+                !isNaN(currentTime) &&
+                !isNaN(duration)
+              ) {
+                onProgress(currentTime, duration);
+              }
+            }
+          });
 
-        // Log when the player starts loading
-        playerRef.current.on("loadstart", () => {
-          console.log("VideoPlayer - Load started for:", src);
-        });
+          playerRef.current.on("ended", () => {
+            if (onEnded) {
+              onEnded();
+            }
+          });
 
-        // Log when metadata is loaded
-        playerRef.current.on("loadedmetadata", () => {
-          console.log("VideoPlayer - Metadata loaded");
-        });
+          // Log when the player starts loading
+          playerRef.current.on("loadstart", () => {
+            console.log("VideoPlayer - Load started for:", src);
+          });
 
-        // Additional HLS-specific events
-        playerRef.current.on("canplay", () => {
-          console.log("VideoPlayer - Can play");
-        });
+          // Log when metadata is loaded
+          playerRef.current.on("loadedmetadata", () => {
+            console.log("VideoPlayer - Metadata loaded");
+          });
 
-        playerRef.current.on("loadeddata", () => {
-          console.log("VideoPlayer - Data loaded");
-        });
+          // Additional HLS-specific events
+          playerRef.current.on("canplay", () => {
+            console.log("VideoPlayer - Can play");
+          });
+
+          playerRef.current.on("loadeddata", () => {
+            console.log("VideoPlayer - Data loaded");
+          });
+        }
+
+        isInitializingRef.current = false;
+      } catch (error) {
+        console.error("VideoPlayer - Error during initialization:", error);
+        isInitializingRef.current = false;
       }
     }, 0);
 
     return () => {
       clearTimeout(timeout);
+      isInitializingRef.current = false;
       if (playerRef.current && !playerRef.current.isDisposed()) {
-        playerRef.current.dispose();
-        playerRef.current = null;
+        try {
+          playerRef.current.dispose();
+        } catch (error) {
+          console.warn("VideoPlayer - Error during player disposal:", error);
+        } finally {
+          playerRef.current = null;
+        }
       }
     };
   }, [src, type, onProgress, onEnded]);
 
   return (
     <div data-vjs-player className="w-full">
-      <video
-        ref={videoRef}
-        className={`video-js vjs-default-skin vjs-big-play-centered w-full ${className}`}
-        controls
-        preload="auto"
-        data-setup="{}"
-        crossOrigin="anonymous"
-      />
+      {src ? (
+        <video
+          ref={videoRef}
+          className={`video-js vjs-default-skin vjs-big-play-centered w-full ${className}`}
+          controls
+          preload="auto"
+          data-setup="{}"
+          crossOrigin="anonymous"
+        />
+      ) : (
+        <div className="flex items-center justify-center h-64 bg-gray-900 text-white">
+          <div className="text-center">
+            <p>無法載入影片</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
