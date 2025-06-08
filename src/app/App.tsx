@@ -50,6 +50,8 @@ import CheckoutPage from "@/pages/student/checkout-page/CheckoutPage";
 import CoursePlayerPage from "@/pages/student/course-player-page/CoursePlayerPage";
 /** 學習頁面 */
 import LearningPage from "@/pages/student/learning-page/LearningPage";
+/** 後台儀表板頁面 */
+import DashboardPage from "@/pages/admin/dashboard-page/DashboardPage";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -173,6 +175,7 @@ function App() {
           }
         >
           <Route index element={<AdminHomePage />} />
+          <Route path={ADMIN_ROUTES.DASHBOARD} element={<DashboardPage />} />
           <Route path={ADMIN_ROUTES.ME} element={<InstructorInfoPage />} />
           <Route
             path={ADMIN_ROUTES.CHANGE_PASSWORD}
