@@ -12,6 +12,7 @@ const UploadVideoDropzoneSection = () => {
   const {
     section,
     setIsShowUploadVideoModal,
+    setIsShowEditVideoModal,
     setIsShowVideoStatusModal,
     createVideo,
     setVideoFileName,
@@ -26,6 +27,7 @@ const UploadVideoDropzoneSection = () => {
     accept: {
       "video/*": [], // 接受所有影片格式，如 .mp4, .mov, .avi 等
     },
+    multiple:false,
     maxFiles: 1,
     maxSize: 100 * 1024 * 1024, // 最大檔案大小 100MB（可依需求調整）
     onDrop: async (acceptedFiles) => {
@@ -38,6 +40,7 @@ const UploadVideoDropzoneSection = () => {
         try {
           const response = await createVideo(section.id, file);
           setIsShowUploadVideoModal(false);
+          setIsShowEditVideoModal(false);
 
           const { data } = response.data;
 
