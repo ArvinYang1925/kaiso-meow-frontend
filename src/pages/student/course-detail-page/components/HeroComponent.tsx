@@ -32,7 +32,7 @@ const HeroComponent = () => {
                   {courseDetail?.title ?? ""}
                 </h1>
                 <h2>
-                  {courseDetail?.description.split("\n").map((line, index) => (
+                  {courseDetail?.subtitle.split("\n").map((line, index) => (
                     <p key={index}>{line}</p>
                   ))}
                 </h2>
