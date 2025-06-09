@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useOrderStore } from "../order-page/store/orderStore";
 import { useDialogStore } from "@/stores/commonDialogStore";
 import axios from "axios";
+import DOMPurify from "dompurify";
 
 const CourseDetailPage = () => {
   const courseIntroRef = useRef<HTMLDivElement>(null);
@@ -23,6 +24,10 @@ const CourseDetailPage = () => {
   const navigate = useNavigate();
   const { createOrderPreview } = useOrderStore();
   const { showCommonDialog } = useDialogStore();
+
+  /** 淨化 html */
+  const dirtyHTML = courseDetail?.description ?? "";
+  const cleanHTML = DOMPurify.sanitize(dirtyHTML);
 
   useEffect(() => {
     if (courseId) {
@@ -107,7 +112,15 @@ const CourseDetailPage = () => {
           </Tabs>
           <div className="courseIntroSection scroll-mt-24" ref={courseIntroRef}>
             <h2 className="mb-10 font-medium text-3xl">課程簡介</h2>
-            <p>{courseDetail.description}</p>
+            <div
+              className="mb-4"
+              dangerouslySetInnerHTML={{ __html: cleanHTML }}
+            />
+            <p>
+              {courseDetail.highlight.split("\n").map((line, index) => (
+                <p key={index}>{line}</p>
+              ))}
+            </p>
           </div>
           <div
             className="chapterContentSection scroll-mt-24"

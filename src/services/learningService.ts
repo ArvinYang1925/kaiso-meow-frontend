@@ -1,9 +1,5 @@
 import axiosInstance from "./axiosInstance";
-import {
-  SectionApiResponse,
-  // Section,
-  CourseSectionsApiResponse,
-} from "@/types/course";
+import { SectionApiResponse, CourseSectionsApiResponse } from "@/types/course";
 
 export const learningService = {
   // Fetch course sections list for sidebar menu
@@ -17,6 +13,19 @@ export const learningService = {
       return response.data;
     } catch (error) {
       console.error("Error fetching course sections list:", error);
+      throw error;
+    }
+  },
+
+  // Fetch course progress
+  async getCourseProgress(courseId: string) {
+    try {
+      const response = await axiosInstance.get(
+        `/api/v1/courses/${courseId}/progress`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching course progress:", error);
       throw error;
     }
   },
