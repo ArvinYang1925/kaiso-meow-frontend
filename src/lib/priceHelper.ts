@@ -12,7 +12,7 @@ import { CouponType } from "@/lib/enum";
  * formatPrice(null);  // ""
  */
 export const formatPrice = (price?: number | null) =>
-    price != null ? `NT$${price.toLocaleString()}` : "";
+  price != null ? `NT$${price.toLocaleString()}` : "";
 
 /**
  * 計算百分比折扣後的價格字串（含千分位逗號）
@@ -21,11 +21,11 @@ export const formatPrice = (price?: number | null) =>
  * @returns {string} 折扣金額（字串格式，含千分位）
  */
 export const calculatePercentageDiscount = (
-    originalPrice: number,
-    percent: string
+  originalPrice: number,
+  percent: string
 ): string => {
-    const discountPrice = originalPrice * (Number(percent) / 100);
-    return Math.round(discountPrice).toLocaleString();
+  const discountPrice = originalPrice * (Number(percent) / 100);
+  return Math.round(discountPrice).toLocaleString();
 };
 
 /**
@@ -35,20 +35,20 @@ export const calculatePercentageDiscount = (
  * @returns {string} 格式化後的折扣字串（如 "-NT$1,000" 或 "-NT500"）
  */
 export const formatCouponDiscount = (
-    originalPrice: number | null,
-    coupon: CouponInfo
+  originalPrice: number | null,
+  coupon: CouponInfo
 ): string => {
-    if (!coupon?.value || !coupon.type || !originalPrice) return "";
+  if (!coupon?.value || !coupon.type || !originalPrice) return "";
 
-    if (coupon.type === CouponType.FIXED) {
-        return `-NT$${Number(coupon.value).toLocaleString()}`;
-    }
+  if (coupon.type === CouponType.FIXED) {
+    return `-NT$${Number(coupon.value).toLocaleString()}`;
+  }
 
-    if (coupon.type === CouponType.PERCENTAGE) {
-        return `-NT${calculatePercentageDiscount(originalPrice, coupon.value)}`;
-    }
+  if (coupon.type === CouponType.PERCENTAGE) {
+    return `-NT${calculatePercentageDiscount(originalPrice, coupon.value)}`;
+  }
 
-    return "";
+  return "";
 };
 
 /**
@@ -57,12 +57,12 @@ export const formatCouponDiscount = (
  * @returns {string} 折扣標籤字串
  */
 export const handleCouponTypeLabel = (couponData: CouponInfo) => {
-    const { type, value } = couponData || {};
-    if (type == "fix") {
-        return `(折扣${value}元)`;
-    } else if (type == "percentage") {
-        return `(折扣${parseInt(value)}%)`;
-    } else {
-        return "";
-    }
+  const { type, value, couponName } = couponData || {};
+  if (type == "fixed") {
+    return `${couponName} (折扣${value}元)`;
+  } else if (type == "percentage") {
+    return `${couponName} (折扣${parseInt(value)}%)`;
+  } else {
+    return "";
+  }
 };
