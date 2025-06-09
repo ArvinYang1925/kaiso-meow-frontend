@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import VideoPlayer from "@/components/features/VideoPlayer";
 // import HLSVideoPlayer from "@/components/features/HLSVideoPlayer";
 import CourseSidebar from "@/components/features/CourseSidebar";
 import SectionContent from "@/components/features/SectionContent";
-import { Section, CourseSection,
-  //  SectionApiResponse
-   } from "@/types/course";
+import { Section, CourseSection } from "@/types/course";
 import { learningService } from "@/services/learningService";
 
 const LearningPage: React.FC = () => {
@@ -14,28 +12,44 @@ const LearningPage: React.FC = () => {
     courseId: string;
     sectionId: string;
   }>();
+  const navigate = useNavigate();
 
   const [currentSection, setCurrentSection] = useState<Section | null>(null);
   const [courseSections, setCourseSections] = useState<CourseSection[]>([]);
   const [courseTitle, setCourseTitle] = useState<string>("課程");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [courseProgress, setCourseProgress] = useState({
+    completedSections: 0,
+    totalSections: 0,
+    percentage: 0,
+  });
   // const [useHLSPlayer, setUseHLSPlayer] = useState(false);
 
-  // Course progress calculation based on actual sections
-  const courseProgress = {
-    completedSections: courseSections.filter((section) => section.isCompleted)
-      .length,
-    totalSections: courseSections.length,
-    percentage:
-      courseSections.length > 0
-        ? Math.round(
-            (courseSections.filter((section) => section.isCompleted).length /
-              courseSections.length) *
-              100
-          )
-        : 0,
-  };
+  // Fetch course progress
+  useEffect(() => {
+    const fetchCourseProgress = async () => {
+      if (!courseId) return;
+
+      try {
+        const response = await learningService.getCourseProgress(courseId);
+
+        if (response.status === "success") {
+          const { progress } = response.data;
+          setCourseProgress({
+            completedSections: progress.completedSections,
+            totalSections: progress.totalSections,
+            percentage: Math.round(progress.percentage),
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching course progress:", err);
+        // Keep default progress values on error
+      }
+    };
+
+    fetchCourseProgress();
+  }, [courseId]);
 
   // Fetch course sections list
   useEffect(() => {
@@ -59,6 +73,19 @@ const LearningPage: React.FC = () => {
 
           setCourseSections(sections);
           setCourseTitle(response.data.course.title);
+
+          // Handle "first" parameter - redirect to the first section
+          if (sectionId === "first" && sections.length > 0) {
+            // Sort sections by order to get the first one
+            const sortedSections = sections.sort((a, b) => a.order - b.order);
+            const firstSection = sortedSections[0];
+
+            // Navigate to the first section
+            navigate(`/my-learning/${courseId}/section/${firstSection.id}`, {
+              replace: true,
+            });
+            return;
+          }
         }
       } catch (err) {
         console.error("Error fetching course sections:", err);
@@ -67,13 +94,18 @@ const LearningPage: React.FC = () => {
     };
 
     fetchCourseSections();
-  }, [courseId, sectionId]);
+  }, [courseId, sectionId, navigate]);
 
   useEffect(() => {
     const fetchSectionData = async () => {
       if (!courseId || !sectionId) {
         setError("課程ID或章節ID缺失");
         setLoading(false);
+        return;
+      }
+
+      // Skip fetching if sectionId is "first" - let the redirect handle it
+      if (sectionId === "first") {
         return;
       }
 
@@ -106,9 +138,8 @@ const LearningPage: React.FC = () => {
   const handleSectionClick = (newSectionId: string) => {
     // Navigate to the new section
     if (courseId && newSectionId !== sectionId) {
-      window.location.href = `/learning/${courseId}/${newSectionId}`;
-      // Or use router navigation:
-      // navigate(`/learning/${courseId}/${newSectionId}`);
+      // Navigate immediately without delays to prevent race conditions
+      navigate(`/my-learning/${courseId}/section/${newSectionId}`);
     }
   };
 
@@ -206,17 +237,28 @@ const LearningPage: React.FC = () => {
             </div> */}
 
             {/* Using only VideoJS player for now */}
-            <VideoPlayer
-              src={currentSection.videoUrl1 || currentSection.videoUrl || ""}
-              type={
-                currentSection.videoUrl1?.includes(".m3u8")
-                  ? "application/x-mpegURL"
-                  : undefined
-              }
-              onProgress={handleVideoProgress}
-              onEnded={handleVideoEnded}
-              className="w-full"
-            />
+            {currentSection &&
+            (currentSection.videoUrl1 || currentSection.videoUrl) ? (
+              <VideoPlayer
+                key={currentSection.id} // Force re-render when section changes
+                src={currentSection.videoUrl1 || currentSection.videoUrl || ""}
+                type={
+                  currentSection.videoUrl1?.includes(".m3u8")
+                    ? "application/x-mpegURL"
+                    : undefined
+                }
+                onProgress={handleVideoProgress}
+                onEnded={handleVideoEnded}
+                className="w-full"
+              />
+            ) : (
+              <div className="flex items-center justify-center h-64 text-white">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
+                  <p>載入影片中...</p>
+                </div>
+              </div>
+            )}
 
             {/* HLS Player - Commented out for now */}
             {/* {useHLSPlayer ? (
