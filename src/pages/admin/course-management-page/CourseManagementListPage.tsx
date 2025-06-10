@@ -1,14 +1,14 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ADMIN_ROUTES } from "@/app/route-path";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, Users, User, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
 import { useBreadcrumbStore } from "@/stores/breadcrumbStore";
 import { useCourseStore } from "./courseManagementStore";
 import { useImageWithFallback } from "@/components/utils/courseImageUtils";
+import { useScreenLoading } from "@/components/common/useScreenLoading";
 import Education from "@/assets/education.jpg";
 import { CourseListItemModel } from "./courseManagement.model";
 
@@ -29,83 +29,149 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, index, onClick }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      whileHover={{ y: -4 }}
-      className="cursor-pointer"
+      initial={{ opacity: 0, y: 30, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{
+        duration: 0.6,
+        delay: index * 0.15,
+        ease: [0.25, 0.46, 0.45, 0.94],
+      }}
+      whileHover={{
+        y: -8,
+        scale: 1.02,
+        transition: { duration: 0.3, ease: "easeOut" },
+      }}
+      whileTap={{ scale: 0.98 }}
+      className="cursor-pointer h-full"
       onClick={onClick}
     >
       <Card
-        className={`overflow-hidden hover:shadow-lg transition-all duration-300 ${
+        className={`overflow-hidden hover:shadow-xl transition-all duration-500 h-full flex flex-col ${
           !course.isPublished ? "opacity-90" : ""
         }`}
+        style={{ minHeight: "400px" }}
       >
-        <CardHeader className="p-0 relative">
-          <div className="relative">
+        <CardHeader className="p-0 relative flex-shrink-0">
+          <div className="relative overflow-hidden">
             <motion.div
-              whileHover={{ scale: course.isPublished ? 1.05 : 1.02 }}
-              transition={{ duration: 0.3 }}
+              whileHover={{
+                scale: course.isPublished ? 1.08 : 1.03,
+                transition: { duration: 0.4, ease: "easeOut" },
+              }}
+              className="overflow-hidden"
             >
               <img
                 src={imageSrc}
                 alt={course.title}
-                className={`w-full h-48 object-cover transition-all duration-300 ${
-                  !course.isPublished ? "filter grayscale-50" : ""
+                className={`w-full h-full object-cover object-center transition-all duration-500 ${
+                  !course.isPublished ? "filter grayscale-50 brightness-75" : ""
                 }`}
+                style={{ height: "270px" }} // 調整為 270px，與文字區 180px 形成 3:2 比例
                 onError={handleImageError}
               />
             </motion.div>
 
             {/* 課程下架遮罩 */}
             {!course.isPublished && (
-              <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
-                <div className="text-center text-white">
-                  <EyeOff className="w-8 h-8 mx-auto mb-2 opacity-90" />
-                  <span className="text-3xl font-bold">課程已下架</span>
-                </div>
-              </div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/70 flex items-center justify-center backdrop-blur-[1px]"
+              >
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.4, delay: 0.2 }}
+                  className="text-center text-white"
+                >
+                  <motion.div
+                    animate={{
+                      rotateY: [0, 10, -10, 0],
+                      scale: [1, 1.05, 1],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      repeatType: "reverse",
+                      ease: "easeInOut",
+                    }}
+                  >
+                    <EyeOff className="w-8 h-8 mx-auto mb-2 opacity-90 drop-shadow-lg" />
+                  </motion.div>
+                  <span className="text-lg font-bold drop-shadow-lg tracking-wide">
+                    課程已下架
+                  </span>
+                </motion.div>
+              </motion.div>
             )}
+
+            {/* 懸停時的額外效果 */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 pointer-events-none"
+              whileHover={{ opacity: course.isPublished ? 1 : 0 }}
+              transition={{ duration: 0.3 }}
+            />
           </div>
         </CardHeader>
 
         <CardContent className="p-4">
           <div className="flex items-start justify-between mb-3">
             <CardTitle
-              className={`text-lg line-clamp-2 ${
-                !course.isPublished ? "text-gray-600" : ""
+              className={`text-base leading-5 line-clamp-2 font-semibold flex-1 ${
+                !course.isPublished ? "text-gray-600" : "text-gray-900"
               }`}
             >
               {course.title}
             </CardTitle>
             {course.isFree && (
-              <span className="text-sm font-medium text-green-600 bg-green-50 px-2 py-1 rounded flex-shrink-0 ml-2">
+              <motion.span
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.3, delay: 0.5 }}
+                className="text-xs font-medium text-green-700 bg-green-100 px-2 py-1 rounded-full flex-shrink-0 ml-2 shadow-sm"
+              >
                 免費
-              </span>
+              </motion.span>
             )}
           </div>
 
           <div className="space-y-2">
             {/* 講師資訊 */}
-            <div className="flex items-center gap-2">
-              <User className="w-4 h-4 text-gray-500" />
-              <span className="text-sm text-gray-600">
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.6 }}
+              className="flex items-center gap-2"
+            >
+              <User className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
+              <span className="text-xs text-gray-600 truncate">
                 講師：{course.instructorName || "未提供"}
               </span>
-            </div>
+            </motion.div>
 
             {/* 學生數量 */}
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-gray-500" />
-              <span className="text-sm text-gray-600">
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.7 }}
+              className="flex items-center gap-2"
+            >
+              <Users className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
+              <span className="text-xs text-gray-600">
                 {course.studentCount} 位學生
               </span>
-            </div>
+            </motion.div>
 
             {/* 建立日期 */}
-            <div className="text-xs text-gray-500 mt-3">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.8 }}
+              className="text-xs text-gray-500"
+            >
               建立於 {formatDate(course.createdAt)}
-            </div>
+            </motion.div>
           </div>
         </CardContent>
       </Card>
@@ -118,38 +184,66 @@ export default function CourseManagementListPage() {
   const location = useLocation();
   const { setBreadcrumbs } = useBreadcrumbStore();
 
+  // 全螢幕 Loading
+  const { ScreenLoading, withLoading } = useScreenLoading();
+
   // 使用課程 store
-  const { courses, pagination, isLoading, fetchCourses } = useCourseStore();
+  const { courses, pagination, fetchCourses, resetCourses } = useCourseStore();
+
+  const [isPageInitialized, setIsPageInitialized] = useState(false);
 
   useEffect(() => {
     // 設置麵包屑
     setBreadcrumbs(location.pathname, {});
 
-    // 載入課程列表
-    fetchCourses({ page: 1, pageSize: 9 });
-  }, [setBreadcrumbs, location.pathname, fetchCourses]);
+    // 頁面初始載入 - 先清空舊資料，再使用全域 LOADING
+    const initializeCoursePage = async () => {
+      // 立即清空舊的課程資料，防止舊資料閃現
+      if (resetCourses) {
+        resetCourses();
+      }
 
-  // 載入狀態的骨架畫面
-  const LoadingSkeleton = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {Array.from({ length: 9 }).map((_, index) => (
-        <Card key={index} className="overflow-hidden">
-          <CardHeader className="p-0">
-            <Skeleton className="w-full h-48" />
-          </CardHeader>
-          <CardContent className="p-4">
-            <Skeleton className="h-6 mb-2" />
-            <Skeleton className="h-4 w-2/3 mb-2" />
-            <Skeleton className="h-4 w-1/2" />
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
+      setIsPageInitialized(false);
+
+      try {
+        await withLoading(
+          () => fetchCourses({ page: 1, pageSize: 9 }),
+          "正在載入課程列表..."
+        );
+      } finally {
+        setIsPageInitialized(true);
+      }
+    };
+
+    initializeCoursePage();
+  }, [
+    setBreadcrumbs,
+    location.pathname,
+    fetchCourses,
+    withLoading,
+    resetCourses,
+  ]);
+
+  // 分頁處理 - 使用全域 LOADING
+  const handlePageChange = async (page: number) => {
+    try {
+      await withLoading(
+        () => fetchCourses({ page, pageSize: 9 }),
+        "正在載入課程列表..."
+      );
+    } catch (error) {
+      console.error("Failed to load courses:", error);
+    }
+  };
 
   // 空狀態組件
   const EmptyState = () => (
-    <div className="flex items-center justify-between p-12 bg-white rounded-lg shadow-sm">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="flex items-center justify-between p-12 bg-white rounded-lg shadow-sm"
+    >
       <div className="w-1/2 pr-8">
         <div className="rounded-lg overflow-hidden shadow-lg">
           <img
@@ -172,126 +266,134 @@ export default function CourseManagementListPage() {
           建立課程
         </Button>
       </div>
-    </div>
+    </motion.div>
   );
 
+  const shouldShowContent = isPageInitialized;
+
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-2xl font-bold">課程管理</h1>
-          {!isLoading && courses.length > 0 && (
-            <p className="text-gray-500 mt-1">
-              共 {pagination.totalItems} 個課程
-            </p>
+    <>
+      {/* 全螢幕 Loading */}
+      <ScreenLoading />
+
+      <div className="container mx-auto py-8">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-2xl font-bold">課程管理</h1>
+            {shouldShowContent && courses.length > 0 && (
+              <p className="text-gray-500 mt-1">
+                共 {pagination.totalItems} 個課程
+              </p>
+            )}
+          </div>
+          {shouldShowContent && courses.length > 0 && (
+            <Button
+              onClick={() => navigate(ADMIN_ROUTES.CREATE_COURSE)}
+              className="bg-orange-600 hover:bg-orange-700 text-white"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              建立課程
+            </Button>
           )}
         </div>
-        {!isLoading && courses.length > 0 && (
-          <Button
-            onClick={() => navigate(ADMIN_ROUTES.CREATE_COURSE)}
-            className="bg-orange-600 hover:bg-orange-700 text-white"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            建立課程
-          </Button>
+
+        {/* 內容區域 */}
+        {shouldShowContent && (
+          <>
+            {courses.length === 0 ? (
+              // 無資料時顯示空狀態
+              <EmptyState />
+            ) : (
+              // 正常顯示課程列表
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {courses.map((course, index) => (
+                  <CourseCard
+                    key={course.id}
+                    course={course}
+                    index={index}
+                    onClick={() =>
+                      navigate(
+                        `${ADMIN_ROUTES.COURSE_INFO.replace(
+                          ":courseId",
+                          course.id
+                        )}`
+                      )
+                    }
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
-      </div>
 
-      {isLoading ? (
-        <LoadingSkeleton />
-      ) : courses.length === 0 ? (
-        <EmptyState />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses.map((course, index) => (
-            <CourseCard
-              key={course.id}
-              course={course}
-              index={index}
-              onClick={() =>
-                navigate(
-                  `${ADMIN_ROUTES.COURSE_INFO.replace(":courseId", course.id)}`
-                )
-              }
-            />
-          ))}
-        </div>
-      )}
-
-      {/* 分頁控制 */}
-      {!isLoading && courses.length > 0 && pagination.totalPages > 1 && (
-        <div className="flex justify-between items-center mt-8">
-          <span className="text-sm text-muted-foreground">
-            第 {pagination.currentPage} 頁，共 {pagination.totalPages} 頁
-          </span>
-          <div className="space-x-2 flex items-center">
-            <Button
-              variant="outline"
-              size="sm"
-              className={
-                pagination.currentPage <= 1
-                  ? "text-gray-400 border-gray-200 cursor-not-allowed"
-                  : "text-gray-700 border-gray-300 hover:bg-gray-200"
-              }
-              onClick={() => {
-                fetchCourses({
-                  page: pagination.currentPage - 1,
-                  pageSize: 9,
-                });
-              }}
-              disabled={pagination.currentPage <= 1}
-            >
-              上一頁
-            </Button>
-
-            {Array.from({ length: pagination.totalPages }, (_, index) => {
-              const page = index + 1;
-              return (
+        {/* 分頁控制 */}
+        {shouldShowContent &&
+          courses.length > 0 &&
+          pagination.totalPages > 1 && (
+            <div className="flex justify-between items-center mt-8">
+              <span className="text-sm text-muted-foreground">
+                第 {pagination.currentPage} 頁，共 {pagination.totalPages} 頁
+              </span>
+              <div className="space-x-2 flex items-center">
                 <Button
-                  key={page}
-                  variant={
-                    page === pagination.currentPage ? "outline" : "ghost"
-                  }
+                  variant="outline"
                   size="sm"
                   className={
-                    page === pagination.currentPage
-                      ? "text-gray-600 hover:bg-gray-100 hover:text-gray-500 cursor-not-allowed"
-                      : "text-gray-600 hover:bg-gray-300 hover:text-gray-700"
+                    pagination.currentPage <= 1
+                      ? "text-gray-400 border-gray-200 cursor-not-allowed"
+                      : "text-gray-700 border-gray-300 hover:bg-gray-200"
                   }
                   onClick={() => {
-                    fetchCourses({
-                      page,
-                      pageSize: 9,
-                    });
+                    handlePageChange(pagination.currentPage - 1);
                   }}
-                  disabled={page === pagination.currentPage}
+                  disabled={pagination.currentPage <= 1}
                 >
-                  {page}
+                  上一頁
                 </Button>
-              );
-            })}
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                fetchCourses({
-                  page: pagination.currentPage + 1,
-                  pageSize: 9,
-                });
-              }}
-              disabled={pagination.currentPage >= pagination.totalPages}
-              className={
-                pagination.currentPage >= pagination.totalPages
-                  ? "text-gray-400 border-gray-200 cursor-not-allowed"
-                  : "text-gray-700 border-gray-300 hover:bg-gray-200"
-              }
-            >
-              下一頁
-            </Button>
-          </div>
-        </div>
-      )}
-    </div>
+                {Array.from({ length: pagination.totalPages }, (_, index) => {
+                  const page = index + 1;
+                  return (
+                    <Button
+                      key={page}
+                      variant={
+                        page === pagination.currentPage ? "outline" : "ghost"
+                      }
+                      size="sm"
+                      className={
+                        page === pagination.currentPage
+                          ? "text-gray-600 hover:bg-gray-100 hover:text-gray-500 cursor-not-allowed"
+                          : "text-gray-600 hover:bg-gray-300 hover:text-gray-700"
+                      }
+                      onClick={() => {
+                        handlePageChange(page);
+                      }}
+                      disabled={page === pagination.currentPage}
+                    >
+                      {page}
+                    </Button>
+                  );
+                })}
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    handlePageChange(pagination.currentPage + 1);
+                  }}
+                  disabled={pagination.currentPage >= pagination.totalPages}
+                  className={
+                    pagination.currentPage >= pagination.totalPages
+                      ? "text-gray-400 border-gray-200 cursor-not-allowed"
+                      : "text-gray-700 border-gray-300 hover:bg-gray-200"
+                  }
+                >
+                  下一頁
+                </Button>
+              </div>
+            </div>
+          )}
+      </div>
+    </>
   );
 }

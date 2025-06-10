@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, useMemo, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -12,11 +12,12 @@ import { useDropzone, DropzoneOptions } from "react-dropzone";
 import { ImagePlus, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCourseStore } from "./courseManagementStore";
+import { useScreenLoading } from "@/components/common/useScreenLoading";
 import {
   useImageWithFallback,
   DEFAULT_COURSE_COVER,
 } from "@/components/utils/courseImageUtils";
-import type { FileRejection, FileError } from "react-dropzone";
+import type { FileRejection } from "react-dropzone";
 import type { CreateCourseModel } from "./courseManagement.model";
 
 const courseCreateSchema = z
@@ -30,10 +31,8 @@ const courseCreateSchema = z
       .max(200, "課程副標題不能超過200個字元")
       .optional()
       .or(z.literal("")),
-    description: z
-      .string()
-      .min(1, "課程介紹為必填項目")
-      .max(5000, "課程介紹不能超過5000個字元"),
+    description: z.string().min(1, "課程介紹為必填項目"),
+    // .max(5000, "課程介紹不能超過5000個字元"),
     highlight: z
       .string()
       .max(200, "課程亮點不能超過200個字元")
@@ -75,7 +74,9 @@ type CourseCreateFormData = z.infer<typeof courseCreateSchema>;
 
 export default function CoursesCreatePage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  const { showLoading, hideLoading } = useScreenLoading();
 
   const {
     isCreating,
@@ -84,6 +85,7 @@ export default function CoursesCreatePage() {
     createNewCourse,
     uploadCourseImage,
     setCoverPreview,
+    resetCourseState,
   } = useCourseStore();
 
   // 本地狀態管理
@@ -94,14 +96,16 @@ export default function CoursesCreatePage() {
   // 防止重複上傳的 ref
   const uploadingRef = useRef<boolean>(false);
   const lastUploadedFileRef = useRef<File | null>(null);
+  const isLeavingPage = useRef<boolean>(false);
 
-  // 使用 useMemo 來避免每次渲染時重新計算圖片 URL
   const currentImageSrc = useMemo(() => {
-    if (fileObjectUrl) return fileObjectUrl;
+    // 優先使用已上傳的 URL
     if (uploadedCoverUrl) return uploadedCoverUrl;
-    if (coverPreview) return coverPreview;
-    return DEFAULT_COURSE_COVER;
-  }, [fileObjectUrl, uploadedCoverUrl, coverPreview]);
+    // 其次使用本地預覽 URL
+    if (fileObjectUrl) return fileObjectUrl;
+    // 最後使用預設圖片或封面預覽
+    return coverPreview || DEFAULT_COURSE_COVER;
+  }, [uploadedCoverUrl, fileObjectUrl, coverPreview]);
 
   // 使用穩定的圖片 URL
   const [imageSrc, handleImageError] = useImageWithFallback(currentImageSrc);
@@ -128,60 +132,34 @@ export default function CoursesCreatePage() {
 
   const courseType = watch("courseType");
 
-  const clearFormAndState = useCallback(() => {
-    // 重置表單
-    reset();
-
-    // 清空所有本地狀態
-    setSelectedFile(null);
-    setUploadedCoverUrl("");
-    setFileObjectUrl(null);
-    uploadingRef.current = false;
-    lastUploadedFileRef.current = null;
-
-    // 設定預設圖片
-    setCoverPreview(DEFAULT_COURSE_COVER);
-
-    // 清理 object URL
+  // 清理函數
+  const cleanupObjectUrl = useCallback(() => {
     if (fileObjectUrl) {
       URL.revokeObjectURL(fileObjectUrl);
+      setFileObjectUrl(null);
     }
-  }, [reset, setCoverPreview, fileObjectUrl]);
+  }, [fileObjectUrl]);
 
-  // 只在組件掛載時執行一次，避免無限循環
-  useEffect(() => {
-    clearFormAndState();
-
-    // 清理函數
-    return () => {
-      if (fileObjectUrl) {
-        URL.revokeObjectURL(fileObjectUrl);
-      }
-    };
-  }, [clearFormAndState, fileObjectUrl]);
-
-  // 管理 selectedFile 的 object URL
-  useEffect(() => {
-    if (selectedFile) {
-      const objectUrl = URL.createObjectURL(selectedFile);
-      setFileObjectUrl(objectUrl);
-
-      return () => {
-        URL.revokeObjectURL(objectUrl);
-      };
-    } else {
-      if (fileObjectUrl) {
-        URL.revokeObjectURL(fileObjectUrl);
-        setFileObjectUrl(null);
-      }
-    }
-  }, [selectedFile, fileObjectUrl]);
+  // 更新檔案預覽
+  const updateFilePreview = useCallback(
+    (file: File) => {
+      cleanupObjectUrl();
+      const newObjectUrl = URL.createObjectURL(file);
+      setFileObjectUrl(newObjectUrl);
+    },
+    [cleanupObjectUrl]
+  );
 
   // 處理圖片上傳的函數
   const handleUploadImage = useCallback(
     async (file: File) => {
       // 防止重複上傳相同檔案
-      if (uploadingRef.current || lastUploadedFileRef.current === file) {
+      if (
+        uploadingRef.current ||
+        (lastUploadedFileRef.current &&
+          lastUploadedFileRef.current.name === file.name &&
+          lastUploadedFileRef.current.size === file.size)
+      ) {
         return;
       }
 
@@ -209,12 +187,14 @@ export default function CoursesCreatePage() {
         uploadingRef.current = true;
         lastUploadedFileRef.current = file;
 
+        updateFilePreview(file);
+
         const uploadedUrl = await uploadCourseImage(file);
 
         if (uploadedUrl) {
           setUploadedCoverUrl(uploadedUrl);
           setCoverPreview(uploadedUrl);
-
+          cleanupObjectUrl();
           toast({
             title: "上傳成功",
             description: "課程封面已成功上傳",
@@ -223,11 +203,10 @@ export default function CoursesCreatePage() {
           throw new Error("上傳返回空值");
         }
       } catch (error) {
-        // 上傳失敗時清除選擇的檔案
         setSelectedFile(null);
         lastUploadedFileRef.current = null;
+        cleanupObjectUrl();
 
-        // 更詳細的錯誤訊息
         let errorMessage = "圖片上傳失敗，請重試";
         if (error instanceof Error) {
           if (error.message.includes("400")) {
@@ -252,10 +231,15 @@ export default function CoursesCreatePage() {
         uploadingRef.current = false;
       }
     },
-    [uploadCourseImage, setCoverPreview, toast]
+    [
+      uploadCourseImage,
+      setCoverPreview,
+      toast,
+      cleanupObjectUrl,
+      updateFilePreview,
+    ]
   );
 
-  // 優化的 dropzone 配置
   const dropzoneOptions: DropzoneOptions = {
     accept: {
       "image/jpeg": [".jpg", ".jpeg"],
@@ -274,17 +258,17 @@ export default function CoursesCreatePage() {
   const onDrop = useCallback(
     (acceptedFiles: File[], fileRejections: FileRejection[]) => {
       // 處理被拒絕的檔案
-      if (fileRejections && fileRejections.length > 0) {
-        const isSizeError = fileRejections.some((rej: FileRejection) =>
-          rej.errors.some((err: FileError) => err.code === "file-too-large")
+      if (fileRejections.length > 0) {
+        const isSizeError = fileRejections.some((rej) =>
+          rej.errors.some((err) => err.code === "file-too-large")
         );
 
-        const isTypeError = fileRejections.some((rej: FileRejection) =>
-          rej.errors.some((err: FileError) => err.code === "file-invalid-type")
+        const isTypeError = fileRejections.some((rej) =>
+          rej.errors.some((err) => err.code === "file-invalid-type")
         );
 
-        const isTooManyFiles = fileRejections.some((rej: FileRejection) =>
-          rej.errors.some((err: FileError) => err.code === "too-many-files")
+        const isTooManyFiles = fileRejections.some((rej) =>
+          rej.errors.some((err) => err.code === "too-many-files")
         );
 
         if (isTooManyFiles) {
@@ -305,43 +289,18 @@ export default function CoursesCreatePage() {
             title: "檔案格式錯誤",
             description: "請上傳 JPG、PNG 或 GIF 格式的圖片",
           });
-        } else {
-          const errorMessages = fileRejections
-            .flatMap((rej) => rej.errors.map((err) => err.message))
-            .join(", ");
-
-          toast({
-            variant: "destructive",
-            title: "檔案處理錯誤",
-            description: errorMessages,
-          });
         }
         return;
       }
 
       // 處理接受的檔案
-      if (acceptedFiles && acceptedFiles.length > 0) {
+      if (acceptedFiles.length > 0) {
         const file = acceptedFiles[0];
-
-        // 檢查是否正在上傳
-        if (uploadingRef.current) {
-          toast({
-            variant: "destructive",
-            title: "請稍候",
-            description: "圖片正在上傳中，請等待完成",
-          });
-          return;
-        }
-
         setSelectedFile(file);
-
-        // 延遲一點再上傳，確保狀態更新完成
-        setTimeout(() => {
-          handleUploadImage(file);
-        }, 100);
+        handleUploadImage(file);
       }
     },
-    [toast, handleUploadImage]
+    [handleUploadImage, toast]
   );
 
   const { getRootProps, getInputProps, isDragActive, fileRejections } =
@@ -374,7 +333,6 @@ export default function CoursesCreatePage() {
         duration: data.duration ? parseFloat(data.duration) : 0,
         price: data.courseType === "free" ? 0 : parseFloat(data.price || "0"),
         isFree: data.courseType === "free",
-        // 使用已上傳的圖片 URL，如果沒有則使用預設圖片
         coverUrl: uploadedCoverUrl || DEFAULT_COURSE_COVER,
       };
 
@@ -383,15 +341,15 @@ export default function CoursesCreatePage() {
       if (result.status === "success" && result.data) {
         const courseId = result.data.id;
 
+        isLeavingPage.current = true;
+
         toast({
           title: "建立成功",
           description: "課程已成功建立，正在跳轉到章節管理...",
         });
 
         // 清理臨時 URL
-        if (fileObjectUrl) {
-          URL.revokeObjectURL(fileObjectUrl);
-        }
+        cleanupObjectUrl();
 
         // 清空狀態
         clearFormAndState();
@@ -414,7 +372,36 @@ export default function CoursesCreatePage() {
     }
   };
 
+  // 清理表單和狀態
+  const clearFormAndState = useCallback(() => {
+    // 重置表單
+    reset();
+
+    // 清空所有本地狀態
+    setSelectedFile(null);
+    setUploadedCoverUrl("");
+    cleanupObjectUrl();
+    uploadingRef.current = false;
+    lastUploadedFileRef.current = null;
+
+    // 重置 store 狀態
+    resetCourseState();
+  }, [reset, cleanupObjectUrl, resetCourseState]);
+
+  // 移除覆蓋圖片
+  const handleRemoveCover = useCallback(() => {
+    setSelectedFile(null);
+    setUploadedCoverUrl("");
+    cleanupObjectUrl();
+    uploadingRef.current = false;
+    lastUploadedFileRef.current = null;
+    resetCourseState();
+  }, [cleanupObjectUrl, resetCourseState]);
+
+  // 取消操作
   const handleCancel = useCallback(() => {
+    isLeavingPage.current = true;
+
     // 清空表單和狀態
     clearFormAndState();
 
@@ -422,20 +409,43 @@ export default function CoursesCreatePage() {
     navigate(ADMIN_ROUTES.COURSES);
   }, [clearFormAndState, navigate]);
 
-  const handleRemoveCover = useCallback(() => {
-    // 清理本地檔案選擇
-    if (selectedFile) {
-      setSelectedFile(null);
-    }
+  // 組件掛載時進行初始化
+  useEffect(() => {
+    const initializePage = async () => {
+      try {
+        showLoading();
+        // 確保在進入頁面時重置所有狀態
+        await clearFormAndState();
+      } finally {
+        hideLoading();
+      }
+    };
 
-    // 清理上傳狀態
-    uploadingRef.current = false;
-    lastUploadedFileRef.current = null;
+    initializePage();
 
-    // 清理上傳的 URL，回到預設圖片
-    setUploadedCoverUrl("");
-    setCoverPreview(DEFAULT_COURSE_COVER);
-  }, [selectedFile, setCoverPreview]);
+    return () => {
+      cleanupObjectUrl();
+      resetCourseState();
+    };
+  }, [
+    showLoading,
+    hideLoading,
+    cleanupObjectUrl,
+    clearFormAndState,
+    resetCourseState,
+  ]);
+
+  // 監聽路由變化
+  useEffect(() => {
+    const currentPath = location.pathname;
+    return () => {
+      if (!isLeavingPage.current && location.pathname !== currentPath) {
+        clearFormAndState();
+      }
+      // 重置標記
+      isLeavingPage.current = false;
+    };
+  }, [location.pathname, clearFormAndState]);
 
   const hasCustomImage =
     selectedFile ||
