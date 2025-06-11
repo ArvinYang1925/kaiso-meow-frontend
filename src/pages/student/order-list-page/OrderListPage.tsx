@@ -76,7 +76,7 @@ export default function OrderListPage() {
             renderRow={(order) => (
               <>
                 <TableCell>{order.title}</TableCell>
-                <TableCell>{order.orderPrice}</TableCell>
+                <TableCell>{Math.floor(order.orderPrice)}</TableCell>
                 <TableCell>{order.paidAt}</TableCell>
                 <TableCell>{order.status}</TableCell>
                 <TableCell>
