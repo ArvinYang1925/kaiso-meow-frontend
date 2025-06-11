@@ -1,28 +1,28 @@
-
 export const initUserData = {
-    id: "",
-    name: "",
-    phoneNumber: "",
-    email: ""
-}
+  id: "",
+  name: "",
+  phoneNumber: "",
+  email: "",
+};
 
 export const initCouponData = {
-    id: "",
-    value: "",
-    code: "",
-    type: "",
-    couponName: ""
-}
+  id: "",
+  value: "",
+  code: "",
+  type: "",
+  couponName: "",
+};
 
 export const initCourseData = {
-    title: "",
-    cover_url: ""
-}
+  id: "",
+  title: "",
+  cover_url: "",
+};
 
 export const initOrderData = {
-    id: "",
-    originalPrice: null,
-    orderPrice: null,
-    status: null,
-    paidAt: "",
-}
+  id: "",
+  originalPrice: null,
+  orderPrice: null,
+  status: null,
+  paidAt: "",
+};
