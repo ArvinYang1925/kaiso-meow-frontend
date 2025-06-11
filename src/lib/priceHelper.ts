@@ -59,7 +59,7 @@ export const formatCouponDiscount = (
 export const handleCouponTypeLabel = (couponData: CouponInfo) => {
   const { type, value, couponName } = couponData || {};
   if (type == "fixed") {
-    return `${couponName} (折扣${value}元)`;
+    return `${couponName} (折扣${Math.floor(Number(value))}元)`;
   } else if (type == "percentage") {
     return `${couponName} (折扣${parseInt(value)}%)`;
   } else {
