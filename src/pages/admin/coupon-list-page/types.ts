@@ -4,6 +4,7 @@ export type Coupon = {
   type: string;
   code: string;
   value: number;
+  startsAt: string;
   expiresAt: string;
 };
 

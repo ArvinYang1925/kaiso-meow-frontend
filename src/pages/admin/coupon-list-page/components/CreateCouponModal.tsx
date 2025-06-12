@@ -9,6 +9,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { FormValidateInput } from "@/components/common/FormValidateInput";
 import { useCouponListStore } from "../couponListStore";
+import { useEffect } from "react";
 
 export const CreateCouponModal = () => {
   const {
@@ -16,6 +17,7 @@ export const CreateCouponModal = () => {
     handleSubmit,
     formState: { errors },
     control,
+    reset,
   } = useForm<CreateCouponModel>({
     defaultValues: {
       type: "", // type 欄位的預設值
@@ -29,7 +31,7 @@ export const CreateCouponModal = () => {
 
   const { isShowModal, setIsShowModal } = useCommonModalStore();
   const { showCommonDialog } = useDialogStore();
-  const { fetchCouponList } = useCouponListStore()
+  const { fetchCouponList } = useCouponListStore();
 
   const onSubmit = async (couponData: CreateCouponModel) => {
     try {
@@ -41,7 +43,7 @@ export const CreateCouponModal = () => {
         description: `${message}`,
         onClose: () => {
           fetchCouponList(1, 10);
-        }
+        },
       });
       setIsShowModal(false);
     } catch (error: any) {
@@ -53,6 +55,21 @@ export const CreateCouponModal = () => {
       });
     }
   };
+
+  useEffect(() => {
+    if (isShowModal) {
+      const today = new Date();
+
+      reset({
+        couponName: "",
+        value: 0,
+        startsAt: today,
+        expiresAt: today,
+        type: "",
+        code: "",
+      });
+    }
+  }, [isShowModal, reset]);
 
   return (
     <Modal
