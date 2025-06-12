@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useDialogStore } from "@/stores/commonDialogStore";
 import { useCommonModalStore } from "@/stores/commonModalStore";
 import { CreateCouponModal } from "./components/CreateCouponModal";
+import { getInteger } from "@/lib/priceHelper";
 
 export default function CouponListPage() {
   const { couponList, pagination, fetchCouponList, deleteCouponList } =
@@ -19,6 +20,7 @@ export default function CouponListPage() {
     { label: "折扣碼", key: "code" },
     { label: "折扣類型", key: "type" },
     { label: "折抵", key: "value" },
+    { label: "起始時間", key: "startsAt" },
     { label: "過期時間", key: "expiresAt" },
     { label: "操作", key: "action" },
   ];
@@ -26,13 +28,11 @@ export default function CouponListPage() {
   const handleDeleteCoupon = async (id: string) => {
     const response = await deleteCouponList(id);
     const { status, message } = response;
-    if (status === "success") {
-      showCommonDialog({
-        title: status,
-        description: message ?? "刪除成功",
-      });
-      fetchCouponList(1, 10);
-    }
+    showCommonDialog({
+      title: `${status}`,
+      description: `${message}`,
+    });
+    fetchCouponList(1, 10);
   };
 
   useEffect(() => {
@@ -45,7 +45,12 @@ export default function CouponListPage() {
         <h1 className="font-semibold text-3xl mb-16">折扣碼列表</h1>
         <main className="mb-8">
           <div className="table-header grid justify-items-end mb-4 pe-4">
-            <Button className="bg-blue-500 hover:bg-blue-600" onClick={() => setIsShowModal(true)}>新增折扣碼</Button>
+            <Button
+              className="bg-blue-500 hover:bg-blue-600"
+              onClick={() => setIsShowModal(true)}
+            >
+              新增折扣碼
+            </Button>
           </div>
           <TableWithPagination
             data={couponList}
@@ -65,7 +70,8 @@ export default function CouponListPage() {
                 <TableCell>{coupon.couponName}</TableCell>
                 <TableCell>{coupon.code}</TableCell>
                 <TableCell>{coupon.type}</TableCell>
-                <TableCell>{coupon.value}</TableCell>
+                <TableCell>{getInteger(coupon.value)}</TableCell>
+                <TableCell>{coupon.startsAt}</TableCell>
                 <TableCell>{coupon.expiresAt}</TableCell>
                 <TableCell>
                   <Button

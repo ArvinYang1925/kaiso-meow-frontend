@@ -3,7 +3,8 @@ export type Coupon = {
   couponName: string;
   type: string;
   code: string;
-  value: number;
+  value: string;
+  startsAt: string;
   expiresAt: string;
 };
 
