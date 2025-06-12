@@ -66,3 +66,15 @@ export const handleCouponTypeLabel = (couponData: CouponInfo) => {
     return "";
   }
 };
+
+/**
+ * 字串取正整數
+ */
+export const getInteger = (value: string) => {
+  if (!value) return 0; // 如果是 null、undefined、''，就回傳 0
+
+  const num = parseFloat(value);
+  if (isNaN(num)) return 0; // 如果不是數字，防止 NaN 錯誤
+
+  return Math.trunc(num); // 或用 Math.floor/Math.round 根據需求
+}

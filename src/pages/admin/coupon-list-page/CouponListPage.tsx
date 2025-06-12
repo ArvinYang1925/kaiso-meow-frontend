@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useDialogStore } from "@/stores/commonDialogStore";
 import { useCommonModalStore } from "@/stores/commonModalStore";
 import { CreateCouponModal } from "./components/CreateCouponModal";
+import { getInteger } from "@/lib/priceHelper";
 
 export default function CouponListPage() {
   const { couponList, pagination, fetchCouponList, deleteCouponList } =
@@ -69,7 +70,7 @@ export default function CouponListPage() {
                 <TableCell>{coupon.couponName}</TableCell>
                 <TableCell>{coupon.code}</TableCell>
                 <TableCell>{coupon.type}</TableCell>
-                <TableCell>{coupon.value}</TableCell>
+                <TableCell>{getInteger(coupon.value)}</TableCell>
                 <TableCell>{coupon.startsAt}</TableCell>
                 <TableCell>{coupon.expiresAt}</TableCell>
                 <TableCell>
