@@ -1,7 +1,7 @@
 import {
   Table,
   TableBody,
-  TableCell,
+  // TableCell,
   // TableHead,
   TableHeader,
   TableRow,
@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ReactNode } from "react";
 import { Pagination } from "@/services/types";
+import { Skeleton } from "../ui/skeleton";
 
 type TableWithPaginationProps<T> = {
   data: T[];
@@ -16,6 +17,8 @@ type TableWithPaginationProps<T> = {
   onPageChange: (newPage: number) => void;
   columns: ReactNode;
   renderRow: (item: T) => ReactNode;
+  skeletonRowCount?: number;
+  columnCount: number;
 };
 
 export function TableWithPagination<T>({
@@ -24,6 +27,8 @@ export function TableWithPagination<T>({
   onPageChange,
   columns,
   renderRow,
+  skeletonRowCount = 5,
+  columnCount = 10,
 }: TableWithPaginationProps<T>) {
   const { currentPage, totalPages } = pagination;
 
@@ -34,17 +39,19 @@ export function TableWithPagination<T>({
           <TableRow>{columns}</TableRow>
         </TableHeader>
         <TableBody>
-          {data.length > 0 ? (
-            data.map((item, index) => (
-              <TableRow key={index}>{renderRow(item)}</TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={10} className="text-center">
-                查無資料
-              </TableCell>
-            </TableRow>
-          )}
+          {data.length > 0
+            ? data.map((item, index) => (
+                <TableRow key={index}>{renderRow(item)}</TableRow>
+              ))
+            : Array.from({ length: skeletonRowCount }).map((_, rowIndex) => (
+                <tr key={`skeleton-${rowIndex}`} className="border-b">
+                  {Array.from({ length: columnCount }).map((_, colIndex) => (
+                    <td key={colIndex} className="p-4">
+                      <Skeleton className="h-4 w-full" />
+                    </td>
+                  ))}
+                </tr>
+              ))}
         </TableBody>
       </Table>
 

@@ -20,12 +20,13 @@ export default function StudentListPage() {
 
   return (
     <>
-      <div className="container mt-8">
+      <div className="mt-8 px-8 w-full md:w-[1200px] mx-auto">
         <h1 className="font-semibold text-3xl mb-16">學生列表</h1>
         <main className="mb-8">
           <TableWithPagination
             data={studentList}
             pagination={pagination}
+            columnCount={tableColumn.length}
             onPageChange={(newPage) => {
               fetchStudentList(newPage, 10);
             }}

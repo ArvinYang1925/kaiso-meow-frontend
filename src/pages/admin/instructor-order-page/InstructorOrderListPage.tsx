@@ -27,39 +27,66 @@ export default function InstructorOrderListPage() {
 
   return (
     <>
-      <div className="container mt-8">
-        <h1 className="font-semibold text-3xl mb-16">訂單管理</h1>
-        <main className="mb-8">
-          <TableWithPagination
-            data={orderList}
-            pagination={pagination}
-            onPageChange={(newPage) => {
-              fetchOrderList(newPage, 10);
-            }}
-            columns={
-              <>
-                {tableColumn.map((col, index) => (
-                  <TableHead key={index}>{col.label}</TableHead>
-                ))}
-              </>
-            }
-            renderRow={(order) => (
-              <>
-                <TableCell>{order.id}</TableCell>
-                <TableCell>{order.name}</TableCell>
-                <TableCell>{order.title}</TableCell>
-                <TableCell>{order.originalPrice}</TableCell>
-                <TableCell>{order.orderPrice}</TableCell>
-                <TableCell>{order.status}</TableCell>
-                <TableCell>{order.couponType}</TableCell>
-                <TableCell>{order.couponValue}</TableCell>
-                <TableCell>{order.createdAt}</TableCell>
-                <TableCell>{order.updatedAt}</TableCell>
-                <TableCell>{order.paidAt}</TableCell>
-              </>
-            )}
-          />
-        </main>
+      <div className="px-8 w-full md:w-[1200px] mx-auto">
+        <div className="mt-8">
+          <h1 className="font-semibold text-3xl mb-16">訂單管理</h1>
+          <main className="mb-8">
+            <TableWithPagination
+              data={orderList}
+              pagination={pagination}
+              columnCount={tableColumn.length}
+              onPageChange={(newPage) => {
+                fetchOrderList(newPage, 10);
+              }}
+              columns={
+                <>
+                  {tableColumn.map((col, index) => (
+                    <TableHead key={index} className="whitespace-nowrap px-4">
+                      {col.label}
+                    </TableHead>
+                  ))}
+                </>
+              }
+              renderRow={(order) => (
+                <>
+                  <TableCell className="whitespace-nowrap px-4">
+                    {order.id}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap px-4">
+                    {order.name}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap px-4">
+                    {order.title}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap px-4">
+                    {order.originalPrice}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap px-4">
+                    {order.orderPrice}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap px-4">
+                    {order.status}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap px-4">
+                    {order.couponType}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap px-4">
+                    {order.couponValue}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap px-4">
+                    {order.createdAt}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap px-4">
+                    {order.updatedAt}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap px-4">
+                    {order.paidAt}
+                  </TableCell>
+                </>
+              )}
+            />
+          </main>
+        </div>
       </div>
     </>
   );
