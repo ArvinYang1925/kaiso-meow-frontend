@@ -56,7 +56,7 @@ const SectionContent: React.FC<SectionContentProps> = ({
 
           <TabsContent value="description" className="mt-6">
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">課程說明</h3>
+              <h3 className="text-lg font-semibold text-gray-900">章節說明</h3>
               <div
                 className="prose max-w-none text-gray-700"
                 dangerouslySetInnerHTML={{ __html: section.content }}
