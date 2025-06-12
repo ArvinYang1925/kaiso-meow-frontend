@@ -7,7 +7,8 @@ import { useDialogStore } from "@/stores/commonDialogStore";
 import axios from "axios";
 
 export default function OrderListPage() {
-  const { orderList, pagination, fetchOrder, checkoutEcpay } = useOrderListStore();
+  const { orderList, pagination, fetchOrder, checkoutEcpay } =
+    useOrderListStore();
   const { showCommonDialog } = useDialogStore();
 
   const tableColumn = [
@@ -21,7 +22,7 @@ export default function OrderListPage() {
   const handleRepay = async (orderId: string) => {
     try {
       const response = await checkoutEcpay(orderId);
-      
+
       const wrapper = document.createElement("div");
       wrapper.innerHTML = response;
       const form = wrapper.querySelector("form");
@@ -50,18 +51,19 @@ export default function OrderListPage() {
       }
     }
   };
-  
+
   useEffect(() => {
     fetchOrder(pagination.currentPage, 10);
   }, []);
 
   return (
     <>
-      <div className="container mt-32">
+      <div className="mt-32 px-8 w-full md:w-[1200px] mx-auto">
         <h1 className="font-semibold text-3xl mb-16">購買紀錄</h1>
         <main className="mb-8">
           <TableWithPagination
             data={orderList}
+            columnCount={tableColumn.length}
             pagination={pagination}
             onPageChange={(newPage) => {
               fetchOrder(newPage, 10);
@@ -81,7 +83,7 @@ export default function OrderListPage() {
                 <TableCell>{order.status}</TableCell>
                 <TableCell>
                   {order.status === "待付款" && (
-                    <Button 
+                    <Button
                       onClick={() => handleRepay(order.id)}
                       variant="default"
                       size="sm"

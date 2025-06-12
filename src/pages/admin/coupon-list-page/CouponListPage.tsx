@@ -41,7 +41,7 @@ export default function CouponListPage() {
 
   return (
     <>
-      <div className="container mt-8">
+      <div className="mt-8 px-8 w-full md:w-[1200px] mx-auto">
         <h1 className="font-semibold text-3xl mb-16">折扣碼列表</h1>
         <main className="mb-8">
           <div className="table-header grid justify-items-end mb-4 pe-4">
@@ -55,6 +55,7 @@ export default function CouponListPage() {
           <TableWithPagination
             data={couponList}
             pagination={pagination}
+            columnCount={tableColumn.length}
             onPageChange={(newPage) => {
               fetchCouponList(newPage, 10);
             }}
