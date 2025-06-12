@@ -1,54 +1,140 @@
-# React + TypeScript + Vite
+# kaiso-meow-frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> 影音課程販售平台前端專案
 
-Currently, two official plugins are available:
+**影音課程販售平台 – 前端應用**  
+提供現代化、響應式的使用者介面，支援課程瀏覽、影片播放、購物車與訂閱管理等功能。
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 🚀 線上服務
+| 環境 | URL |
+| ---- | --- |
+| Production | `<待補充>` |
+| Staging | `<待補充>` |
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## ✨ 特色
+- React 18 + TypeScript
+- Vite 6 建構工具
+- Tailwind CSS + Radix UI 元件庫
+- Zustand 狀態管理
+- React Router v6 路由管理
+- Zod 表單驗證
+- Video.js 影片播放器
+- React Quill 富文本編輯器
+- Framer Motion 動畫效果
+- ESLint + TypeScript 程式碼品質控制
+
+---
+
+## 🏗️ 專案結構
+```text
+src/
+├── app/          # 應用程式核心設定
+├── assets/       # 靜態資源
+├── components/   # 共用元件
+├── hooks/        # 自定義 React Hooks
+├── lib/          # 工具函式與設定
+├── pages/        # 頁面元件
+├── services/     # API 服務
+├── stores/       # Zustand 狀態管理
+├── styles/       # 全域樣式
+└── types/        # TypeScript 型別定義
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🛠️ 開發環境需求
+- Node.js 20.x
+- npm 或 yarn
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+---
+
+## 🚀 快速開始
+
+1. 安裝依賴
+```bash
+npm install
+```
+
+2. 啟動開發伺服器
+```bash
+npm run dev
+```
+
+3. 建置生產版本
+```bash
+npm run build
+```
+
+4. 預覽生產版本
+```bash
+npm run preview
+```
+
+---
+
+## 📝 可用指令
+- `npm run dev` - 啟動開發伺服器
+- `npm run build` - 建置生產版本
+- `npm run preview` - 預覽生產版本
+- `npm run lint` - 執行 ESLint 檢查
+- `npm run compress:images` - 壓縮圖片資源
+
+---
+
+## 🎨 技術棧
+- **前端框架**: React 18
+- **建構工具**: Vite 6
+- **程式語言**: TypeScript
+- **樣式解決方案**: 
+  - Tailwind CSS
+  - SASS
+  - Radix UI
+- **狀態管理**: Zustand
+- **路由**: React Router v6
+- **表單處理**: 
+  - React Hook Form
+  - Zod
+- **UI 元件**: 
+  - Radix UI
+  - Lucide React Icons
+- **動畫**: Framer Motion
+- **影片播放**: Video.js
+- **圖表**: Recharts
+- **富文本編輯**: React Quill
+- **拖曳排序**: SortableJS
+
+---
+
+## 🔧 環境變數
+建立 `.env` 檔案並設定以下變數：
+```env
+VITE_API_BASE_URL=<API 基礎 URL>
+```
+
+---
+
+## 📦 部署
+專案使用 Vite 建構，可部署至任何靜態網站託管服務：
+- Vercel
+- Netlify
+- GitHub Pages
+- AWS S3 + CloudFront
+
+---
+
+## 🤝 貢獻指南
+1. Fork 專案
+2. 建立功能分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交變更 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 開啟 Pull Request
+
+---
+
+## 📄 授權
+此專案採用 MIT 授權條款 - 詳見 [LICENSE](LICENSE) 檔案
 ```
