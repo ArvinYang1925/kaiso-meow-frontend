@@ -37,6 +37,13 @@ type CourseSortOption =
 // 預設排序設定
 const DEFAULT_SORT: CourseSortOption = "created_desc";
 
+// 操作結果型別
+interface OperationResult<T = unknown> {
+  success: boolean;
+  data?: T;
+  message?: string;
+}
+
 interface CourseState {
   // 課程列表相關
   allCourses: CourseListItemModel[]; // 所有課程資料
@@ -66,27 +73,28 @@ interface CourseState {
 }
 
 interface CourseActions {
-  fetchCourses: (params?: PaginationParamsModel) => Promise<void>;
+  fetchCourses: (params?: PaginationParamsModel) => Promise<OperationResult>;
   setFilter: (filter: Partial<CourseFilterModel>) => void;
   resetFilter: () => void;
+  resetCourses: () => void;
 
   setSortBy: (sortBy: CourseSortOption) => void;
   resetSort: () => void;
 
   // 課程 CRUD 操作
   createNewCourse: (data: CreateCourseModel) => Promise<CreateCourseResponse>;
-  fetchCourseDetail: (courseId: string) => Promise<void>;
+  fetchCourseDetail: (courseId: string) => Promise<OperationResult<Course>>;
   updateCourseDetail: (
     courseId: string,
     data: UpdateCourseModel
-  ) => Promise<boolean>;
-  removeCourse: (courseId: string) => Promise<boolean>;
+  ) => Promise<OperationResult<Course>>;
+  removeCourse: (courseId: string) => Promise<OperationResult>;
 
   // 課程狀態操作
   togglePublishCourse: (
     courseId: string,
     isPublished: boolean
-  ) => Promise<boolean>;
+  ) => Promise<OperationResult>;
 
   // 檔案上傳操作
   uploadCourseImage: (file: File) => Promise<string | null>;
@@ -99,6 +107,7 @@ interface CourseActions {
   // 資料重置
   resetCurrentCourse: () => void;
   resetForm: () => void;
+  resetCourseState: () => void;
 }
 
 const initialPagination: PaginationInfoModel = {
@@ -118,7 +127,6 @@ const initialFilter: CourseFilterModel = {
  * 統一的成功訊息處理
  */
 const handleSuccessMessage = (title: string, description: string) => {
-  console.log("Showing success toast:", { title, description });
   toast({
     title,
     description,
@@ -130,12 +138,24 @@ const handleSuccessMessage = (title: string, description: string) => {
  */
 const handleErrorMessage = (title: string, message?: string) => {
   const finalMessage = message || "操作失敗，請稍後再試。";
-  console.log("Showing error toast:", { title, description: finalMessage });
   toast({
     variant: "destructive",
     title,
     description: finalMessage,
   });
+};
+
+/**
+ * 錯誤訊息提取函數
+ */
+const extractErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === "string") {
+    return error;
+  }
+  return "操作失敗，請稍後再試";
 };
 
 /**
@@ -205,25 +225,44 @@ const loadAllCourses = async (): Promise<CourseListItemModel[]> => {
         currentPage++;
       } else {
         hasMore = false;
+        if (response.status === "error") {
+          throw new Error(response.message);
+        }
       }
     }
 
     return allCourses;
   } catch (error) {
-    throw new Error(
-      `無法載入課程資料: ${error instanceof Error ? error.message : "未知錯誤"}`
-    );
+    throw new Error(`載入課程資料失敗: ${extractErrorMessage(error)}`);
   }
+};
+
+/**
+ * 檔案驗證函數
+ */
+const validateFile = (file: File): string | null => {
+  const maxSize = 2 * 1024 * 1024; // 2MB
+  const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
+
+  if (file.size > maxSize) {
+    return "檔案大小超過 2MB 限制";
+  }
+
+  if (!allowedTypes.includes(file.type)) {
+    return `不支援的檔案類型: ${file.type}`;
+  }
+
+  return null;
 };
 
 export const useCourseStore = create<CourseState & CourseActions>()(
   immer<CourseState & CourseActions>((set, get) => ({
     // 初始狀態
-    allCourses: [] as CourseListItemModel[],
-    courses: [] as CourseListItemModel[],
+    allCourses: [],
+    courses: [],
     pagination: initialPagination,
     filter: initialFilter,
-    sortBy: DEFAULT_SORT as CourseSortOption,
+    sortBy: DEFAULT_SORT,
     currentCourse: null,
     isLoading: false,
     isCreating: false,
@@ -256,7 +295,7 @@ export const useCourseStore = create<CourseState & CourseActions>()(
         // 取得所有課程資料後進行排序和分頁
         const { allCourses: currentAllCourses } = get();
 
-        // 步驟1：固定排序（發布狀態 → 學生人數 → 建立時間）
+        // 步驟1：固定排序（發布狀態 → 建立時間）
         const sortedCourses = sortCoursesFixed(currentAllCourses);
 
         // 步驟2：前端分頁
@@ -270,8 +309,12 @@ export const useCourseStore = create<CourseState & CourseActions>()(
           state.courses = paginatedCourses;
           state.pagination = newPagination;
         });
-      } catch {
-        handleErrorMessage("載入失敗", "無法取得課程列表，請稍後再試。");
+
+        return { success: true };
+      } catch (error) {
+        const errorMessage = extractErrorMessage(error);
+        handleErrorMessage("載入失敗", errorMessage);
+        return { success: false, message: errorMessage };
       } finally {
         set((state) => {
           state.isLoading = false;
@@ -344,8 +387,8 @@ export const useCourseStore = create<CourseState & CourseActions>()(
           handleErrorMessage("建立失敗", response.message);
           return response;
         }
-      } catch {
-        const errorMessage = "無法建立課程，請稍後再試。";
+      } catch (error) {
+        const errorMessage = extractErrorMessage(error);
         handleErrorMessage("建立失敗", errorMessage);
 
         return {
@@ -370,15 +413,23 @@ export const useCourseStore = create<CourseState & CourseActions>()(
         const response = await getCourseDetail(courseId);
 
         if (response.status === "success" && response.data) {
+          const courseData = response.data;
+
           set((state) => {
-            state.currentCourse = response.data! || null;
-            state.coverPreview = getCourseCoverUrl(response.data!.coverUrl);
+            state.currentCourse = courseData;
+            state.coverPreview = getCourseCoverUrl(courseData.coverUrl);
           });
+
+          return { success: true, data: courseData };
         } else {
-          handleErrorMessage("載入失敗", response.message);
+          const errorMessage = response.message || "獲取課程詳情失敗";
+          handleErrorMessage("載入失敗", errorMessage);
+          return { success: false, message: errorMessage };
         }
-      } catch {
-        handleErrorMessage("載入失敗", "無法取得課程資訊，請稍後再試。");
+      } catch (error) {
+        const errorMessage = extractErrorMessage(error);
+        handleErrorMessage("載入失敗", errorMessage);
+        return { success: false, message: errorMessage };
       } finally {
         set((state) => {
           state.isLoading = false;
@@ -395,9 +446,11 @@ export const useCourseStore = create<CourseState & CourseActions>()(
 
         const response = await updateCourse(courseId, data);
 
-        if (response.status === "success") {
+        if (response.status === "success" && response.data) {
+          const updatedCourse = response.data;
+
           set((state) => {
-            state.currentCourse = response.data!;
+            state.currentCourse = updatedCourse;
           });
 
           handleSuccessMessage("更新成功", "課程資料已更新。");
@@ -414,14 +467,16 @@ export const useCourseStore = create<CourseState & CourseActions>()(
             pageSize: 9,
           });
 
-          return true;
+          return { success: true, data: updatedCourse };
         } else {
-          handleErrorMessage("更新失敗", response.message);
-          return false;
+          const errorMessage = response.message || "更新課程失敗";
+          handleErrorMessage("更新失敗", errorMessage);
+          return { success: false, message: errorMessage };
         }
-      } catch {
-        handleErrorMessage("更新失敗", "無法更新課程，請稍後再試。");
-        return false;
+      } catch (error) {
+        const errorMessage = extractErrorMessage(error);
+        handleErrorMessage("更新失敗", errorMessage);
+        return { success: false, message: errorMessage };
       } finally {
         set((state) => {
           state.isUpdating = false;
@@ -432,21 +487,13 @@ export const useCourseStore = create<CourseState & CourseActions>()(
     // 刪除課程 - 最終修正版本，強化錯誤處理
     removeCourse: async (courseId) => {
       try {
-        console.log("Store: Starting to remove course with ID:", courseId);
-
         set((state) => {
           state.isDeleting = true;
         });
 
         const response = await deleteCourse(courseId);
 
-        console.log("Store: Delete course response:", response);
-        console.log("Store: Response status:", response.status);
-        console.log("Store: Response message:", response.message);
-
         if (response.status === "success") {
-          console.log("Store: Course deletion successful");
-
           handleSuccessMessage("刪除成功", "課程已成功刪除。");
 
           // 清空快取，重新載入所有資料
@@ -462,54 +509,20 @@ export const useCourseStore = create<CourseState & CourseActions>()(
             page: pagination.currentPage,
             pageSize: 9,
           });
-
-          console.log("Store: Course list refreshed after deletion");
-          return true;
+          return { success: true };
         } else {
-          // 錯誤處理 - 確保錯誤訊息正確顯示
-          console.error("Store: Course deletion failed:", response.message);
-          console.log(
-            "Store: Calling handleErrorMessage with:",
-            "刪除失敗",
-            response.message
-          );
-
-          // 立即顯示錯誤訊息
-          handleErrorMessage("刪除失敗", response.message);
-
-          // 確保錯誤訊息有被處理
-          if (response.message) {
-            console.log("Store: Error message exists:", response.message);
-          } else {
-            console.log("Store: No error message in response");
-            handleErrorMessage("刪除失敗", "刪除課程時發生錯誤，請稍後再試。");
-          }
-
-          return false;
+          // 錯誤處理
+          const errorMessage =
+            response.message || "刪除課程時發生錯誤，請稍後再試。";
+          handleErrorMessage("刪除失敗", errorMessage);
+          return { success: false, message: errorMessage };
         }
-      } catch (error: unknown) {
-        console.error("Store: Course deletion error:", error);
-
+      } catch (error) {
         // 更詳細的錯誤處理
-        let errorMessage = "無法刪除課程，請稍後再試。";
-
-        if (error instanceof Error) {
-          errorMessage = error.message;
-          console.error("Store: Error details:", {
-            name: error.name,
-            message: error.message,
-            stack: error.stack,
-          });
-        }
-
-        console.log(
-          "Store: Calling handleErrorMessage for exception:",
-          errorMessage
-        );
+        const errorMessage = extractErrorMessage(error);
         handleErrorMessage("刪除失敗", errorMessage);
-        return false;
+        return { success: false, message: errorMessage };
       } finally {
-        console.log("Store: Cleaning up delete operation");
         set((state) => {
           state.isDeleting = false;
         });
@@ -557,20 +570,23 @@ export const useCourseStore = create<CourseState & CourseActions>()(
             `課程已成功${isPublished ? "上架" : "下架"}。`
           );
 
-          return true;
+          return { success: true };
         } else {
+          const errorMessage =
+            response.message || `${isPublished ? "上架" : "下架"}失敗`;
           handleErrorMessage(
             `${isPublished ? "上架" : "下架"}失敗`,
-            response.message
+            errorMessage
           );
-          return false;
+          return { success: false, message: errorMessage };
         }
-      } catch {
+      } catch (error) {
+        const errorMessage = extractErrorMessage(error);
         handleErrorMessage(
           `${isPublished ? "上架" : "下架"}失敗`,
-          `無法${isPublished ? "上架" : "下架"}課程，請稍後再試。`
+          errorMessage
         );
-        return false;
+        return { success: false, message: errorMessage };
       }
     },
 
@@ -581,20 +597,10 @@ export const useCourseStore = create<CourseState & CourseActions>()(
           state.isUploading = true;
         });
 
-        // 檔案大小檢查
-        if (file.size > 2 * 1024 * 1024) {
-          throw new Error("檔案大小超過 2MB 限制");
-        }
-
-        // 檔案類型檢查
-        const allowedTypes = [
-          "image/jpeg",
-          "image/jpg",
-          "image/png",
-          "image/gif",
-        ];
-        if (!allowedTypes.includes(file.type)) {
-          throw new Error(`不支援的檔案類型: ${file.type}`);
+        // 檔案驗證
+        const validationError = validateFile(file);
+        if (validationError) {
+          throw new Error(validationError);
         }
 
         // 確保檔案名稱有效
@@ -611,16 +617,14 @@ export const useCourseStore = create<CourseState & CourseActions>()(
 
         if (response.status === "success" && response.data?.coverUrl) {
           const coverUrl = response.data.coverUrl;
-
-          set((state) => {
-            state.coverPreview = coverUrl;
-          });
-
-          return coverUrl;
+          return coverUrl; // 直接返回 URL，不更新 store 狀態
         } else {
           const errorMessage = response.message || "上傳服務返回失敗狀態";
           throw new Error(errorMessage);
         }
+      } catch (error) {
+        const errorMessage = extractErrorMessage(error);
+        throw new Error(errorMessage);
       } finally {
         set((state) => {
           state.isUploading = false;
@@ -652,7 +656,7 @@ export const useCourseStore = create<CourseState & CourseActions>()(
     resetCurrentCourse: () => {
       set((state) => {
         state.currentCourse = null;
-        state.coverPreview = DEFAULT_COURSE_COVER;
+        state.coverPreview = ""; // 修改：不設置預設圖片
         state.selectedFile = null;
       });
     },
@@ -661,10 +665,27 @@ export const useCourseStore = create<CourseState & CourseActions>()(
     resetForm: () => {
       set((state) => {
         const { currentCourse } = get();
-        state.coverPreview = currentCourse
-          ? getCourseCoverUrl(currentCourse.coverUrl)
-          : DEFAULT_COURSE_COVER;
+        state.coverPreview = currentCourse?.coverUrl || ""; // 修改：使用原始課程封面或空字串
         state.selectedFile = null;
+      });
+    },
+
+    // 重置課程狀態
+    resetCourseState: () => {
+      set((state) => {
+        state.coverPreview = ""; // 修改：不設置預設圖片
+        state.selectedFile = null;
+        state.currentCourse = null;
+      });
+    },
+
+    // 重置課程列表
+    resetCourses: () => {
+      set((state) => {
+        state.courses = [];
+        state.allCourses = [];
+        state.hasLoadedAll = false;
+        state.pagination = initialPagination;
       });
     },
   }))
