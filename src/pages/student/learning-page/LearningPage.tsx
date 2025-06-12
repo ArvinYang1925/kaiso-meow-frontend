@@ -223,66 +223,61 @@ const LearningPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Video Player */}
-        <div className="bg-black flex-shrink-0">
-          <div className="max-w-full mx-auto">
-            {/* Player Toggle Button - Commented out for now */}
-            {/* <div className="absolute top-2 right-2 z-10">
-              <button
-                onClick={() => setUseHLSPlayer(!useHLSPlayer)}
-                className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
-              >
-                {useHLSPlayer ? 'Use VideoJS' : 'Use HLS Player'}
-              </button>
-            </div> */}
+        {/* Video Player - Only show if video exists */}
+        {currentSection &&
+          (currentSection.videoUrl1 || currentSection.videoUrl) && (
+            <div className="bg-black flex-shrink-0">
+              <div className="max-w-full mx-auto">
+                {/* Player Toggle Button - Commented out for now */}
+                {/* <div className="absolute top-2 right-2 z-10">
+                <button
+                  onClick={() => setUseHLSPlayer(!useHLSPlayer)}
+                  className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                >
+                  {useHLSPlayer ? 'Use VideoJS' : 'Use HLS Player'}
+                </button>
+              </div> */}
 
-            {/* Using only VideoJS player for now */}
-            {currentSection &&
-            (currentSection.videoUrl1 || currentSection.videoUrl) ? (
-              <VideoPlayer
-                key={currentSection.id} // Force re-render when section changes
-                src={currentSection.videoUrl1 || currentSection.videoUrl || ""}
-                type={
-                  currentSection.videoUrl1?.includes(".m3u8")
-                    ? "application/x-mpegURL"
-                    : undefined
-                }
-                onProgress={handleVideoProgress}
-                onEnded={handleVideoEnded}
-                className="w-full"
-              />
-            ) : (
-              <div className="flex items-center justify-center h-64 text-white">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
-                  <p>載入影片中...</p>
-                </div>
+                {/* Using only VideoJS player for now */}
+                <VideoPlayer
+                  key={currentSection.id} // Force re-render when section changes
+                  src={
+                    currentSection.videoUrl1 || currentSection.videoUrl || ""
+                  }
+                  type={
+                    currentSection.videoUrl1?.includes(".m3u8")
+                      ? "application/x-mpegURL"
+                      : undefined
+                  }
+                  onProgress={handleVideoProgress}
+                  onEnded={handleVideoEnded}
+                  className="w-full"
+                />
+
+                {/* HLS Player - Commented out for now */}
+                {/* {useHLSPlayer ? (
+                <HLSVideoPlayer
+                  src={currentSection.videoUrl1 || currentSection.videoUrl || ""}
+                  onProgress={handleVideoProgress}
+                  onEnded={handleVideoEnded}
+                  className="w-full"
+                />
+              ) : (
+                <VideoPlayer
+                  src={currentSection.videoUrl1 || currentSection.videoUrl || ""}
+                  type={
+                    currentSection.videoUrl1?.includes(".m3u8")
+                      ? "application/x-mpegURL"
+                      : undefined
+                  }
+                  onProgress={handleVideoProgress}
+                  onEnded={handleVideoEnded}
+                  className="w-full"
+                />
+              )} */}
               </div>
-            )}
-
-            {/* HLS Player - Commented out for now */}
-            {/* {useHLSPlayer ? (
-              <HLSVideoPlayer
-                src={currentSection.videoUrl1 || currentSection.videoUrl || ""}
-                onProgress={handleVideoProgress}
-                onEnded={handleVideoEnded}
-                className="w-full"
-              />
-            ) : (
-              <VideoPlayer
-                src={currentSection.videoUrl1 || currentSection.videoUrl || ""}
-                type={
-                  currentSection.videoUrl1?.includes(".m3u8")
-                    ? "application/x-mpegURL"
-                    : undefined
-                }
-                onProgress={handleVideoProgress}
-                onEnded={handleVideoEnded}
-                className="w-full"
-              />
-            )} */}
-          </div>
-        </div>
+            </div>
+          )}
 
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto">
