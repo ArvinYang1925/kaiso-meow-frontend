@@ -231,8 +231,8 @@ export default function CourseManagementListPage() {
         () => fetchCourses({ page, pageSize: 9 }),
         "正在載入課程列表..."
       );
-    } catch (error) {
-      console.error("Failed to load courses:", error);
+    } catch {
+      // 靜默處理錯誤
     }
   };
 
@@ -304,7 +304,7 @@ export default function CourseManagementListPage() {
               // 無資料時顯示空狀態
               <EmptyState />
             ) : (
-              // 正常顯示課程列表
+              // 正常顯示課程列表 - 響應式設計：手機版1張、中螢幕2張、大螢幕3張
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {courses.map((course, index) => (
                   <CourseCard
@@ -326,70 +326,75 @@ export default function CourseManagementListPage() {
           </>
         )}
 
-        {/* 分頁控制 */}
+        {/* 分頁控制 - 手機版優化 */}
         {shouldShowContent &&
           courses.length > 0 &&
           pagination.totalPages > 1 && (
-            <div className="flex justify-between items-center mt-8">
-              <span className="text-sm text-muted-foreground">
+            <div className="flex flex-col md:flex-row justify-center md:justify-between items-center mt-8 gap-4 md:gap-0">
+              {/* 桌面版顯示分頁資訊，手機版隱藏 */}
+              <span className="hidden md:block text-sm text-muted-foreground">
                 第 {pagination.currentPage} 頁，共 {pagination.totalPages} 頁
               </span>
-              <div className="space-x-2 flex items-center">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={
-                    pagination.currentPage <= 1
-                      ? "text-gray-400 border-gray-200 cursor-not-allowed"
-                      : "text-gray-700 border-gray-300 hover:bg-gray-200"
-                  }
-                  onClick={() => {
-                    handlePageChange(pagination.currentPage - 1);
-                  }}
-                  disabled={pagination.currentPage <= 1}
-                >
-                  上一頁
-                </Button>
 
-                {Array.from({ length: pagination.totalPages }, (_, index) => {
-                  const page = index + 1;
-                  return (
-                    <Button
-                      key={page}
-                      variant={
-                        page === pagination.currentPage ? "outline" : "ghost"
-                      }
-                      size="sm"
-                      className={
-                        page === pagination.currentPage
-                          ? "text-gray-600 hover:bg-gray-100 hover:text-gray-500 cursor-not-allowed"
-                          : "text-gray-600 hover:bg-gray-300 hover:text-gray-700"
-                      }
-                      onClick={() => {
-                        handlePageChange(page);
-                      }}
-                      disabled={page === pagination.currentPage}
-                    >
-                      {page}
-                    </Button>
-                  );
-                })}
+              {/* 分頁按鈕區域 - 手機版佔滿寬度，桌面版自適應 */}
+              <div className="w-full md:w-auto flex justify-center">
+                <div className="space-x-2 flex items-center">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={
+                      pagination.currentPage <= 1
+                        ? "text-gray-400 border-gray-200 cursor-not-allowed"
+                        : "text-gray-700 border-gray-300 hover:bg-gray-200"
+                    }
+                    onClick={() => {
+                      handlePageChange(pagination.currentPage - 1);
+                    }}
+                    disabled={pagination.currentPage <= 1}
+                  >
+                    上一頁
+                  </Button>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    handlePageChange(pagination.currentPage + 1);
-                  }}
-                  disabled={pagination.currentPage >= pagination.totalPages}
-                  className={
-                    pagination.currentPage >= pagination.totalPages
-                      ? "text-gray-400 border-gray-200 cursor-not-allowed"
-                      : "text-gray-700 border-gray-300 hover:bg-gray-200"
-                  }
-                >
-                  下一頁
-                </Button>
+                  {Array.from({ length: pagination.totalPages }, (_, index) => {
+                    const page = index + 1;
+                    return (
+                      <Button
+                        key={page}
+                        variant={
+                          page === pagination.currentPage ? "outline" : "ghost"
+                        }
+                        size="sm"
+                        className={
+                          page === pagination.currentPage
+                            ? "text-gray-600 hover:bg-gray-100 hover:text-gray-500 cursor-not-allowed"
+                            : "text-gray-600 hover:bg-gray-300 hover:text-gray-700"
+                        }
+                        onClick={() => {
+                          handlePageChange(page);
+                        }}
+                        disabled={page === pagination.currentPage}
+                      >
+                        {page}
+                      </Button>
+                    );
+                  })}
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      handlePageChange(pagination.currentPage + 1);
+                    }}
+                    disabled={pagination.currentPage >= pagination.totalPages}
+                    className={
+                      pagination.currentPage >= pagination.totalPages
+                        ? "text-gray-400 border-gray-200 cursor-not-allowed"
+                        : "text-gray-700 border-gray-300 hover:bg-gray-200"
+                    }
+                  >
+                    下一頁
+                  </Button>
+                </div>
               </div>
             </div>
           )}
