@@ -26,7 +26,7 @@ import {
 } from "./dashboard.model";
 
 // ============================
-// 🔧 Store 配置常數
+// Store 配置常數
 // ============================
 const CACHE_CONFIG = {
   TIMEOUT: 5 * 60 * 1000, // 5分鐘
@@ -55,7 +55,7 @@ type RawCourseData = Record<string, unknown> & {
 };
 
 // ============================
-// 📊 Store 狀態介面
+// Store 狀態介面
 // ============================
 interface RevenueState {
   // 核心數據
@@ -79,20 +79,19 @@ interface RevenueState {
 
   // 其他狀態
   hasInitialized: boolean;
-
 }
 
 interface RevenueActions {
-  // 🚀 初始化操作
+  // 初始化操作
   initialize: () => Promise<void>;
   reset: () => void;
 
-  // 📡 數據獲取
+  // 數據獲取
   fetchRevenueReport: (forceRefresh?: boolean) => Promise<void>;
   fetchCourseOptions: () => Promise<void>;
   refreshAllData: () => Promise<void>;
 
-  // 🎛️ 篩選操作
+  // 篩選操作
   setFilter: (filter: Partial<RevenueFilterModel>) => void;
   resetFilter: () => void;
   setDateRange: (startDate: Date, endDate: Date) => void;
@@ -100,17 +99,17 @@ interface RevenueActions {
   setCourseFilter: (courseId?: string) => void;
   applyFiltersWithValidation: () => Promise<boolean>;
 
-  // 🎨 UI 狀態管理
+  // UI 狀態管理
   setSelectedTab: (tab: "overview" | "chart" | "table") => void;
   clearError: () => void;
   setError: (error: string, type?: ErrorStateModel["type"]) => void;
 
-  // 🔧 工具函數
+  // 工具函數
   validateCurrentFilter: () => { isValid: boolean; message?: string };
   getSuggestedInterval: () => IntervalType;
   getStatistics: () => StatisticsCalculationResult;
 
-  // 📊 數據計算 (優化版)
+  // 數據計算 (優化版)
   getRevenueGrowth: () => number;
   getTopRevenueDay: () => { date: string; revenue: number } | null;
   getAverageDailyRevenue: () => number;
@@ -119,7 +118,7 @@ interface RevenueActions {
 }
 
 // ============================
-// 🛠️ 輔助函數
+// 輔助函數
 // ============================
 
 /**
@@ -163,7 +162,7 @@ const storeDebounce = <T extends unknown[]>(
   wait: number
 ): ((...args: T) => void) => {
   let timeout: NodeJS.Timeout;
-  
+
   return (...args: T) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => func(...args), wait);
@@ -186,16 +185,18 @@ const isCacheValid = (
 /**
  * 清理過期的快取項目 - 使用普通對象
  */
-const cleanExpiredCache = (cacheKeys: Record<string, number>): Record<string, number> => {
+const cleanExpiredCache = (
+  cacheKeys: Record<string, number>
+): Record<string, number> => {
   const now = Date.now();
   const newCache: Record<string, number> = {};
-  
+
   for (const [key, timestamp] of Object.entries(cacheKeys)) {
     if (now - timestamp < CACHE_CONFIG.TIMEOUT) {
       newCache[key] = timestamp;
     }
   }
-  
+
   return newCache;
 };
 
@@ -203,10 +204,10 @@ const cleanExpiredCache = (cacheKeys: Record<string, number>): Record<string, nu
  * 檢查是否為有效的課程資料
  */
 const isValidRawCourse = (course: unknown): course is RawCourseData => {
-  if (!course || typeof course !== 'object') {
+  if (!course || typeof course !== "object") {
     return false;
   }
-  
+
   const c = course as Record<string, unknown>;
   return !!(c.id || c.courseId || c._id || c.uuid);
 };
@@ -215,14 +216,20 @@ const isValidRawCourse = (course: unknown): course is RawCourseData => {
  * 從原始課程資料中提取 ID
  */
 const extractCourseIdFromRaw = (course: RawCourseData): string => {
-  return String(course.id || course.courseId || course._id || course.uuid || '');
+  return String(
+    course.id || course.courseId || course._id || course.uuid || ""
+  );
 };
 
 /**
  * 從原始課程資料中提取標題
  */
-const extractCourseTitleFromRaw = (course: RawCourseData, fallbackId: string): string => {
-  const title = course.title || course.name || course.courseName || course.displayName;
+const extractCourseTitleFromRaw = (
+  course: RawCourseData,
+  fallbackId: string
+): string => {
+  const title =
+    course.title || course.name || course.courseName || course.displayName;
   return String(title || `課程 ${fallbackId}`);
 };
 
@@ -230,7 +237,8 @@ const extractCourseTitleFromRaw = (course: RawCourseData, fallbackId: string): s
  * 從原始課程資料中提取建立日期
  */
 const extractCourseDateFromRaw = (course: RawCourseData): string => {
-  const createdAt = course.createdAt || course.created_at || new Date().toISOString();
+  const createdAt =
+    course.createdAt || course.created_at || new Date().toISOString();
   return String(createdAt);
 };
 
@@ -238,67 +246,12 @@ const extractCourseDateFromRaw = (course: RawCourseData): string => {
  * 轉換收益數據為圖表格式
  */
 const transformToChartData = (
-    revenueData: RevenueReportDataModel
-  ): RevenueChartDataModel => {
-    try {
-      const items = revenueData?.revenueData ?? [];
-  
-      if (items.length === 0) {
-        return {
-          labels: [],
-          datasets: [
-            { label: "收益", data: [] },
-            { label: "訂單數量", data: [] },
-          ],
-        };
-      }
-  
-      const chartLabels: string[] = [];
-      const revenuePoints: number[] = [];
-      const orderPoints: number[] = [];
-  
-      for (const item of items) {
-        // 使用 intervalStart 作為標籤
-        if (!item.intervalStart) {
-          continue;
-        }
-        
-        // 格式化日期標籤
-        const date = new Date(item.intervalStart);
-        const formattedLabel = new Intl.DateTimeFormat('zh-TW', {
-          month: '2-digit',
-          day: '2-digit'
-        }).format(date);
-        
-        chartLabels.push(formattedLabel);
-        
-        // 確保數值為有效的數字
-        const revenue = typeof item.totalRevenue === 'number' ? item.totalRevenue : Number(item.totalRevenue) || 0;
-        const orderCount = typeof item.orderCount === 'number' ? item.orderCount : Number(item.orderCount) || 0;
-        revenuePoints.push(revenue);
-        orderPoints.push(orderCount);
-      }
+  revenueData: RevenueReportDataModel
+): RevenueChartDataModel => {
+  try {
+    const items = revenueData?.revenueData ?? [];
 
-      return {
-        labels: chartLabels,
-        datasets: [
-          {
-            label: "收益",
-            data: revenuePoints,
-            borderColor: "hsl(198, 93%, 60%)",
-            backgroundColor: "hsla(198, 93%, 60%, 0.1)",
-            fill: true,
-          },
-          {
-            label: "訂單數量",
-            data: orderPoints,
-            borderColor: "hsl(142, 76%, 45%)",
-            backgroundColor: "hsla(142, 76%, 45%, 0.1)",
-            fill: false,
-          },
-        ],
-      };
-    } catch {
+    if (items.length === 0) {
       return {
         labels: [],
         datasets: [
@@ -307,8 +260,69 @@ const transformToChartData = (
         ],
       };
     }
-  };
-  
+
+    const chartLabels: string[] = [];
+    const revenuePoints: number[] = [];
+    const orderPoints: number[] = [];
+
+    for (const item of items) {
+      // 使用 intervalStart 作為標籤
+      if (!item.intervalStart) {
+        continue;
+      }
+
+      // 格式化日期標籤
+      const date = new Date(item.intervalStart);
+      const formattedLabel = new Intl.DateTimeFormat("zh-TW", {
+        month: "2-digit",
+        day: "2-digit",
+      }).format(date);
+
+      chartLabels.push(formattedLabel);
+
+      // 確保數值為有效的數字
+      const revenue =
+        typeof item.totalRevenue === "number"
+          ? item.totalRevenue
+          : Number(item.totalRevenue) || 0;
+      const orderCount =
+        typeof item.orderCount === "number"
+          ? item.orderCount
+          : Number(item.orderCount) || 0;
+      revenuePoints.push(revenue);
+      orderPoints.push(orderCount);
+    }
+
+    return {
+      labels: chartLabels,
+      datasets: [
+        {
+          label: "收益",
+          data: revenuePoints,
+          borderColor: "hsl(198, 93%, 60%)",
+          backgroundColor: "hsla(198, 93%, 60%, 0.1)",
+          fill: true,
+        },
+        {
+          label: "訂單數量",
+          data: orderPoints,
+          borderColor: "hsl(142, 76%, 45%)",
+          backgroundColor: "hsla(142, 76%, 45%, 0.1)",
+          fill: false,
+        },
+      ],
+    };
+  } catch {
+    return {
+      labels: [],
+      datasets: [
+        { label: "收益", data: [] },
+        { label: "訂單數量", data: [] },
+      ],
+    };
+  }
+};
+
 /**
  * 獲取初始篩選條件
  */
@@ -340,9 +354,6 @@ const getInitialUpdateState = (): DataUpdateStateModel => ({
   refreshInterval: UI_CONFIG.AUTO_REFRESH_INTERVAL,
 });
 
-// ============================
-// 🏪 Zustand Store
-// ============================
 export const useRevenueStore = create<RevenueState & RevenueActions>()(
   immer<RevenueState & RevenueActions>((set, get) => ({
     // 🔧 初始狀態
@@ -359,10 +370,10 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
     cacheKeys: {},
     hasInitialized: false,
 
-    // 🚀 初始化
+    // 初始化
     initialize: async () => {
       const { hasInitialized } = get();
-      
+
       if (hasInitialized) {
         return;
       }
@@ -376,7 +387,7 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
       try {
         await Promise.all([
           get().fetchCourseOptions(),
-          get().fetchRevenueReport()
+          get().fetchRevenueReport(),
         ]);
 
         if (get().error.hasError) {
@@ -394,16 +405,17 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
 
         showSuccessToast("儀表板載入完成", "數據已成功載入");
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "初始化失敗";
-        
+        const errorMessage =
+          error instanceof Error ? error.message : "初始化失敗";
+
         set((state) => {
           state.error = {
             hasError: true,
             message: errorMessage,
-            type: "api"
+            type: "api",
           };
         });
-        
+
         showErrorToast("載入失敗", "無法初始化儀表板，請重新整理頁面");
       } finally {
         set((state) => {
@@ -413,7 +425,7 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
       }
     },
 
-    // 🔄 重置狀態
+    // 重置狀態
     reset: () => {
       set((state) => {
         state.revenueData = null;
@@ -431,10 +443,10 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
       });
     },
 
-    // 📡 獲取收益報表
+    // 獲取收益報表
     fetchRevenueReport: async (forceRefresh = false) => {
       const { filter, cacheKeys } = get();
-      
+
       try {
         const queryParams: RevenueQueryParamsModel = {
           startTime: formatDateForAPI(filter.startDate),
@@ -442,7 +454,7 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
           interval: filter.interval,
           courseId: filter.selectedCourseId || undefined,
         };
-        
+
         const cacheKey = createCacheKey(queryParams);
 
         if (!forceRefresh && isCacheValid(cacheKeys, cacheKey)) {
@@ -461,7 +473,10 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
         }
 
         if (isApiResponseSuccess(response) && response.data) {
-          if (!response.data.revenueData || !Array.isArray(response.data.revenueData)) {
+          if (
+            !response.data.revenueData ||
+            !Array.isArray(response.data.revenueData)
+          ) {
             throw new Error("收益 API 回應數據格式錯誤");
           }
 
@@ -483,15 +498,16 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
           throw new Error(response.message || "無法取得收益報表");
         }
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error 
-          ? error.message 
-          : "無法取得收益報表，請稍後再試";
-        
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "無法取得收益報表，請稍後再試";
+
         set((state) => {
           state.error = {
             hasError: true,
             message: errorMessage,
-            type: "api"
+            type: "api",
           };
           state.revenueData = null;
           state.chartData = null;
@@ -505,7 +521,7 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
       }
     },
 
-    // 📚 獲取課程選項
+    // 獲取課程選項
     fetchCourseOptions: async () => {
       try {
         set((state) => {
@@ -526,9 +542,12 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
                 })
                 .map((course: RawCourseData): CourseOptionModel => {
                   const courseId = extractCourseIdFromRaw(course);
-                  const courseTitle = extractCourseTitleFromRaw(course, courseId);
+                  const courseTitle = extractCourseTitleFromRaw(
+                    course,
+                    courseId
+                  );
                   const courseDate = extractCourseDateFromRaw(course);
-                  
+
                   return {
                     id: courseId,
                     title: courseTitle,
@@ -536,7 +555,10 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
                   };
                 })
                 .sort((a, b) => {
-                  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                  return (
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime()
+                  );
                 });
 
               set((state) => {
@@ -557,16 +579,17 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
           throw new Error(response?.message || "無法取得課程選項");
         }
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error 
-          ? error.message 
-          : "無法取得課程選項，請稍後再試";
-        
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "無法取得課程選項，請稍後再試";
+
         set((state) => {
           state.courseOptions = [];
           state.error = {
             hasError: true,
             message: errorMessage,
-            type: "api"
+            type: "api",
           };
         });
 
@@ -578,7 +601,7 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
       }
     },
 
-    // 🔄 刷新所有數據
+    // 刷新所有數據
     refreshAllData: async () => {
       set((state) => {
         state.isRefreshing = true;
@@ -600,7 +623,7 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
       }
     },
 
-    // 🎛️ 設定篩選條件 (防抖版)
+    // 設定篩選條件 (防抖版)
     setFilter: storeDebounce((newFilter: Partial<RevenueFilterModel>) => {
       set((state) => {
         Object.assign(state.filter, newFilter);
@@ -610,7 +633,7 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
       get().fetchRevenueReport();
     }, UI_CONFIG.DEBOUNCE_DELAY),
 
-    // 🔄 重置篩選條件
+    // 重置篩選條件
     resetFilter: () => {
       set((state) => {
         state.filter = getInitialFilter();
@@ -620,10 +643,10 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
       showSuccessToast("篩選重置", "已重置為預設篩選條件");
     },
 
-    // 📅 設定日期範圍
+    // 設定日期範圍
     setDateRange: (startDate, endDate) => {
       const validation = validateDateRange(startDate, endDate);
-      
+
       if (!validation.isValid) {
         get().setError(validation.error || "日期範圍無效", "validation");
         showErrorToast("日期範圍錯誤", validation.error);
@@ -639,7 +662,7 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
       get().fetchRevenueReport();
     },
 
-    // ⏱️ 設定時間間隔
+    // 設定時間間隔
     setInterval: (interval) => {
       set((state) => {
         state.filter.interval = interval;
@@ -648,7 +671,7 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
       get().fetchRevenueReport();
     },
 
-    // 📚 設定課程篩選
+    // 設定課程篩選
     setCourseFilter: (courseId?: string) => {
       set((state) => {
         state.filter.selectedCourseId = courseId || null;
@@ -657,21 +680,21 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
       get().fetchRevenueReport();
     },
 
-    // 🎨 設定選中的標籤
+    // 設定選中的標籤
     setSelectedTab: (tab) => {
       set((state) => {
         state.selectedTab = tab;
       });
     },
 
-    // 🚫 清除錯誤
+    // 清除錯誤
     clearError: () => {
       set((state) => {
         state.error = getInitialErrorState();
       });
     },
 
-    // ⚠️ 設定錯誤
+    // 設定錯誤
     setError: (message, type = "unknown") => {
       set((state) => {
         state.error = {
@@ -682,22 +705,22 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
       });
     },
 
-    // ✅ 驗證當前篩選條件
+    // 驗證當前篩選條件
     validateCurrentFilter: () => {
       const { filter } = get();
       return validateDateRange(filter.startDate, filter.endDate);
     },
 
-    // 💡 獲取建議的時間間隔
+    // 獲取建議的時間間隔
     getSuggestedInterval: () => {
       const { filter } = get();
       return suggestOptimalInterval(filter.startDate, filter.endDate);
     },
 
-    // 📊 獲取完整統計資料
+    // 獲取完整統計資料
     getStatistics: () => {
       const { revenueData, filter } = get();
-      
+
       if (!revenueData) {
         return {
           totalRevenue: 0,
@@ -718,13 +741,28 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
       const firstHalf = dataPoints.slice(0, midPoint);
       const secondHalf = dataPoints.slice(midPoint);
 
-      const firstHalfRevenue = firstHalf.reduce((sum, item) => sum + (item.totalRevenue || 0), 0);
-      const secondHalfRevenue = secondHalf.reduce((sum, item) => sum + (item.totalRevenue || 0), 0);
-      const firstHalfOrders = firstHalf.reduce((sum, item) => sum + (item.orderCount || 0), 0);
-      const secondHalfOrders = secondHalf.reduce((sum, item) => sum + (item.orderCount || 0), 0);
+      const firstHalfRevenue = firstHalf.reduce(
+        (sum, item) => sum + (item.totalRevenue || 0),
+        0
+      );
+      const secondHalfRevenue = secondHalf.reduce(
+        (sum, item) => sum + (item.totalRevenue || 0),
+        0
+      );
+      const firstHalfOrders = firstHalf.reduce(
+        (sum, item) => sum + (item.orderCount || 0),
+        0
+      );
+      const secondHalfOrders = secondHalf.reduce(
+        (sum, item) => sum + (item.orderCount || 0),
+        0
+      );
 
       // 限制成長率的最大值和最小值
-      const calculateLimitedGrowthRate = (current: number, previous: number) => {
+      const calculateLimitedGrowthRate = (
+        current: number,
+        previous: number
+      ) => {
         if (previous === 0) {
           return current > 0 ? 100 : 0;
         }
@@ -732,19 +770,30 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
         return Math.max(Math.min(rate, 200), -200); // 限制在 -200% 到 200% 之間
       };
 
-      const revenueGrowthRate = calculateLimitedGrowthRate(secondHalfRevenue, firstHalfRevenue);
-      const ordersGrowthRate = calculateLimitedGrowthRate(secondHalfOrders, firstHalfOrders);
+      const revenueGrowthRate = calculateLimitedGrowthRate(
+        secondHalfRevenue,
+        firstHalfRevenue
+      );
+      const ordersGrowthRate = calculateLimitedGrowthRate(
+        secondHalfOrders,
+        firstHalfOrders
+      );
 
       // 找出收益最高的一天
-      const topDay = dataPoints.reduce((max, current) => 
-        (current.totalRevenue || 0) > (max.totalRevenue || 0) ? current : max, dataPoints[0]
+      const topDay = dataPoints.reduce(
+        (max, current) =>
+          (current.totalRevenue || 0) > (max.totalRevenue || 0) ? current : max,
+        dataPoints[0]
       );
 
       // 計算平均每日收益
-      const daysDiff = Math.ceil(
-        (filter.endDate.getTime() - filter.startDate.getTime()) / (1000 * 60 * 60 * 24)
-      ) + 1; // 加1是為了包含開始日期
-      const averageDailyRevenue = daysDiff > 0 ? summary.totalRevenue / daysDiff : 0;
+      const daysDiff =
+        Math.ceil(
+          (filter.endDate.getTime() - filter.startDate.getTime()) /
+            (1000 * 60 * 60 * 24)
+        ) + 1; // 加1是為了包含開始日期
+      const averageDailyRevenue =
+        daysDiff > 0 ? summary.totalRevenue / daysDiff : 0;
 
       return {
         totalRevenue: summary.totalRevenue || 0,
@@ -757,50 +806,52 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
       };
     },
 
-    // 📈 計算收益成長率
+    // 計算收益成長率
     getRevenueGrowth: () => {
       return get().getStatistics().revenueGrowthRate;
     },
 
-    // 🏆 獲取收益最高的一天
+    // 獲取收益最高的一天
     getTopRevenueDay: () => {
       const stats = get().getStatistics();
       const { revenueData } = get();
-      
+
       if (!revenueData || !stats.topRevenueDay) {
         return null;
       }
 
       const topDay = revenueData.revenueData.find(
-        item => item.intervalStart === stats.topRevenueDay
+        (item) => item.intervalStart === stats.topRevenueDay
       );
 
-      return topDay ? {
-        date: topDay.intervalStart,
-        revenue: topDay.totalRevenue,
-      } : null;
+      return topDay
+        ? {
+            date: topDay.intervalStart,
+            revenue: topDay.totalRevenue,
+          }
+        : null;
     },
 
-    // 📊 計算平均每日收益
+    // 計算平均每日收益
     getAverageDailyRevenue: () => {
       return get().getStatistics().averageDailyRevenue;
     },
 
-    // 📈 計算訂單數成長率
+    // 計算訂單數成長率
     getTotalOrdersGrowth: () => {
       return get().getStatistics().ordersGrowthRate;
     },
 
-    // 💰 計算平均訂單價值成長率
+    // 計算平均訂單價值成長率
     getAverageOrderValueGrowth: () => {
       const stats = get().getStatistics();
       return stats.revenueGrowthRate - stats.ordersGrowthRate;
     },
 
-    // ✅ 應用篩選條件並驗證
+    // 應用篩選條件並驗證
     applyFiltersWithValidation: async () => {
       const { filter } = get();
-      
+
       const validation = validateDashboardForm(
         filter.startDate,
         filter.endDate,
@@ -809,7 +860,8 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
       );
 
       if (!validation.isValid) {
-        const errorMessage = Object.values(validation.errors)[0] || "篩選條件無效";
+        const errorMessage =
+          Object.values(validation.errors)[0] || "篩選條件無效";
         get().setError(errorMessage, "validation");
         showErrorToast("驗證失敗", errorMessage);
         return false;
@@ -821,6 +873,6 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
       } catch {
         return false;
       }
-    },  
+    },
   }))
 );
