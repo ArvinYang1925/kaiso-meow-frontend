@@ -9,13 +9,27 @@ import NewsLetterComponent from "./components/NewsletterComponent";
 import decorationSvg from "@/assets/homepage/decoration.svg";
 import topLeftDecor from "@/assets/homepage/top-left-course-card.png";
 import bottomRightDecor from "@/assets/homepage/right-down-course-card.png";
+import { useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
 export const HomePage: React.FC = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash) {
+      const target = document.querySelector(location.hash);
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth" }); // 滑動到該區塊
+      }
+    }
+  }, [location]);
+  
   return (
     <>
       <BannerComponent />
       {/* 課程卡片區塊 */}
       <div
+        id="course-section" 
         className="py-24 course-card-section bg-slate-50"
         style={{
           backgroundImage: `url(${topLeftDecor}), url(${bottomRightDecor})`,
