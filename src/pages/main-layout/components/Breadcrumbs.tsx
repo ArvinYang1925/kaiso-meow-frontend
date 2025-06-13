@@ -16,7 +16,7 @@ export const Breadcrumbs: React.FC = () => {
   return (
     <nav className="flex items-center space-x-1 text-sm text-muted-foreground">
       {items.map((item, index) => (
-        <React.Fragment key={item.path}>
+        <React.Fragment key={`breadcrumb-${index}-${item.path}`}>
           {index > 0 && <ChevronRight className="h-4 w-4" />}
           <Link
             to={item.path}

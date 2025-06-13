@@ -1,4 +1,4 @@
-import { Params } from 'react-router-dom';
+import { Params } from "react-router-dom";
 
 export interface BreadcrumbItem {
   path: string;
@@ -14,4 +14,4 @@ export interface RouteConfig {
 export interface BreadcrumbState {
   items: BreadcrumbItem[];
   setBreadcrumbs: (pathname: string, params: Params<string>) => void;
-} 
+}
