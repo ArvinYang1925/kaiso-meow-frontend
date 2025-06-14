@@ -97,7 +97,10 @@ const OrderPage = () => {
       /** response 為綠界的 form HTML 字串 */
       const response = await createOrder(reqData);
       /** 免費課程，就不打綠界 */
-      if (response == "") return;
+      if (response.includes('checkout')) {
+        navigate(response);
+        return;
+      }
       const wrapper = document.createElement("div");
       wrapper.innerHTML = response;
       const form = wrapper.querySelector("form");

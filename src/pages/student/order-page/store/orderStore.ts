@@ -127,14 +127,20 @@ export const useOrderStore = create<OrderPageState & OrderPageAction>()(
                 });
                 try {
                     const newOrderResData = await createOrder(requestData);
-                    const { id: orderId, orderPrice } = newOrderResData.data;
+                    const { id: orderId, orderPrice, originalPrice, status } = newOrderResData.data;
                     if (orderPrice && orderPrice > 0) {
                         //拿到 id 打綠界
                         const ecpayFormString = await checkoutEcpay(orderId);
                         return ecpayFormString;
                     } else {
                         /** 免費課程，就不打綠界 */
-                        return ''
+                        set((state) => {
+                            state.orderData.id = orderId;
+                            state.orderData.originalPrice = originalPrice;
+                            state.orderData.orderPrice = orderPrice;
+                            state.orderData.status = status;
+                        });
+                        return `/checkout/${orderId}`
                     }
 
                 } catch (error) {
