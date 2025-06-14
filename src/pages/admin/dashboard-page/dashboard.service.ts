@@ -34,7 +34,7 @@ const API_CONFIG = {
 // ============================
 
 /**
- * 統一的 API 錯誤處理函數 - 優先使用 API 回傳的錯誤訊息
+ * 統一的 API 錯誤處理函數
  */
 const handleApiError = <T>(
   error: unknown,
@@ -54,7 +54,7 @@ const handleApiError = <T>(
     }
   }
 
-  // 如果是一般的 Error
+  // 一般的 Error
   if (error instanceof Error) {
     return {
       status: "error",
@@ -364,7 +364,7 @@ export const formatGrowthRate = (
 // ============================
 
 /**
- * 安全的數字解析
+ * 數字解析
  */
 export const safeParseNumber = (
   value: unknown,
@@ -467,7 +467,7 @@ export const createCacheKey = (params: RevenueQueryParamsModel): string => {
 };
 
 /**
- * 防抖函數 - 避免頻繁 API 呼叫
+ * 避免頻繁 API 呼叫
  */
 export const debounce = <T extends (...args: unknown[]) => unknown>(
   func: T,

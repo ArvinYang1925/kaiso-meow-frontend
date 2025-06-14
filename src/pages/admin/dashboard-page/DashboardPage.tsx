@@ -532,6 +532,7 @@ export default function DashboardPage() {
     });
   }, [revenueData]);
 
+  // 圓餅圖-課程分佈數據處理
   const courseDistributionData = useMemo(() => {
     if (!courseOptions || courseOptions.length === 0) {
       return [];

@@ -198,43 +198,6 @@ export type DateRangeValidationResult = {
 };
 
 // ============================
-// 調試相關型別 - 基礎版本
-// ============================
-
-// API 調試資訊模型 - 移除 any
-export type ApiDebugInfo = {
-  timestamp: string;
-  success: boolean;
-  courseCount: number;
-  error?: string;
-  type: "manual_debug" | "simple_test" | "auto_fetch";
-  details?: {
-    responseStatus?: number;
-    responseData?: unknown;
-    errorCode?: string;
-  };
-};
-
-// 調試狀態模型
-export type DebugStateModel = {
-  lastApiTest?: ApiDebugInfo;
-  apiCallCount: number;
-  lastError?: string;
-};
-
-// 課程 API 測試結果 - 修正型別匹配
-export type CourseApiTestResult = {
-  success: boolean;
-  courseCount: number;
-  error?: string;
-  rawData?: {
-    status?: string;
-    message?: string;
-    courseList?: CourseOptionModel[]; // 修正為 CourseOptionModel[]
-  };
-};
-
-// ============================
 // 錯誤處理型別
 // ============================
 
@@ -390,7 +353,7 @@ export const CACHE_CONFIG = {
 
 // UI 配置
 export const UI_CONFIG = {
-  DEBOUNCE_DELAY: 300, // 防抖延遲
+  DEBOUNCE_DELAY: 300,
   AUTO_REFRESH_INTERVAL: 30 * 60 * 1000, // 30分鐘自動更新
   TOAST_DURATION: 5000, // Toast 顯示時間
 } as const;

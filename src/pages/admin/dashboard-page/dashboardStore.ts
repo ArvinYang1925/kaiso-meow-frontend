@@ -154,9 +154,6 @@ const showWarningToast = (title: string, description?: string): void => {
   });
 };
 
-/**
- * Store 專用的防抖函數
- */
 const storeDebounce = <T extends unknown[]>(
   func: (...args: T) => void,
   wait: number
@@ -170,7 +167,7 @@ const storeDebounce = <T extends unknown[]>(
 };
 
 /**
- * 檢查快取是否有效 - 使用普通對象
+ * 檢查快取是否有效
  */
 const isCacheValid = (
   cacheKeys: Record<string, number>,
@@ -183,7 +180,7 @@ const isCacheValid = (
 };
 
 /**
- * 清理過期的快取項目 - 使用普通對象
+ * 清理過期的快取項目
  */
 const cleanExpiredCache = (
   cacheKeys: Record<string, number>
@@ -356,7 +353,7 @@ const getInitialUpdateState = (): DataUpdateStateModel => ({
 
 export const useRevenueStore = create<RevenueState & RevenueActions>()(
   immer<RevenueState & RevenueActions>((set, get) => ({
-    // 🔧 初始狀態
+    // 初始狀態
     revenueData: null,
     courseOptions: [] as CourseOptionModel[],
     filter: getInitialFilter(),
@@ -623,7 +620,7 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
       }
     },
 
-    // 設定篩選條件 (防抖版)
+    // 設定篩選條件
     setFilter: storeDebounce((newFilter: Partial<RevenueFilterModel>) => {
       set((state) => {
         Object.assign(state.filter, newFilter);
