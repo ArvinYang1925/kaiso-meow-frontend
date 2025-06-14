@@ -7,12 +7,14 @@ interface SectionContentProps {
   section: Section;
   onPrevious?: () => void;
   onNext?: () => void;
+  children?: React.ReactNode;
 }
 
 const SectionContent: React.FC<SectionContentProps> = ({
   section,
   onPrevious,
   onNext,
+  children,
 }) => {
   return (
     <div className="bg-white">
@@ -40,10 +42,13 @@ const SectionContent: React.FC<SectionContentProps> = ({
           disabled={!section.nextSection}
           className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600"
         >
-          下一課程
+          完成並繼續課程
           <ChevronRight className="w-4 h-4" />
         </Button>
       </div>
+
+      {/* Video Player Slot */}
+      {children}
 
       {/* Content */}
       <div className="p-6">
