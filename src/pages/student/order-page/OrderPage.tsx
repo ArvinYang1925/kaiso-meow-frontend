@@ -6,9 +6,8 @@ import { useForm } from "react-hook-form";
 import { useOrderStore } from "./store/orderStore";
 import catAvatar from "@/assets/cat-avatar.jpg";
 import { useDialogStore } from "@/stores/commonDialogStore";
-import { handleErrorMessageDialog } from "@/lib/helper";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
 import { OrderStatusBadge } from "./components/OrderStatusBadge";
 import LOGO from "@/components/common/LOGO";
 import {
@@ -49,6 +48,7 @@ const OrderPage = () => {
   const { showCommonDialog } = useDialogStore();
   const { courseId } = useParams();
   const [isShowCouponErrorHint, setIsShowCouponErrorHint] = useState(false);
+  const [couponErrorMsg, setCouponErrorMsg] = useState("");
 
   /** 套用折扣碼 */
   const handleApplyCoupon = async () => {
@@ -63,9 +63,13 @@ const OrderPage = () => {
           description: "折扣碼套用成功",
         });
         setIsShowCouponErrorHint(false);
+        setCouponErrorMsg("");
       } catch (error) {
+        if (isAxiosError(error) && error.response?.data) {
+          const { message } = error.response.data;
+          setCouponErrorMsg(message);
+        }
         setIsShowCouponErrorHint(true);
-        handleErrorMessageDialog(error);
       }
     } else {
       showCommonDialog({
@@ -93,7 +97,10 @@ const OrderPage = () => {
       /** response 為綠界的 form HTML 字串 */
       const response = await createOrder(reqData);
       /** 免費課程，就不打綠界 */
-      if (response == "") return;
+      if (response.includes('checkout')) {
+        navigate(response);
+        return;
+      }
       const wrapper = document.createElement("div");
       wrapper.innerHTML = response;
       const form = wrapper.querySelector("form");
@@ -211,7 +218,7 @@ const OrderPage = () => {
               {isShowCouponErrorHint ? (
                 <span className="text-red-500 text-sm font-normal">
                   {`您的優惠券 ${getValues("couponId")}
-                  無效。請重新檢查代碼是否填寫有誤及英文字母大小寫是否符合。`}
+                  無效。${couponErrorMsg}。`}
                 </span>
               ) : (
                 <span className="text-slate-500 text-sm font-normal">
