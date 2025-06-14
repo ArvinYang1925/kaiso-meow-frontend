@@ -63,4 +63,53 @@
     margin-top: -30px;
     margin-left: -30px;
   }
+}
+
+/* Skip buttons styling */
+.video-skip-button {
+  background-color: rgba(0, 0, 0, 0.6);
+  border: none;
+  color: white;
+  border-radius: 50%;
+  padding: 12px;
+  transition: all 0.2s ease;
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.video-skip-button:hover,
+.video-skip-button:focus {
+  background-color: rgba(255, 107, 0, 0.9);
+  opacity: 1 !important;
+  transform: scale(1);
+  outline: none;
+}
+
+/* Show buttons on video hover */
+.video-js:hover ~ div .video-skip-button,
+div:hover .video-skip-button {
+  opacity: 0.8;
+  transform: scale(1);
+}
+
+/* Skip button animations */
+.video-skip-button svg {
+  transition: transform 0.1s ease;
+}
+
+.video-skip-button:active svg {
+  transform: scale(0.9);
+}
+
+/* Mobile responsive skip buttons */
+@media (max-width: 768px) {
+  .video-skip-button {
+    padding: 10px;
+    opacity: 0.6;
+  }
+  
+  .video-skip-button:hover,
+  .video-skip-button:focus {
+    opacity: 1;
+  }
 } 
