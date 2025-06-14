@@ -31,10 +31,8 @@ const courseDetailSchema = z
       .max(200, "課程副標題不能超過200個字元")
       .optional()
       .or(z.literal("")),
-    description: z
-      .string()
-      .min(1, "課程介紹為必填項目")
-      .max(5000, "課程介紹不能超過5000個字元"),
+    description: z.string().min(1, "課程介紹為必填項目"),
+    // .max(5000, "課程介紹不能超過5000個字元"),
     highlight: z
       .string()
       .max(200, "課程亮點不能超過200個字元")
@@ -79,7 +77,7 @@ export default function CourseManagementDetailPage() {
   const { courseId } = useParams<{ courseId: string }>();
   const { toast } = useToast();
 
-  // 🎯 全螢幕 Loading Hook
+  // 全螢幕 Loading
   const { ScreenLoading, withLoading } = useScreenLoading();
 
   const {
@@ -92,7 +90,7 @@ export default function CourseManagementDetailPage() {
     resetCurrentCourse,
   } = useCourseStore();
 
-  // 🔧 狀態管理
+  // 狀態管理
   const [uploadedCoverUrl, setUploadedCoverUrl] = useState<string>("");
   const [previewImageUrl, setPreviewImageUrl] = useState<string>("");
   const [originalCoverUrl, setOriginalCoverUrl] = useState<string>(""); // 原始課程封面
@@ -102,7 +100,7 @@ export default function CourseManagementDetailPage() {
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
-  // 🔧 使用 ref 管理不需要觸發重新渲染的上傳狀態
+  // 使用 ref 管理不需要觸發重新渲染的上傳狀態
   const uploadStateRef = useRef({
     isUploading: false,
     selectedFile: null as File | null,
@@ -114,7 +112,7 @@ export default function CourseManagementDetailPage() {
   const initialLoadRef = useRef<boolean>(false);
   const dropzoneDisabledRef = useRef<boolean>(false);
 
-  // 🔧 修正：圖片 URL 計算邏輯，預設圖片不參與狀態管理
+  // 圖片 URL 計算邏輯，預設圖片不參與狀態管理
   const currentImageSrc = useMemo(() => {
     // 1. 優先使用預覽圖片（拖拽上傳時）
     if (previewImageUrl) return previewImageUrl;
@@ -150,10 +148,9 @@ export default function CourseManagementDetailPage() {
 
   const courseType = watch("courseType");
 
-  // 🔧 修正：穩定的清理函數
+  // 穩定的清理函數
   const cleanupObjectUrl = useCallback(() => {
     if (uploadStateRef.current.fileObjectUrl) {
-      console.log("清理 Object URL:", uploadStateRef.current.fileObjectUrl);
       URL.revokeObjectURL(uploadStateRef.current.fileObjectUrl);
       uploadStateRef.current.fileObjectUrl = null;
     }
@@ -162,16 +159,8 @@ export default function CourseManagementDetailPage() {
   // 🔧 關鍵修正：完全隔離的上傳函數
   const handleUploadImageStable = useCallback(
     async (file: File) => {
-      console.log(
-        "handleUploadImage 被調用:",
-        file.name,
-        "當前上傳狀態:",
-        uploadStateRef.current.isUploading
-      );
-
-      // 嚴格的防重複檢查
+      // 防重複檢查
       if (uploadStateRef.current.isUploading || dropzoneDisabledRef.current) {
-        console.log("上傳中或已禁用，忽略重複請求");
         return;
       }
 
@@ -183,7 +172,6 @@ export default function CourseManagementDetailPage() {
         uploadStateRef.current.lastUploadedFile.lastModified ===
           file.lastModified
       ) {
-        console.log("相同檔案，忽略重複上傳");
         return;
       }
 
@@ -206,14 +194,12 @@ export default function CourseManagementDetailPage() {
         return;
       }
 
-      try {
+      await withLoading(async () => {
         // 設置上傳狀態，禁用後續操作
         uploadStateRef.current.isUploading = true;
         dropzoneDisabledRef.current = true;
         uploadStateRef.current.lastUploadedFile = file;
         uploadStateRef.current.selectedFile = file;
-
-        console.log("開始上傳檔案:", file.name);
 
         // 清理舊的 URL
         cleanupObjectUrl();
@@ -223,83 +209,71 @@ export default function CourseManagementDetailPage() {
         uploadStateRef.current.fileObjectUrl = newObjectUrl;
         setPreviewImageUrl(newObjectUrl);
 
-        console.log("創建預覽 URL:", newObjectUrl);
+        try {
+          // 執行上傳
+          const uploadedUrl = await uploadCourseImage(file);
 
-        // 執行上傳
-        const uploadedUrl = await uploadCourseImage(file);
+          if (uploadedUrl) {
+            // 只更新本地狀態，不觸發 store 的 coverPreview 變化
+            setUploadedCoverUrl(uploadedUrl);
 
-        if (uploadedUrl) {
-          console.log("上傳成功:", uploadedUrl);
+            // 清理本地預覽 URL
+            if (uploadStateRef.current.fileObjectUrl) {
+              URL.revokeObjectURL(uploadStateRef.current.fileObjectUrl);
+              uploadStateRef.current.fileObjectUrl = null;
+            }
+            setPreviewImageUrl(""); // 清除預覽 URL，使用上傳成功的 URL
 
-          // 🔧 修正：只更新本地狀態，不觸發 store 的 coverPreview 變化
-          setUploadedCoverUrl(uploadedUrl);
-
-          // 清理本地預覽 URL
-          if (uploadStateRef.current.fileObjectUrl) {
-            URL.revokeObjectURL(uploadStateRef.current.fileObjectUrl);
-            uploadStateRef.current.fileObjectUrl = null;
+            toast({
+              title: "上傳成功",
+              description: "課程封面已成功上傳",
+            });
+          } else {
+            throw new Error("上傳返回空值");
           }
-          setPreviewImageUrl(""); // 清除預覽 URL，使用上傳成功的 URL
+        } catch (error) {
+          // 清理狀態
+          uploadStateRef.current.selectedFile = null;
+          uploadStateRef.current.lastUploadedFile = null;
+          setPreviewImageUrl(""); // 清除預覽
+          cleanupObjectUrl();
+
+          let errorMessage = "圖片上傳失敗，請重試";
+          if (error instanceof Error) {
+            if (error.message.includes("400")) {
+              errorMessage = "請求格式錯誤，請確認檔案格式正確";
+            } else if (error.message.includes("413")) {
+              errorMessage = "檔案過大，請選擇小於2MB的圖片";
+            } else if (error.message.includes("429")) {
+              errorMessage = "上傳頻率過高，請稍後再試";
+            } else if (error.message.includes("network")) {
+              errorMessage = "網路連線問題，請檢查網路狀態";
+            } else {
+              errorMessage = error.message;
+            }
+          }
 
           toast({
-            title: "上傳成功",
-            description: "課程封面已成功上傳",
+            variant: "destructive",
+            title: "上傳失敗",
+            description: errorMessage,
           });
-        } else {
-          throw new Error("上傳返回空值");
+          throw error;
+        } finally {
+          // 重置上傳狀態
+          uploadStateRef.current.isUploading = false;
+          dropzoneDisabledRef.current = false;
         }
-      } catch (error) {
-        console.error("上傳失敗:", error);
-
-        // 清理狀態
-        uploadStateRef.current.selectedFile = null;
-        uploadStateRef.current.lastUploadedFile = null;
-        setPreviewImageUrl(""); // 清除預覽
-        cleanupObjectUrl();
-
-        let errorMessage = "圖片上傳失敗，請重試";
-        if (error instanceof Error) {
-          if (error.message.includes("400")) {
-            errorMessage = "請求格式錯誤，請確認檔案格式正確";
-          } else if (error.message.includes("413")) {
-            errorMessage = "檔案過大，請選擇小於2MB的圖片";
-          } else if (error.message.includes("429")) {
-            errorMessage = "上傳頻率過高，請稍後再試";
-          } else if (error.message.includes("network")) {
-            errorMessage = "網路連線問題，請檢查網路狀態";
-          } else {
-            errorMessage = error.message;
-          }
-        }
-
-        toast({
-          variant: "destructive",
-          title: "上傳失敗",
-          description: errorMessage,
-        });
-      } finally {
-        // 重置上傳狀態
-        uploadStateRef.current.isUploading = false;
-        dropzoneDisabledRef.current = false;
-        console.log("上傳流程結束，重置狀態");
-      }
+      });
     },
-    [cleanupObjectUrl, uploadCourseImage, toast]
+    [cleanupObjectUrl, uploadCourseImage, toast, withLoading]
   );
 
-  // 🔧 關鍵修正：使用極度穩定的 onDrop 函數
+  // 使用極度穩定的 onDrop 函數
   const onDropStable = useCallback(
     (acceptedFiles: File[], fileRejections: FileRejection[]) => {
-      console.log("onDrop 觸發", {
-        acceptedFiles: acceptedFiles.length,
-        rejections: fileRejections.length,
-        isUploading: uploadStateRef.current.isUploading,
-        disabled: dropzoneDisabledRef.current,
-      });
-
       // 如果正在上傳或已禁用，直接返回
       if (uploadStateRef.current.isUploading || dropzoneDisabledRef.current) {
-        console.log("拖拽已禁用或正在上傳中，忽略");
         return;
       }
 
@@ -342,14 +316,13 @@ export default function CourseManagementDetailPage() {
       // 處理接受的檔案
       if (acceptedFiles.length > 0) {
         const file = acceptedFiles[0];
-        console.log("處理接受的檔案:", file.name);
         handleUploadImageStable(file);
       }
     },
     [handleUploadImageStable, toast]
   );
 
-  // 🔧 修正：穩定的 dropzone 配置
+  // dropzone 配置
   const dropzoneOptions: DropzoneOptions = useMemo(
     () => ({
       accept: {
@@ -364,18 +337,17 @@ export default function CourseManagementDetailPage() {
       noKeyboard: false,
       preventDropOnDocument: true,
       onDrop: onDropStable,
-      disabled: isUploading || dropzoneDisabledRef.current, // 根據 store 狀態和本地狀態禁用
+      disabled: isUploading || dropzoneDisabledRef.current,
     }),
     [onDropStable, isUploading]
   );
 
-  // 🔧 在組件頂層調用 useDropzone Hook
+  // 在組件頂層調用 useDropzone
   const { getRootProps, getInputProps, isDragActive, fileRejections } =
     useDropzone(dropzoneOptions);
 
-  // 🔧 修正：清理函數
+  // 清理函數
   const clearFormAndState = useCallback(() => {
-    console.log("清理表單和狀態");
     reset();
     uploadStateRef.current = {
       isUploading: false,
@@ -390,9 +362,8 @@ export default function CourseManagementDetailPage() {
     dropzoneDisabledRef.current = false;
   }, [reset, cleanupObjectUrl]);
 
-  // 🔧 修正：移除封面函數
+  // 移除封面函數
   const handleRemoveCover = useCallback(() => {
-    console.log("移除封面");
     uploadStateRef.current = {
       isUploading: false,
       selectedFile: null,
@@ -412,21 +383,20 @@ export default function CourseManagementDetailPage() {
     });
   }, [cleanupObjectUrl, toast]);
 
-  // 🔧 修正：取消操作
+  // 取消操作
   const handleCancel = useCallback(() => {
     isLeavingPageRef.current = true;
     clearFormAndState();
     navigate(ADMIN_ROUTES.COURSES);
   }, [clearFormAndState, navigate]);
 
-  // 🔧 修正：組件卸載和路由變更時的清理
+  // 組件卸載和路由變更時的清理
   useEffect(() => {
     // 進入頁面時立即清空所有狀態
     clearFormAndState();
     resetCurrentCourse();
 
     return () => {
-      console.log("組件卸載清理");
       clearFormAndState();
       resetCurrentCourse();
       cleanupObjectUrl();
@@ -436,7 +406,7 @@ export default function CourseManagementDetailPage() {
     };
   }, [clearFormAndState, resetCurrentCourse, cleanupObjectUrl]);
 
-  // 🔧 修正：頁面初始化邏輯
+  // 頁面初始化邏輯
   useEffect(() => {
     if (!courseId) {
       setHasError(true);
@@ -450,9 +420,8 @@ export default function CourseManagementDetailPage() {
       return;
     }
 
-    // 🔧 關鍵修正：進入頁面時立即清空所有狀態
+    // 進入頁面時立即清空所有狀態
     const clearAllStates = () => {
-      console.log("清空所有狀態");
       // 重置 store 狀態
       resetCurrentCourse();
 
@@ -476,14 +445,10 @@ export default function CourseManagementDetailPage() {
 
       // 重置表單
       reset();
-
-      // 清理任何可能的 Object URL
       cleanupObjectUrl();
     };
 
     const initializePage = async () => {
-      console.log("初始化頁面:", courseId);
-
       try {
         setIsLoading(true);
 
@@ -497,9 +462,7 @@ export default function CourseManagementDetailPage() {
         );
 
         setIsPageInitialized(true);
-        console.log("頁面初始化完成");
       } catch (error) {
-        console.error("頁面初始化失敗:", error);
         setHasError(true);
 
         let currentErrorMessage = "載入課程時發生錯誤";
@@ -535,7 +498,7 @@ export default function CourseManagementDetailPage() {
       }
     };
 
-    // 直接初始化頁面，不需要檢查 initialLoadRef
+    // 直接初始化頁面
     initializePage();
 
     // 組件卸載時的清理
@@ -555,11 +518,9 @@ export default function CourseManagementDetailPage() {
     cleanupObjectUrl,
   ]);
 
-  // 🔧 修正：當課程資料載入完成時，初始化表單
+  // 當課程資料載入完成時，初始化表單
   useEffect(() => {
     if (currentCourse && !isFormInitialized && isPageInitialized) {
-      console.log("初始化表單數據");
-
       reset({
         title: currentCourse.title || "",
         subtitle: currentCourse.subtitle || "",
@@ -572,7 +533,7 @@ export default function CourseManagementDetailPage() {
         courseType: currentCourse.isFree ? "free" : "paid",
       });
 
-      // 🔧 修正：設置原始封面 URL，不觸發重新渲染
+      // 設置原始封面 URL，不觸發重新渲染
       if (
         currentCourse.coverUrl &&
         currentCourse.coverUrl !== DEFAULT_COURSE_COVER
@@ -583,7 +544,6 @@ export default function CourseManagementDetailPage() {
       }
 
       setIsFormInitialized(true);
-      console.log("表單初始化完成");
     }
   }, [currentCourse, isFormInitialized, isPageInitialized, reset]);
 
@@ -597,7 +557,7 @@ export default function CourseManagementDetailPage() {
       return;
     }
 
-    try {
+    await withLoading(async () => {
       if (!data.title?.trim()) {
         throw new Error("課程標題為必填項目");
       }
@@ -613,7 +573,7 @@ export default function CourseManagementDetailPage() {
         throw new Error("付費課程必須設定有效的價格");
       }
 
-      // 🔧 修正：確定最終的封面 URL
+      // 確定最終的封面 URL
       const finalCoverUrl = (() => {
         // 1. 如果有新上傳的圖片，使用新圖片
         if (uploadedCoverUrl) return uploadedCoverUrl;
@@ -634,42 +594,45 @@ export default function CourseManagementDetailPage() {
         coverUrl: finalCoverUrl,
       };
 
-      const success = await updateCourseDetail(courseId, courseData);
+      try {
+        const success = await updateCourseDetail(courseId, courseData);
 
-      if (success) {
-        toast({
-          title: "更新成功",
-          description: "課程已成功更新，正在跳轉到章節管理...",
-        });
+        if (success) {
+          toast({
+            title: "更新成功",
+            description: "課程已成功更新，正在跳轉到章節管理...",
+          });
 
-        // 清理臨時 URL
-        cleanupObjectUrl();
-        isLeavingPageRef.current = true;
+          // 清理臨時 URL
+          cleanupObjectUrl();
+          isLeavingPageRef.current = true;
 
-        navigate(`${ADMIN_ROUTES.COURSES}/${courseId}/sections`);
-      } else {
-        throw new Error("更新課程失敗");
-      }
-    } catch (error) {
-      let errorMessage = "更新課程時發生錯誤，請稍後再試";
-
-      if (error instanceof Error) {
-        if (error.message.includes("401")) {
-          errorMessage = "未授權操作，請重新登入";
+          navigate(`${ADMIN_ROUTES.COURSES}/${courseId}/sections`);
         } else {
-          errorMessage = error.message;
+          throw new Error("更新課程失敗");
         }
-      }
+      } catch (error) {
+        let errorMessage = "更新課程時發生錯誤，請稍後再試";
 
-      toast({
-        variant: "destructive",
-        title: "更新失敗",
-        description: errorMessage,
-      });
-    }
+        if (error instanceof Error) {
+          if (error.message.includes("401")) {
+            errorMessage = "未授權操作，請重新登入";
+          } else {
+            errorMessage = error.message;
+          }
+        }
+
+        toast({
+          variant: "destructive",
+          title: "更新失敗",
+          description: errorMessage,
+        });
+        throw error;
+      }
+    });
   };
 
-  // 🔧 修正：檢查是否有自定義圖片（不包括預設圖片）
+  // 檢查是否有自定義圖片（不包括預設圖片）
   const hasCustomImage =
     uploadStateRef.current.selectedFile ||
     uploadedCoverUrl ||
@@ -679,13 +642,17 @@ export default function CourseManagementDetailPage() {
 
   // 如果正在載入，顯示loading
   if (isLoading) {
-    return <ScreenLoading />;
+    return (
+      <div>
+        <ScreenLoading />
+      </div>
+    );
   }
 
   // 如果有錯誤，顯示錯誤頁面
   if (hasError || (!currentCourse && isPageInitialized)) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="py-4 md:py-8 md:container md:mx-auto md:px-6 lg:px-8">
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">
             {errorMessage.includes("權限") || errorMessage.includes("登入")
@@ -713,26 +680,37 @@ export default function CourseManagementDetailPage() {
             </Button>
           </div>
         </div>
+
+        {/* 全螢幕 Loading */}
+        <ScreenLoading />
       </div>
     );
   }
 
   if (!isPageInitialized || !currentCourse || !isFormInitialized) {
-    return <ScreenLoading />;
+    return (
+      <div>
+        <ScreenLoading />
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="py-4 md:py-8 md:container md:mx-auto md:px-6 lg:px-8 pb-20 md:pb-8">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex flex-col gap-0 md:flex-row md:gap-6">
           {/* 左側：課程資訊 */}
           <div className="flex-1">
-            <h2 className="text-xl font-bold mb-6">課程資訊</h2>
-            <div className="bg-white rounded-lg border border-slate-200">
-              <div className="p-6 space-y-6">
+            <h2 className="text-xl font-bold mb-4 md:mb-6 px-4 md:px-0">
+              課程資訊
+            </h2>
+            <div className="bg-white md:rounded-lg border-0 md:border border-slate-200">
+              <div className="p-4 md:p-6 space-y-6">
                 {/* 課程名稱 */}
-                <div className="space-y-1">
-                  <Label htmlFor="title">課程名稱 *</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="title">
+                    課程名稱 <span className="text-red-500">*</span>
+                  </Label>
                   <Input
                     id="title"
                     placeholder="請輸入課程名稱"
@@ -750,7 +728,7 @@ export default function CourseManagementDetailPage() {
                 </div>
 
                 {/* 課程副標題 */}
-                <div className="space-y-1">
+                <div className="space-y-2">
                   <Label htmlFor="subtitle">課程副標題</Label>
                   <Input
                     id="subtitle"
@@ -769,30 +747,38 @@ export default function CourseManagementDetailPage() {
                 </div>
 
                 {/* 課程介紹 */}
-                <div className="space-y-1">
-                  <Label htmlFor="description">課程介紹 *</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="description">
+                    課程介紹 <span className="text-red-500">*</span>
+                  </Label>
                   <RichTextEditor
                     id="description"
                     value={watch("description")}
                     onChange={(content) => setValue("description", content)}
-                    minHeight={200}
-                    maxHeight={398}
+                    minHeight={window.innerWidth < 768 ? 240 : 200}
+                    maxHeight={window.innerWidth < 768 ? 240 : 398}
+                    className="w-full"
                   />
                   {errors.description && (
                     <p className="text-sm text-red-500">
                       {errors.description.message}
                     </p>
                   )}
+                  <p className="text-sm text-gray-500">
+                    詳細描述課程內容，讓學生更好地了解課程的學習目標和價值。
+                  </p>
                 </div>
 
                 {/* 課程亮點 */}
-                <div className="space-y-1">
+                <div className="space-y-2">
                   <Label htmlFor="highlight">課程亮點</Label>
                   <Input
                     id="highlight"
                     placeholder="學習 xxx 的關鍵基礎知識"
                     {...register("highlight")}
-                    className={errors.highlight ? "border-red-500" : ""}
+                    className={`${
+                      errors.highlight ? "border-red-500" : ""
+                    } max-md:h-20`}
                   />
                   {errors.highlight && (
                     <p className="text-sm text-red-500">
@@ -805,9 +791,11 @@ export default function CourseManagementDetailPage() {
                 </div>
 
                 {/* 課程類型 */}
-                <div className="space-y-1">
-                  <Label>課程類型 *</Label>
-                  <div className="flex gap-4">
+                <div className="space-y-2">
+                  <Label>
+                    課程類型 <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="flex flex-col space-y-4 md:flex-row md:gap-4 md:space-y-0">
                     {/* 付費課程 */}
                     <label
                       className={`flex-1 border rounded-lg p-4 cursor-pointer flex items-start gap-2 transition
@@ -866,7 +854,7 @@ export default function CourseManagementDetailPage() {
                 </div>
 
                 {/* 課程時長 */}
-                <div className="space-y-1">
+                <div className="space-y-2">
                   <Label htmlFor="duration">課程時長（小時）</Label>
                   <Input
                     id="duration"
@@ -890,14 +878,16 @@ export default function CourseManagementDetailPage() {
 
                 {/* 課程價格 - 只在付費課程時顯示 */}
                 {courseType === "paid" && (
-                  <div className="space-y-1">
-                    <Label htmlFor="price">課程價格 *</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="price">
+                      課程價格 <span className="text-red-500">*</span>
+                    </Label>
                     <div className="flex">
                       <span
                         className="flex items-center justify-center border border-slate-200 rounded-l-md bg-slate-50 px-4 text-gray-700 text-lg"
                         style={{ height: 40 }}
                       >
-                        NT$
+                        $
                       </span>
                       <Input
                         id="price"
@@ -919,8 +909,8 @@ export default function CourseManagementDetailPage() {
                   </div>
                 )}
 
-                {/* 按鈕區域 */}
-                <div className="flex justify-end space-x-4">
+                {/* 桌面版按鈕 - 只在桌面版顯示 */}
+                <div className="hidden md:flex justify-end space-x-4">
                   <Button
                     type="button"
                     variant="outline"
@@ -946,11 +936,15 @@ export default function CourseManagementDetailPage() {
           </div>
 
           {/* 右側：課程縮圖 */}
-          <div className="md:w-4/12 w-full">
-            <h2 className="text-xl font-bold mb-6">課程縮圖</h2>
-            <div className="bg-white border border-blue-100 rounded-2xl">
-              <div className="p-4">
-                <Label className="block font-medium text-slate-800 mb-2">
+          <div className="md:w-4/12 w-full mt-3 md:mt-0">
+            <h2 className="text-xl font-bold mb-4 md:mb-6 px-4 md:px-0">
+              課程縮圖
+            </h2>
+
+            {/* 桌面版封面區域 */}
+            <div className="bg-white border border-blue-100 rounded-2xl hidden md:block">
+              <div className="p-4 pb-3 space-y-2">
+                <Label className="block font-medium text-slate-800">
                   封面圖片
                 </Label>
 
@@ -1049,28 +1043,179 @@ export default function CourseManagementDetailPage() {
 
                 {/* 錯誤訊息 */}
                 {fileRejections.length > 0 && (
-                  <div className="text-red-500 text-sm mt-2">
+                  <div className="text-red-500 text-sm">
                     檔案格式或大小不符，請選擇 2MB 以內的圖片檔案。
                   </div>
                 )}
 
                 {/* 上傳狀態顯示 */}
                 {isUploading && (
-                  <div className="text-blue-600 text-sm mt-2 flex items-center">
+                  <div className="text-blue-600 text-sm flex items-center">
                     <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
                     圖片上傳中，請稍候...
                   </div>
                 )}
 
                 {/* 上傳提示 */}
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-gray-500">
                   建議尺寸：1280x720 像素，格式：JPG、PNG、GIF，大小不超過 2MB
                 </p>
+              </div>
+            </div>
+
+            {/* 手機版封面區域 */}
+            <div className="bg-white block md:hidden">
+              <div className="px-4 pt-4 pb-2">
+                <Label className="block font-medium text-slate-800 text-lg">
+                  封面圖片
+                </Label>
+              </div>
+
+              {/* 手機版圖片上傳區域 */}
+              <div className="px-4 pb-2 space-y-2">
+                <div className="relative group">
+                  <div
+                    {...getRootProps()}
+                    className={`
+                      h-64 border-2 border-dashed transition cursor-pointer flex flex-col items-center justify-center
+                      ${
+                        fileRejections.length > 0
+                          ? "border-red-400 bg-red-50"
+                          : isDragActive
+                          ? "border-blue-400 bg-blue-50"
+                          : uploadedCoverUrl ||
+                            previewImageUrl ||
+                            originalCoverUrl
+                          ? "border-green-400 bg-green-50"
+                          : "border-blue-300 bg-blue-50"
+                      }
+                      ${
+                        isUploading || dropzoneDisabledRef.current
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }
+                    `}
+                    style={{ minHeight: 260 }}
+                  >
+                    <input
+                      {...getInputProps()}
+                      disabled={isUploading || dropzoneDisabledRef.current}
+                    />
+
+                    {hasPreview ? (
+                      // 圖片預覽模式
+                      <div className="relative w-full h-full">
+                        <img
+                          src={imageSrc}
+                          alt="課程封面預覽"
+                          className="w-full h-full object-cover"
+                          onError={handleImageError}
+                        />
+
+                        {/* 移除/重置按鈕 - 覆蓋在圖片上，只在有自定義圖片時顯示 */}
+                        {hasCustomImage && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="absolute top-2 right-2 h-8 w-8 p-0 rounded-full shadow-lg bg-red-500 border-red-500 text-white hover:bg-red-600 hover:border-red-600"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveCover();
+                            }}
+                            disabled={
+                              isUploading || dropzoneDisabledRef.current
+                            }
+                            title="重置為預設圖片"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
+
+                        {/* 上傳狀態指示器 */}
+                        {isUploading && (
+                          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                            <div className="text-white text-center">
+                              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
+                              <p className="text-sm">上傳中...</p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* 替換圖片提示 */}
+                        <div className="absolute bottom-2 left-2 right-2 bg-black bg-opacity-70 text-white text-xs p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                          {hasCustomImage
+                            ? "點擊或拖拽以替換圖片"
+                            : "點擊或拖拽以上傳自定義圖片"}
+                        </div>
+                      </div>
+                    ) : (
+                      // 上傳提示模式
+                      <div className="flex flex-col items-center">
+                        <ImagePlus size={40} className="text-slate-400 mb-2" />
+                        <div className="font-bold text-lg text-slate-800 mb-1 text-center">
+                          <p className="p-4">
+                            {isUploading
+                              ? "上傳中..."
+                              : "將圖片拖曳到此處或按一下以選擇圖片"}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 手機版錯誤訊息和提示 */}
+                {fileRejections.length > 0 && (
+                  <div className="text-red-500 text-sm">
+                    檔案格式或大小不符，請選擇 2MB 以內的圖片檔案。
+                  </div>
+                )}
+
+                {isUploading && (
+                  <div className="text-blue-600 text-sm flex items-center">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
+                    圖片上傳中，請稍候...
+                  </div>
+                )}
+
+                <p className="text-xs text-gray-500">
+                  建議尺寸：1280x720 像素，格式：JPG、PNG、GIF，大小不超過 2MB
+                </p>
+              </div>
+
+              {/* 手機版按鈕區域 - 固定在底部 */}
+              <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-4 block md:hidden z-50 shadow-lg">
+                <div className="flex space-x-4 max-w-screen-sm mx-auto">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleCancel}
+                    disabled={isUpdating || isUploading}
+                    className="flex-1"
+                  >
+                    取消
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={isUpdating || isUploading}
+                    className="bg-orange-600 hover:bg-orange-700 text-white flex-1"
+                  >
+                    {isUpdating
+                      ? "更新中..."
+                      : isUploading
+                      ? "上傳中..."
+                      : "更新課程"}
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </form>
+
+      {/* 全螢幕 Loading */}
+      <ScreenLoading />
     </div>
   );
 }

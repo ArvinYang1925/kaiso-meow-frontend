@@ -1,7 +1,7 @@
 import { ApiResponseModel } from "@/pages/admin/models/api.model";
 
 // ============================
-// 🔧 基礎型別定義
+// 基礎型別定義
 // ============================
 
 // 時間間隔類型
@@ -15,15 +15,15 @@ export type IntervalRule = {
 };
 
 // ============================
-// 📊 收益相關模型
+// 收益相關模型
 // ============================
 
 // 收益數據項目模型 (對應 API response.data.revenueData 的項目)
 export type RevenueDataItemModel = {
-  intervalStart: string;    // 開始時間 (如 "2024-01-15")
-  intervalEnd: string;      // 結束時間 (如 "2024-01-15")
-  totalRevenue: number;     // 該週期的收益
-  orderCount: number;       // 該週期的訂單數量
+  intervalStart: string; // 開始時間 (如 "2024-01-15")
+  intervalEnd: string; // 結束時間 (如 "2024-01-15")
+  totalRevenue: number; // 該週期的收益
+  orderCount: number; // 該週期的訂單數量
 };
 
 // 收益摘要模型 (對應 API response.data.summary)
@@ -60,7 +60,7 @@ export type RevenueReportDataModel = {
 // 收益查詢參數模型 (對應 API 查詢參數)
 export type RevenueQueryParamsModel = {
   startTime: string; // YYYY-MM-DD 格式
-  endTime: string;   // YYYY-MM-DD 格式
+  endTime: string; // YYYY-MM-DD 格式
   interval: IntervalType;
   courseId?: string; // 可選的課程 ID 篩選
 };
@@ -69,7 +69,7 @@ export type RevenueQueryParamsModel = {
 export type GetRevenueReportResponse = ApiResponseModel<RevenueReportDataModel>;
 
 // ============================
-// 📚 課程相關模型 - 修正版
+// 課程相關模型 - 修正版
 // ============================
 
 // 分頁查詢參數模型
@@ -108,7 +108,7 @@ export type CourseListItemModel = {
 export type CourseOptionModel = {
   id: string;
   title: string;
-  createdAt: string;  // 加入建立日期欄位
+  createdAt: string; // 加入建立日期欄位
 };
 
 // 課程列表分頁模型
@@ -126,7 +126,7 @@ export type GetCoursesResponse = ApiResponseModel<{
 }>;
 
 // ============================
-// 🎛️ 前端狀態模型
+// 前端狀態模型
 // ============================
 
 // 前端篩選條件模型
@@ -198,44 +198,7 @@ export type DateRangeValidationResult = {
 };
 
 // ============================
-// 🔧 調試相關型別 - 基礎版本
-// ============================
-
-// API 調試資訊模型 - 移除 any
-export type ApiDebugInfo = {
-  timestamp: string;
-  success: boolean;
-  courseCount: number;
-  error?: string;
-  type: 'manual_debug' | 'simple_test' | 'auto_fetch';
-  details?: {
-    responseStatus?: number;
-    responseData?: unknown;
-    errorCode?: string;
-  };
-};
-
-// 調試狀態模型
-export type DebugStateModel = {
-  lastApiTest?: ApiDebugInfo;
-  apiCallCount: number;
-  lastError?: string;
-};
-
-// 課程 API 測試結果 - 修正型別匹配
-export type CourseApiTestResult = {
-  success: boolean;
-  courseCount: number;
-  error?: string;
-  rawData?: {
-    status?: string;
-    message?: string;
-    courseList?: CourseOptionModel[]; // 修正為 CourseOptionModel[]
-  };
-};
-
-// ============================
-// ⚠️ 錯誤處理型別
+// 錯誤處理型別
 // ============================
 
 // API 錯誤回應模型
@@ -263,7 +226,7 @@ export type CourseApiErrorResponse = {
 };
 
 // ============================
-// 工具函數型別 
+// 工具函數型別
 // ============================
 
 // 日期格式化工具函數類型
@@ -276,7 +239,7 @@ export type CurrencyFormatter = (amount: number) => string;
 export type ApiDateFormatter = (date: Date) => string;
 
 // ============================
-// 📋 常數和配置
+// 常數和配置
 // ============================
 
 // 預設時間間隔
@@ -287,10 +250,10 @@ export const getDefaultDateRange = () => {
   const endDate = new Date();
   const startDate = new Date();
   startDate.setDate(endDate.getDate() - 30);
-  
+
   return {
     startDate,
-    endDate
+    endDate,
   };
 };
 
@@ -311,7 +274,7 @@ export const DEFAULT_PAGINATION_PARAMS: PaginationParamsModel = {
 // 獲取所有課程的分頁參數
 export const GET_ALL_COURSES_PARAMS: PaginationParamsModel = {
   page: 1,
-  pageSize: 50,  // 修改為符合後端限制
+  pageSize: 50, // 修改為符合後端限制
 };
 
 // 預設篩選條件
@@ -333,7 +296,7 @@ export const CHART_COLORS = {
   chart3: "hsl(142.1, 55%, 35%)",
   chart4: "hsl(142.1, 45%, 30%)",
   chart5: "hsl(142.1, 35%, 25%)",
-  
+
   // 藍色系列（用於主要圖表）
   sky400: "hsl(198, 93%, 60%)",
   sky300: "hsl(199, 95%, 74%)",
@@ -347,7 +310,7 @@ export const CHART_COLORS = {
 export type ChartColorsType = typeof CHART_COLORS;
 
 // ============================
-// 🔧 API 配置常數 - 基礎版
+// API 配置常數
 // ============================
 
 // API 端點配置
@@ -372,7 +335,11 @@ export const VALIDATION_LIMITS = {
   INTERVAL_RULES: {
     day: { minDays: 0, maxDays: 90, suggestion: "建議使用「週」或「月」間隔" },
     week: { minDays: 14, maxDays: 365, suggestion: "建議使用「日」間隔" },
-    month: { minDays: 60, maxDays: 730, suggestion: "建議使用「日」或「週」間隔" },
+    month: {
+      minDays: 60,
+      maxDays: 730,
+      suggestion: "建議使用「日」或「週」間隔",
+    },
     year: { minDays: 365, maxDays: Infinity, suggestion: "建議使用「月」間隔" },
   } as Record<IntervalType, IntervalRule>,
 } as const;
@@ -386,7 +353,7 @@ export const CACHE_CONFIG = {
 
 // UI 配置
 export const UI_CONFIG = {
-  DEBOUNCE_DELAY: 300, // 防抖延遲
+  DEBOUNCE_DELAY: 300,
   AUTO_REFRESH_INTERVAL: 30 * 60 * 1000, // 30分鐘自動更新
   TOAST_DURATION: 5000, // Toast 顯示時間
 } as const;

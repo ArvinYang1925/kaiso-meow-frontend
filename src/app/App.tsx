@@ -17,7 +17,8 @@ import AdminNotFound from "@/pages/admin/not-found-page/NotFound";
 /** 前台首頁 */
 import HomePage from "../pages/student/home-page/HomePage";
 /** 後台頁面 */
-import AdminHomePage from "../pages/admin/admin-home-page/AdminHomePage";
+// import AdminHomePage from "../pages/admin/admin-home-page/AdminHomePage";
+import AdminHomePage from "../pages/admin/dashboard-page/DashboardPage";
 /** 前台個人資料頁面 */
 import ProfilePage from "../pages/student/profile-page/ProfilePage";
 /** 後台講師個人設定頁面 */

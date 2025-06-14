@@ -1,124 +1,59 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import { toast } from "@/hooks/use-toast";
-import {
-  fetchInstructorProfile,
-  updateInstructorProfile,
-  uploadInstructorAvatar,
-} from "../services/instructor.service";
+import { instructorService } from "../services/instructor.service";
 import {
   InstructorProfileModel,
   UpdateInstructorProfileModel,
 } from "../models/instructor.model";
 
+const DEFAULT_AVATAR =
+  "https://storage.googleapis.com/kaiso-meow-backend.firebasestorage.app/images/instructor_avatar/instructor-59f470c5-cae0-4053-a168-3de51253e470-1748317241181.png";
+
 interface InstructorProfileState {
   profile: InstructorProfileModel;
   isLoading: boolean;
+  isUploading: boolean;
   avatarPreview: string;
-  selectedFile: File | null;
 }
 
 interface InstructorProfileAction {
   fetchProfile: () => Promise<void>;
   updateProfile: (data: UpdateInstructorProfileModel) => Promise<void>;
-  setIsLoading: (loading: boolean) => void;
-  updateFormData: (fields: Partial<InstructorProfileModel>) => void;
-  setAvatarPreview: (url: string) => void;
-  setSelectedFile: (file: File | null) => void;
-  resetForm: () => Promise<void>;
   uploadAvatar: (file: File) => Promise<void>;
+  setAvatarPreview: (url: string) => void;
+  resetForm: () => void;
+  resetToDefaultAvatar: () => void;
 }
-
-const DEFAULT_AVATAR = "https://storage.googleapis.com/kaiso-meow-backend.firebasestorage.app/images/instructor_avatar/instructor-59f470c5-cae0-4053-a168-3de51253e470-1748317241181.png";
 
 export const useInstructorProfileStore = create<
   InstructorProfileState & InstructorProfileAction
 >()(
   immer((set, get) => ({
-    profile: {
-      name: "",
-      email: "",
-      profileUrl: DEFAULT_AVATAR,
-      introduction: "",
-    },
+    profile: {} as InstructorProfileModel,
     isLoading: false,
-    avatarPreview: DEFAULT_AVATAR,
-    selectedFile: null,
+    isUploading: false,
+    avatarPreview: "",
 
+    /**
+     * 取得講師個人資料
+     */
     fetchProfile: async () => {
       set((state) => {
         state.isLoading = true;
       });
       try {
-        const response = await fetchInstructorProfile();
-        if (response.status === "success" && response.data) {
-          // 修正：直接從 response.data 取得資料，因為後端 getMe API 直接回傳 data
-          const { id, name, email, profileUrl, introduction } = response.data;
-          set((state) => {
-            state.profile = {
-              id: id || "",
-              name: name || "",
-              email: email || "",
-              profileUrl: profileUrl || DEFAULT_AVATAR,
-              introduction: introduction || "",
-            };
-            state.avatarPreview = profileUrl || DEFAULT_AVATAR;
-            state.isLoading = false;
-          });
-        } else {
-          set((state) => {
-            state.isLoading = false;
-          });
-        }
-      } catch {
-        set((state) => {
-          state.isLoading = false;
-        });
-        toast({
-          variant: "destructive",
-          title: "載入失敗",
-          description: "無法取得講師資料，請稍後再試。",
-        });
-      }
-    },
+        const response = await instructorService.fetchProfile();
 
-    updateProfile: async (data) => {
-      set((state) => {
-        state.isLoading = true;
-      });
-      try {
-        const response = await updateInstructorProfile(data);
         if (response.status === "success" && response.data) {
-          // 修正：後端 updateMe API 回傳的格式與 getMe 不同
-          // updateMe 回傳: { name, email, avatar }
-          // getMe 回傳: { id, name, email, profileUrl }
-          const { name, email, avatar } = response.data as { name: string; email: string; avatar: string };
+          const profileData = response.data as InstructorProfileModel;
+
           set((state) => {
-            state.profile = {
-              ...state.profile,
-              name: name || "",
-              email: email || "",
-              profileUrl: avatar || DEFAULT_AVATAR,
-            };
-            state.avatarPreview = avatar || DEFAULT_AVATAR;
-          });
-          toast({
-            title: "儲存成功",
-            description: "講師資料已更新。",
-          });
-        } else {
-          toast({
-            variant: "destructive",
-            title: "儲存失敗",
-            description: response.message || "無法儲存講師資料，請稍後再試。",
+            state.profile = profileData;
+            state.avatarPreview = profileData.profileUrl || DEFAULT_AVATAR;
           });
         }
       } catch {
-        toast({
-          variant: "destructive",
-          title: "儲存失敗",
-          description: "無法儲存講師資料，請稍後再試。",
-        });
+        // 錯誤由 service 層處理並回傳
       } finally {
         set((state) => {
           state.isLoading = false;
@@ -126,62 +61,160 @@ export const useInstructorProfileStore = create<
       }
     },
 
-    setIsLoading: (loading) => {
+    /**
+     * 更新講師個人資料（包含頭像URL）
+     */
+    updateProfile: async (data: UpdateInstructorProfileModel) => {
       set((state) => {
-        state.isLoading = loading;
+        state.isLoading = true;
       });
+      try {
+        // 根據 UpdateInstructorProfileModel，更新時只使用 avatar 字段
+        const updateData = {
+          ...data,
+          avatar: data.avatar,
+        };
+
+        const response = await instructorService.updateProfile(updateData);
+
+        if (response.status === "success" && response.data) {
+          set((state) => {
+            state.profile = response.data as InstructorProfileModel;
+
+            const updatedProfile = response.data as InstructorProfileModel;
+
+            if (updatedProfile.profileUrl) {
+              state.avatarPreview = updatedProfile.profileUrl;
+            } else if (data.avatar) {
+              state.avatarPreview = data.avatar;
+            }
+          });
+        } else {
+          throw new Error(response.message || "更新失敗");
+        }
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          throw error;
+        } else {
+          throw new Error("更新失敗：未知錯誤");
+        }
+      } finally {
+        set((state) => {
+          state.isLoading = false;
+        });
+      }
     },
 
-    updateFormData: (fields) => {
+    /**
+     * 上傳頭像檔案（只獲取 URL，不直接存檔到資料庫）
+     * 用戶需要點擊「更新」按鈕才會將頭像 URL 保存到資料庫
+     */
+    uploadAvatar: async (file: File) => {
+      // 防止重複上傳
+      const currentState = get();
+      if (currentState.isUploading) {
+        return;
+      }
+
       set((state) => {
-        Object.assign(state.profile, fields);
+        state.isUploading = true;
       });
+
+      try {
+        // 檔案驗證
+        const maxSize = 2 * 1024 * 1024; // 2MB
+        const allowedTypes = [
+          "image/jpeg",
+          "image/jpg",
+          "image/png",
+          "image/gif",
+        ];
+
+        if (file.size > maxSize) {
+          throw new Error("檔案大小超過 2MB 限制");
+        }
+
+        if (!allowedTypes.includes(file.type)) {
+          throw new Error(`不支援的檔案類型: ${file.type}`);
+        }
+
+        const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+
+        const processedFile = new File([file], sanitizedFileName, {
+          type: file.type,
+          lastModified: file.lastModified,
+        });
+
+        // 只呼叫 uploadImageFile，不呼叫 uploadAvatar
+        const response = await instructorService.uploadImageFile(processedFile);
+
+        if (response.status === "success") {
+          let imageUrl = null;
+
+          if (response.data) {
+            imageUrl =
+              response.data.url ||
+              response.data.imageUrl ||
+              response.data.avatarUrl ||
+              response.data.profileUrl ||
+              response.data.coverUrl;
+          }
+
+          if (imageUrl) {
+            set((state) => {
+              state.avatarPreview = imageUrl;
+              state.isUploading = false;
+            });
+          } else {
+            set((state) => {
+              state.isUploading = false;
+            });
+            throw new Error("上傳成功但無法獲取圖片URL");
+          }
+        } else {
+          set((state) => {
+            state.isUploading = false;
+          });
+          throw new Error(response.message || "上傳失敗");
+        }
+      } catch (error) {
+        set((state) => {
+          state.isUploading = false;
+        });
+        if (error instanceof Error) {
+          throw error;
+        } else {
+          throw new Error("上傳失敗：未知錯誤");
+        }
+      }
     },
 
-    setAvatarPreview: (url) => {
+    /**
+     * 手動設定頭像預覽 URL
+     */
+    setAvatarPreview: (url: string) => {
       set((state) => {
         state.avatarPreview = url;
       });
     },
 
-    setSelectedFile: (file) => {
+    /**
+     * 重置表單到原始狀態
+     */
+    resetForm: () => {
+      const { profile } = get();
       set((state) => {
-        state.selectedFile = file;
+        state.avatarPreview = profile.profileUrl || DEFAULT_AVATAR;
       });
     },
 
-    resetForm: async () => {
-      await get().fetchProfile();
+    /**
+     * 重置為預設頭像
+     */
+    resetToDefaultAvatar: () => {
       set((state) => {
-        state.selectedFile = null;
+        state.avatarPreview = DEFAULT_AVATAR;
       });
-    },
-
-    uploadAvatar: async (file) => {
-      if (file.size > 2 * 1024 * 1024) {
-        toast({
-          variant: "destructive",
-          title: "圖片大小超過 2MB 的限制，請重新上傳圖片"
-        });
-        return;
-      }
-      set((state) => { state.isLoading = true; });
-      try {
-        const response = await uploadInstructorAvatar(file);
-        if (response.status === "success" && response.data && response.data.avatar) {
-          set((state) => {
-            state.avatarPreview = response.data!.avatar;
-            if (state.profile) state.profile.profileUrl = response.data!.avatar;
-          });
-          toast({ title: "上傳成功", description: "講師大頭貼已更新。" });
-        } else {
-          toast({ variant: "destructive", title: "上傳失敗", description: response.message || "無法上傳大頭貼，請稍後再試。" });
-        }
-      } catch {
-        toast({ variant: "destructive", title: "上傳失敗", description: "無法上傳大頭貼，請稍後再試。" });
-      } finally {
-        set((state) => { state.isLoading = false; });
-      }
     },
   }))
 );

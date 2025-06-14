@@ -188,15 +188,22 @@ export default function CoursePublishingManagementPage() {
   // 只有在非初始載入狀態下且找不到課程時，才顯示錯誤頁面
   if (!isInitialLoading && !currentCourse) {
     return (
-      <div className="p-6">
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold mb-4">找不到課程</h2>
-          <p className="text-gray-500 mb-6">您要管理的課程不存在或已被刪除。</p>
-          <Button onClick={() => navigate(ADMIN_ROUTES.COURSES)}>
-            返回課程列表
-          </Button>
+      <>
+        <div className="p-6">
+          <div className="text-center py-12">
+            <h2 className="text-2xl font-bold mb-4">找不到課程</h2>
+            <p className="text-gray-500 mb-6">
+              您要管理的課程不存在或已被刪除。
+            </p>
+            <Button onClick={() => navigate(ADMIN_ROUTES.COURSES)}>
+              返回課程列表
+            </Button>
+          </div>
         </div>
-      </div>
+
+        {/* 全螢幕 Loading 組件 */}
+        <ScreenLoading />
+      </>
     );
   }
 
@@ -207,29 +214,31 @@ export default function CoursePublishingManagementPage() {
 
   return (
     <>
-      {/* 全螢幕 Loading 組件 */}
-      <ScreenLoading />
-
       <div className="p-6">
         <div>
           <h1 className="mb-8 text-2xl font-bold">發佈/下架課程</h1>
         </div>
 
-        {/* 課程基本資訊 */}
+        {/* 課程基本資訊 - 優化手機版響應式佈局 */}
         <div className="mb-6 p-4 bg-slate-50 rounded-lg">
           <h2 className="font-semibold text-lg mb-2">{currentCourse!.title}</h2>
           <p className="text-sm text-gray-600">{currentCourse!.subtitle}</p>
-          <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+
+          {/* 課程詳細資訊 - 響應式佈局 */}
+          <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mt-2 text-sm text-gray-500">
             <span>課程 ID: {courseId}</span>
-            <span>•</span>
+
+            <span className="hidden md:inline">•</span>
             <span>類型: {currentCourse!.isFree ? "免費課程" : "付費課程"}</span>
+
             {!currentCourse!.isFree && (
               <>
-                <span>•</span>
+                <span className="hidden md:inline">•</span>
                 <span>價格: NT$ {currentCourse!.price}</span>
               </>
             )}
-            <span>•</span>
+
+            <span className="hidden md:inline">•</span>
             <span
               className={`font-medium ${
                 isPublished ? "text-green-600" : "text-yellow-600"
@@ -420,6 +429,9 @@ export default function CoursePublishingManagementPage() {
           </Card>
         </div>
       </div>
+
+      {/* 全螢幕 Loading */}
+      <ScreenLoading />
     </>
   );
 }

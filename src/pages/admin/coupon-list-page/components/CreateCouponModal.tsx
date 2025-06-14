@@ -46,13 +46,17 @@ export const CreateCouponModal = () => {
         },
       });
       setIsShowModal(false);
-    } catch (error: any) {
-      console.error(error);
-      const { status, message } = error.response.data;
-      showCommonDialog({
-        title: `${status}`,
-        description: `${message}`,
-      });
+    } catch (error: unknown) {
+      if (error && typeof error === "object" && "response" in error) {
+        const errorResponse = error as {
+          response: { data: { status: string; message: string } };
+        };
+        const { status, message } = errorResponse.response.data;
+        showCommonDialog({
+          title: `${status}`,
+          description: `${message}`,
+        });
+      }
     }
   };
 
@@ -223,7 +227,8 @@ export const CreateCouponModal = () => {
           >
             取消
           </Button>
-          <Button className="bg-blue-500 hover:bg-blue-600" type="submit">
+          {/* <Button className="bg-blue-500 hover:bg-blue-600" type="submit"></Button> */}
+          <Button className="bg-orange-600 hover:bg-orange-700" type="submit">
             儲存折扣碼
           </Button>
         </div>

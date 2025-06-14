@@ -17,7 +17,7 @@ interface CouponListPageState {
 }
 
 interface CouponListPageAction {
-  fetchCouponList: (page: number, pageSize: number) => void;
+  fetchCouponList: (page: number, pageSize: number) => Promise<void>;
   createCouponList: (
     createParams: CreateCouponModel
   ) => Promise<BaseApiResponseModel>;
@@ -44,8 +44,8 @@ export const useCouponListStore = create<
           state.couponList = response.couponList;
           state.pagination = response.pagination;
         });
-      } catch (error) {
-        console.error("Failed to fetch data", error);
+      } catch {
+        // console.error("Failed to fetch data", error);
       } finally {
         set((state) => {
           state.isLoading = false;
@@ -59,8 +59,8 @@ export const useCouponListStore = create<
       try {
         const response = await createCouponList(createParams);
         return response;
-      } catch (error) {
-        console.error("Failed to fetch data", error);
+      } catch {
+        // console.error("Failed to fetch data", error);
       } finally {
         set((state) => {
           state.isLoading = false;
@@ -74,8 +74,8 @@ export const useCouponListStore = create<
       try {
         const response = await deleteCouponList(id);
         return response;
-      } catch (error) {
-        console.error("Failed to fetch data", error);
+      } catch {
+        // console.error("Failed to fetch data", error);
       } finally {
         set((state) => {
           state.isLoading = false;

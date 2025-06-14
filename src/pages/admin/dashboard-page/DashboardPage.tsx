@@ -51,20 +51,20 @@ import {
 
 // 引入收益管理模組
 import { useRevenueStore } from "./dashboardStore";
-import { 
-  formatCurrency, 
-  formatDateForAPI, 
+import {
+  formatCurrency,
+  formatDateForAPI,
   formatNumber,
-  formatGrowthRate
+  formatGrowthRate,
 } from "./dashboard.service";
-import { 
-  INTERVAL_OPTIONS, 
+import {
+  INTERVAL_OPTIONS,
   CHART_COLORS,
   IntervalType,
   CourseOptionModel,
 } from "./dashboard.model";
 import { useScreenLoading } from "@/components/common/useScreenLoading";
-import colors from 'tailwindcss/colors';
+import colors from "tailwindcss/colors";
 
 // =============================================================================
 // 圖表配置與常數
@@ -79,13 +79,13 @@ type DynamicChartConfig = {
 };
 
 const chartConfig = {
-  revenue: { 
-    label: "收益", 
-    color: CHART_COLORS.sky400 
+  revenue: {
+    label: "收益",
+    color: CHART_COLORS.sky400,
   },
-  orders: { 
-    label: "訂單數", 
-    color: CHART_COLORS.primary 
+  orders: {
+    label: "訂單數",
+    color: CHART_COLORS.primary,
   },
 } satisfies DynamicChartConfig;
 
@@ -105,21 +105,23 @@ const PIE_COLORS = [
 ];
 
 // 生成課程圖表配置
-const generateCourseChartConfig = (courseOptions: CourseOptionModel[]): DynamicChartConfig => {
+const generateCourseChartConfig = (
+  courseOptions: CourseOptionModel[]
+): DynamicChartConfig => {
   const config: DynamicChartConfig = { ...chartConfig };
-  
+
   // 將課程資料加入配置
   courseOptions.forEach((course, index) => {
     config[course.id] = {
       label: course.title,
-      color: PIE_COLORS[index % PIE_COLORS.length]
+      color: PIE_COLORS[index % PIE_COLORS.length],
     };
   });
 
   // 加入其他課程選項
   config["others"] = {
     label: "其他課程",
-    color: PIE_COLORS[PIE_COLORS.length - 1]
+    color: PIE_COLORS[PIE_COLORS.length - 1],
   };
 
   return config;
@@ -135,22 +137,22 @@ const formatDate = (date: Date): string => {
 const getIntervalDisplayName = (interval: IntervalType): string => {
   const map = {
     day: "日",
-    week: "週", 
+    week: "週",
     month: "月",
-    year: "年"
+    year: "年",
   };
   return map[interval] || interval;
 };
 
 // 統計卡片組件
-const StatCard = ({ 
-  title, 
-  value, 
-  growth, 
-  isPositive, 
-  icon: Icon, 
+const StatCard = ({
+  title,
+  value,
+  growth,
+  isPositive,
+  icon: Icon,
   subtitle,
-  badge 
+  badge,
 }: {
   title: string;
   value: string;
@@ -175,9 +177,7 @@ const StatCard = ({
           )}
         </div>
         <div className="flex items-center justify-between">
-          <div className="text-3xl font-bold">
-            {value}
-          </div>
+          <div className="text-3xl font-bold">{value}</div>
           <div
             className={`flex items-center text-sm ${
               isPositive ? "text-red-600" : "text-emerald-600"
@@ -191,11 +191,7 @@ const StatCard = ({
             {growth}
           </div>
         </div>
-        {subtitle && (
-          <div className="text-slate-600 text-sm">
-            {subtitle}
-          </div>
-        )}
+        {subtitle && <div className="text-slate-600 text-sm">{subtitle}</div>}
       </div>
     </CardContent>
   </Card>
@@ -231,8 +227,8 @@ const FilterForm = ({
   onApply: () => void;
   onReset: () => void;
 }) => {
-  const isFormValid = useMemo(() => 
-    startDate && endDate && new Date(startDate) <= new Date(endDate),
+  const isFormValid = useMemo(
+    () => startDate && endDate && new Date(startDate) <= new Date(endDate),
     [startDate, endDate]
   );
 
@@ -267,10 +263,7 @@ const FilterForm = ({
             </div>
             <div className="space-y-2">
               <Label className="text-sm font-medium">時間間隔</Label>
-              <Select
-                value={interval}
-                onValueChange={onIntervalChange}
-              >
+              <Select value={interval} onValueChange={onIntervalChange}>
                 <SelectTrigger className="h-11">
                   <SelectValue placeholder="選擇間隔" />
                 </SelectTrigger>
@@ -285,17 +278,17 @@ const FilterForm = ({
             </div>
             <div className="space-y-2">
               <Label className="text-sm font-medium">課程篩選</Label>
-              <Select 
-                value={courseId} 
+              <Select
+                value={courseId}
                 onValueChange={onCourseChange}
                 disabled={isLoadingCourses}
               >
                 <SelectTrigger className="h-11">
-                  <SelectValue placeholder={
-                    isLoadingCourses 
-                      ? "載入課程中..." 
-                      : "選擇課程（可選）"
-                  } />
+                  <SelectValue
+                    placeholder={
+                      isLoadingCourses ? "載入課程中..." : "選擇課程（可選）"
+                    }
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">全部課程</SelectItem>
@@ -340,10 +333,10 @@ const FilterForm = ({
 };
 
 // 頁面標題組件
-const PageHeader = ({ 
-  lastUpdated, 
-  isRefreshing, 
-  onRefresh 
+const PageHeader = ({
+  lastUpdated,
+  isRefreshing,
+  onRefresh,
 }: {
   lastUpdated?: Date;
   isRefreshing: boolean;
@@ -359,9 +352,7 @@ const PageHeader = ({
         {lastUpdated && (
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <Clock className="h-4 w-4" />
-            <span>
-              最後更新: {lastUpdated.toLocaleTimeString()}
-            </span>
+            <span>最後更新: {lastUpdated.toLocaleTimeString()}</span>
           </div>
         )}
         <Button
@@ -371,7 +362,9 @@ const PageHeader = ({
           size="sm"
           className="flex items-center gap-2"
         >
-          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <RefreshCw
+            className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+          />
           {isRefreshing ? "更新中..." : "刷新"}
         </Button>
       </div>
@@ -380,23 +373,19 @@ const PageHeader = ({
 );
 
 // 空狀態組件
-const EmptyState = ({ 
-  onRetry, 
-  isLoading 
-}: { 
-  onRetry: () => void; 
+const EmptyState = ({
+  onRetry,
+  isLoading,
+}: {
+  onRetry: () => void;
   isLoading: boolean;
 }) => (
   <Card>
     <CardContent className="pt-6">
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <Activity className="h-12 w-12 text-gray-400 mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">
-          暫無數據
-        </h3>
-        <p className="text-gray-600 mb-4">
-          請調整篩選條件後重新查詢
-        </p>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">暫無數據</h3>
+        <p className="text-gray-600 mb-4">請調整篩選條件後重新查詢</p>
         <Button onClick={onRetry} disabled={isLoading}>
           重新查詢
         </Button>
@@ -406,7 +395,7 @@ const EmptyState = ({
 );
 
 export default function DashboardPage() {
-  const { showLoading, hideLoading, ScreenLoading } = useScreenLoading();
+  const { ScreenLoading, withLoading } = useScreenLoading();
 
   const {
     revenueData,
@@ -433,37 +422,40 @@ export default function DashboardPage() {
   const [localFilters, setLocalFilters] = useState({
     startDate: formatDate(filter.startDate),
     endDate: formatDate(filter.endDate),
-    courseId: filter.selectedCourseId || "all"
+    courseId: filter.selectedCourseId || "all",
   });
 
   useEffect(() => {
     const initializeDashboard = async () => {
       try {
-        showLoading("正在載入儀表板數據...");
-        
-        if (!hasInitialized) {
-          await initialize();
-        } else if (courseOptions.length === 0) {
-          await fetchCourseOptions();
-        }
-        
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
+        await withLoading(async () => {
+          if (!hasInitialized) {
+            await initialize();
+          } else if (courseOptions.length === 0) {
+            await fetchCourseOptions();
+          }
+          await new Promise((resolve) => setTimeout(resolve, 500));
+        });
       } finally {
-        hideLoading();
         setIsInitialLoading(false);
       }
     };
-    
+
     initializeDashboard();
-  }, [hasInitialized, hideLoading, initialize, showLoading, courseOptions.length, fetchCourseOptions]);
+  }, [
+    hasInitialized,
+    initialize,
+    withLoading,
+    courseOptions.length,
+    fetchCourseOptions,
+  ]);
 
   useEffect(() => {
     if (!isInitialLoading) {
       setLocalFilters({
         startDate: formatDate(filter.startDate),
         endDate: formatDate(filter.endDate),
-        courseId: filter.selectedCourseId || "all"
+        courseId: filter.selectedCourseId || "all",
       });
     }
   }, [filter, isInitialLoading]);
@@ -471,87 +463,107 @@ export default function DashboardPage() {
   const handleApplyFilters = useCallback(async () => {
     const start = new Date(localFilters.startDate);
     const end = new Date(localFilters.endDate);
-    
+
     if (start > end) return;
 
     setDateRange(start, end);
-    setCourseFilter(localFilters.courseId === "all" ? undefined : localFilters.courseId);
+    setCourseFilter(
+      localFilters.courseId === "all" ? undefined : localFilters.courseId
+    );
     await fetchRevenueReport(true);
   }, [localFilters, setDateRange, setCourseFilter, fetchRevenueReport]);
 
-  const handleIntervalChange = useCallback((newInterval: IntervalType) => {
-    setInterval(newInterval);
-  }, [setInterval]);
+  const handleIntervalChange = useCallback(
+    (newInterval: IntervalType) => {
+      setInterval(newInterval);
+    },
+    [setInterval]
+  );
 
   const handleReset = useCallback(() => {
     resetFilter();
   }, [resetFilter]);
 
-  const updateLocalFilter = useCallback((key: keyof typeof localFilters, value: string) => {
-    setLocalFilters(prev => ({ ...prev, [key]: value }));
-  }, []);
+  const updateLocalFilter = useCallback(
+    (key: keyof typeof localFilters, value: string) => {
+      setLocalFilters((prev) => ({ ...prev, [key]: value }));
+    },
+    []
+  );
 
   const statistics = useMemo(() => getStatistics(), [getStatistics]);
-  
-  const growthMetrics = useMemo(() => ({
-    revenueGrowth: formatGrowthRate(statistics.revenueGrowthRate),
-    revenueGrowthPositive: statistics.revenueGrowthRate >= 0,
-    ordersGrowth: formatGrowthRate(statistics.ordersGrowthRate),
-    ordersGrowthPositive: statistics.ordersGrowthRate >= 0,
-    avgGrowth: formatGrowthRate(statistics.revenueGrowthRate - statistics.ordersGrowthRate),
-    avgGrowthPositive: (statistics.revenueGrowthRate - statistics.ordersGrowthRate) >= 0,
-  }), [statistics]);
+
+  const growthMetrics = useMemo(
+    () => ({
+      revenueGrowth: formatGrowthRate(statistics.revenueGrowthRate),
+      revenueGrowthPositive: statistics.revenueGrowthRate >= 0,
+      ordersGrowth: formatGrowthRate(statistics.ordersGrowthRate),
+      ordersGrowthPositive: statistics.ordersGrowthRate >= 0,
+      avgGrowth: formatGrowthRate(
+        statistics.revenueGrowthRate - statistics.ordersGrowthRate
+      ),
+      avgGrowthPositive:
+        statistics.revenueGrowthRate - statistics.ordersGrowthRate >= 0,
+    }),
+    [statistics]
+  );
 
   const processedChartData = useMemo(() => {
     if (!revenueData?.revenueData) return [];
-    
+
     return revenueData.revenueData.map((item) => {
       const date = new Date(item.intervalStart);
-      const formattedDate = new Intl.DateTimeFormat('zh-TW', {
-        month: '2-digit',
-        day: '2-digit'
+      const formattedDate = new Intl.DateTimeFormat("zh-TW", {
+        month: "2-digit",
+        day: "2-digit",
       }).format(date);
 
       return {
         date: formattedDate,
-        revenue: typeof item.totalRevenue === 'number' ? item.totalRevenue : Number(item.totalRevenue) || 0,
-        orders: typeof item.orderCount === 'number' ? item.orderCount : Number(item.orderCount) || 0,
+        revenue:
+          typeof item.totalRevenue === "number"
+            ? item.totalRevenue
+            : Number(item.totalRevenue) || 0,
+        orders:
+          typeof item.orderCount === "number"
+            ? item.orderCount
+            : Number(item.orderCount) || 0,
       };
     });
   }, [revenueData]);
 
+  // 圓餅圖-課程分佈數據處理
   const courseDistributionData = useMemo(() => {
-    // 如果沒有課程數據，返回空數組
     if (!courseOptions || courseOptions.length === 0) {
       return [];
     }
 
-    // 取前 10 個課程
-    const topCourses = courseOptions.slice(0, 10);
-    
-    // 計算其他課程的數量
-    const otherCoursesCount = Math.max(0, courseOptions.length - 10);
-    
+    // 取前 9 個課程
+    const topCourses = courseOptions.slice(0, 9);
+    const otherCoursesCount = Math.max(0, courseOptions.length - 9);
+
     // 生成分佈數據
     const distribution = [
-      ...topCourses.map(course => ({
+      ...topCourses.map((course) => ({
         name: course.title,
-        value: Math.floor(100 / (courseOptions.length + (otherCoursesCount ? 1 : 0)))
-      }))
+        value: Math.floor(
+          100 / (courseOptions.length + (otherCoursesCount ? 1 : 0))
+        ),
+      })),
     ];
 
     // 如果有其他課程，加入其他課程選項
     if (otherCoursesCount > 0) {
       distribution.push({
         name: "其他課程",
-        value: Math.floor(100 / (courseOptions.length + 1)) * otherCoursesCount
+        value: Math.floor(100 / (courseOptions.length + 1)) * otherCoursesCount,
       });
     }
 
     // 確保總和為 100
     const currentSum = distribution.reduce((sum, item) => sum + item.value, 0);
     if (currentSum < 100 && distribution.length > 0) {
-      distribution[0].value += (100 - currentSum);
+      distribution[0].value += 100 - currentSum;
     }
 
     return distribution;
@@ -563,8 +575,6 @@ export default function DashboardPage() {
 
   return (
     <>
-      <ScreenLoading />
-      
       <div className="min-h-screen bg-gray-50/50 p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           <PageHeader
@@ -581,10 +591,10 @@ export default function DashboardPage() {
             courseOptions={courseOptions}
             isLoadingCourses={isLoadingCourseOptions}
             isLoading={isLoading}
-            onStartDateChange={(value) => updateLocalFilter('startDate', value)}
-            onEndDateChange={(value) => updateLocalFilter('endDate', value)}
+            onStartDateChange={(value) => updateLocalFilter("startDate", value)}
+            onEndDateChange={(value) => updateLocalFilter("endDate", value)}
             onIntervalChange={handleIntervalChange}
-            onCourseChange={(value) => updateLocalFilter('courseId', value)}
+            onCourseChange={(value) => updateLocalFilter("courseId", value)}
             onApply={handleApplyFilters}
             onReset={handleReset}
           />
@@ -612,7 +622,12 @@ export default function DashboardPage() {
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="text-4xl font-bold">
-                            {formatNumber(Math.round(revenueData.summary.totalRevenue / 1000))}K
+                            {formatNumber(
+                              Math.round(
+                                revenueData.summary.totalRevenue / 1000
+                              )
+                            )}
+                            K
                           </div>
                           <div
                             className={`flex items-center text-sm font-medium ${
@@ -648,11 +663,15 @@ export default function DashboardPage() {
                   />
                   <StatCard
                     title="平均訂單價值"
-                    value={`${formatNumber(Math.round(revenueData.summary.averageOrderValue / 1000))}K`}
+                    value={`${formatNumber(
+                      Math.round(revenueData.summary.averageOrderValue / 1000)
+                    )}K`}
                     growth={growthMetrics.avgGrowth}
                     isPositive={growthMetrics.avgGrowthPositive}
                     icon={TrendingUp}
-                    subtitle={formatCurrency(revenueData.summary.averageOrderValue)}
+                    subtitle={formatCurrency(
+                      revenueData.summary.averageOrderValue
+                    )}
                   />
                 </div>
 
@@ -664,7 +683,7 @@ export default function DashboardPage() {
                         <PieChartIcon className="h-4 w-4" />
                         課程收益分佈
                       </CardTitle>
-                      <CardDescription>收益來源分析</CardDescription>
+                      <CardDescription>單位：%</CardDescription>
                     </CardHeader>
                     <CardContent className="flex-1">
                       <ChartContainer
@@ -685,9 +704,9 @@ export default function DashboardPage() {
                             paddingAngle={5}
                           >
                             {courseDistributionData.map((_, index) => (
-                              <Cell 
-                                key={`cell-${index}`} 
-                                fill={PIE_COLORS[index % PIE_COLORS.length]} 
+                              <Cell
+                                key={`cell-${index}`}
+                                fill={PIE_COLORS[index % PIE_COLORS.length]}
                               />
                             ))}
                           </Pie>
@@ -710,7 +729,8 @@ export default function DashboardPage() {
                           收益趨勢分析
                         </CardTitle>
                         <CardDescription>
-                          {localFilters.startDate} 至 {localFilters.endDate} • 按{getIntervalDisplayName(filter.interval)}統計
+                          {localFilters.startDate} 至 {localFilters.endDate} •
+                          按{getIntervalDisplayName(filter.interval)}統計
                         </CardDescription>
                       </div>
                       <div
@@ -721,7 +741,9 @@ export default function DashboardPage() {
                         }`}
                       >
                         收益
-                        {growthMetrics.revenueGrowthPositive ? "上升" : "下降"}{" "}
+                        {growthMetrics.revenueGrowthPositive
+                          ? "上升"
+                          : "下降"}{" "}
                         {growthMetrics.revenueGrowth}
                         {growthMetrics.revenueGrowthPositive ? (
                           <TrendingUp className="h-4 w-4" />
@@ -790,7 +812,8 @@ export default function DashboardPage() {
                                       日期: {label}
                                     </p>
                                     <p className="text-sky-600">
-                                      收益: {formatCurrency(Number(payload[0].value))}
+                                      收益:{" "}
+                                      {formatCurrency(Number(payload[0].value))}
                                     </p>
                                   </div>
                                 );
@@ -859,7 +882,9 @@ export default function DashboardPage() {
                                       日期: {label}
                                     </p>
                                     <p className="text-sky-600">
-                                      訂單: {formatNumber(Number(payload[0].value))} 筆
+                                      訂單:{" "}
+                                      {formatNumber(Number(payload[0].value))}{" "}
+                                      筆
                                     </p>
                                   </div>
                                 );
@@ -883,14 +908,12 @@ export default function DashboardPage() {
             </>
           ) : (
             !isLoading && (
-              <EmptyState 
-                onRetry={handleApplyFilters} 
-                isLoading={isLoading} 
-              />
+              <EmptyState onRetry={handleApplyFilters} isLoading={isLoading} />
             )
           )}
         </div>
       </div>
+      <ScreenLoading />
     </>
   );
 }
