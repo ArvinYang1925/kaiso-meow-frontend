@@ -27,7 +27,8 @@ const SectionContent: React.FC<SectionContentProps> = ({
           className="flex items-center gap-2"
         >
           <ChevronLeft className="w-4 h-4" />
-          上一課程
+          {/* hide on mobile */}
+          <span className="hidden md:block">上一課程</span>
         </Button>
 
         <div className="text-center">
@@ -42,7 +43,8 @@ const SectionContent: React.FC<SectionContentProps> = ({
           disabled={!section.nextSection}
           className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600"
         >
-          完成並繼續課程
+          {/* hide on mobile */}
+          <span className="hidden md:block">完成並繼續課程</span>
           <ChevronRight className="w-4 h-4" />
         </Button>
       </div>

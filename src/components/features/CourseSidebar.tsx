@@ -1,5 +1,12 @@
 import React from "react";
-import { ChevronRight, PlayCircle, CheckCircle, Clock } from "lucide-react";
+import {
+  ChevronRight,
+  PlayCircle,
+  CheckCircle,
+  Clock,
+  Home,
+  BookOpen,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CourseSection } from "@/types/course";
 
@@ -22,8 +29,36 @@ const CourseSidebar: React.FC<CourseSidebarProps> = ({
   onSectionClick,
   progress,
 }) => {
+  const handleHomeClick = () => {
+    window.location.href = "/";
+  };
+
+  const handleLearningCenterClick = () => {
+    window.location.href = "/my-learning";
+  };
+
   return (
     <div className="w-80 bg-white border-r border-gray-200 flex flex-col h-screen">
+      {/* Top Navigation */}
+      <div className="p-4 border-b border-gray-100">
+        <div className="flex gap-2">
+          <button
+            onClick={handleHomeClick}
+            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <Home className="w-4 h-4" />
+            首頁
+          </button>
+          <button
+            onClick={handleLearningCenterClick}
+            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <BookOpen className="w-4 h-4" />
+            學習中心
+          </button>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="p-6 border-b border-gray-200">
         <h1 className="text-lg font-semibold text-gray-900 mb-2">
