@@ -95,4 +95,20 @@ export const learningService = {
       throw error;
     }
   },
+
+  // Mark section as completed
+  async markSectionAsComplete(
+    courseId: string,
+    sectionId: string
+  ): Promise<void> {
+    try {
+      await axiosInstance.patch(
+        `/api/v1/courses/${courseId}/sections/${sectionId}/complete`,
+        { isCompleted: true }
+      );
+    } catch (error) {
+      console.error("Error marking section as completed:", error);
+      throw error;
+    }
+  },
 };

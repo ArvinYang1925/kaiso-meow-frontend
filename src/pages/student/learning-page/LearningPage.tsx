@@ -149,9 +149,32 @@ const LearningPage: React.FC = () => {
     }
   };
 
-  const handleNext = () => {
-    if (currentSection?.nextSection) {
-      handleSectionClick(currentSection.nextSection.id);
+  const handleNext = async () => {
+    if (currentSection?.nextSection && courseId && sectionId) {
+      try {
+        // Mark current section as complete before navigating
+        await learningService.markSectionAsComplete(courseId, sectionId);
+
+        // Update course progress after marking as complete
+        const progressResponse = await learningService.getCourseProgress(
+          courseId
+        );
+        if (progressResponse.status === "success") {
+          const { progress } = progressResponse.data;
+          setCourseProgress({
+            completedSections: progress.completedSections,
+            totalSections: progress.totalSections,
+            percentage: Math.round(progress.percentage),
+          });
+        }
+
+        // Navigate to next section
+        handleSectionClick(currentSection.nextSection.id);
+      } catch (error) {
+        console.error("Error marking section as complete:", error);
+        // Still navigate to next section even if marking as complete fails
+        handleSectionClick(currentSection.nextSection.id);
+      }
     }
   };
 
