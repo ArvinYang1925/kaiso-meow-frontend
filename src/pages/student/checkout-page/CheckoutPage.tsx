@@ -31,7 +31,7 @@ const CheckoutPage = () => {
 
   // 繼續購買：跳轉到首頁
   const handleBackToHome = () => {
-    navigate(CLIENT_ROUTES.HOME);
+    navigate(`${CLIENT_ROUTES.HOME}#course-section`);
   };
 
   // 開始觀看 : 跳轉到我的學習頁面
