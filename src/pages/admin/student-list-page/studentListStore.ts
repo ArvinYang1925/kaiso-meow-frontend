@@ -13,12 +13,14 @@ interface StudentListPageState {
 }
 
 interface StudentListPageAction {
-  fetchStudentList: (page: number, pageSize: number) => void;
+  fetchStudentList: (page: number, pageSize: number) => Promise<void>;
   setIsShowDialog: (isShowDialog: boolean) => void;
   resetStore: () => void;
 }
 
-export const useStudentListStore = create<StudentListPageState & StudentListPageAction>()(
+export const useStudentListStore = create<
+  StudentListPageState & StudentListPageAction
+>()(
   immer((set) => ({
     studentList: [],
     pagination: DEFAULT_PAGINATION,
@@ -34,8 +36,8 @@ export const useStudentListStore = create<StudentListPageState & StudentListPage
           state.studentList = response.studentList;
           state.pagination = response.pagination;
         });
-      } catch (error) {
-        console.error("Failed to fetch data", error);
+      } catch {
+        // console.error("Failed to fetch data", error);
       } finally {
         set((state) => {
           state.isLoading = false;

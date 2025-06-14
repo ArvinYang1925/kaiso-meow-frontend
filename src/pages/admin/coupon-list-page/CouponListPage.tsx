@@ -7,10 +7,15 @@ import { useDialogStore } from "@/stores/commonDialogStore";
 import { useCommonModalStore } from "@/stores/commonModalStore";
 import { CreateCouponModal } from "./components/CreateCouponModal";
 import { getInteger } from "@/lib/priceHelper";
+import { Plus } from "lucide-react";
+import { useScreenLoading } from "@/components/common/useScreenLoading";
 
 export default function CouponListPage() {
   const { couponList, pagination, fetchCouponList, deleteCouponList } =
     useCouponListStore();
+
+  // 全螢幕 Loading
+  const { ScreenLoading, withLoading } = useScreenLoading();
 
   const { showCommonDialog } = useDialogStore();
   const { setIsShowModal } = useCommonModalStore();
@@ -32,26 +37,37 @@ export default function CouponListPage() {
       title: `${status}`,
       description: `${message}`,
     });
-    fetchCouponList(1, 10);
+
+    // 重新載入資料時也使用 withLoading
+    await withLoading(async () => {
+      await fetchCouponList(1, 10);
+    });
   };
 
   useEffect(() => {
-    fetchCouponList(pagination.currentPage, 10);
-  }, []);
+    const loadInitialData = async () => {
+      return withLoading(async () => {
+        await fetchCouponList(pagination.currentPage, 10);
+      });
+    };
+
+    loadInitialData();
+  }, [fetchCouponList, pagination.currentPage, withLoading]);
 
   return (
     <>
-      <div className="mt-8 px-8 w-full md:w-[1200px] mx-auto">
-        <h1 className="font-semibold text-3xl mb-16">折扣碼列表</h1>
-        <main className="mb-8">
-          <div className="table-header grid justify-items-end mb-4 pe-4">
-            <Button
-              className="bg-blue-500 hover:bg-blue-600"
-              onClick={() => setIsShowModal(true)}
-            >
-              新增折扣碼
-            </Button>
-          </div>
+      <div className="mt-8 px-4 w-full max-w-[1200px] mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="font-semibold text-2xl">折扣碼列表</h1>
+          <Button
+            className="bg-orange-600 hover:bg-orange-700 text-white"
+            onClick={() => setIsShowModal(true)}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            新增折扣碼
+          </Button>
+        </div>
+        <main className="mb-8 bg-white rounded-lg p-4">
           <TableWithPagination
             data={couponList}
             pagination={pagination}
@@ -76,6 +92,7 @@ export default function CouponListPage() {
                 <TableCell>{coupon.expiresAt}</TableCell>
                 <TableCell>
                   <Button
+                    size="sm"
                     className="bg-red-500 hover:bg-red-600"
                     onClick={() => handleDeleteCoupon(coupon.id)}
                   >
@@ -88,6 +105,8 @@ export default function CouponListPage() {
         </main>
       </div>
       <CreateCouponModal />
+      {/* 全螢幕 Loading */}
+      <ScreenLoading />
     </>
   );
 }
