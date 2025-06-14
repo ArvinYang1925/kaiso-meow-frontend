@@ -6,6 +6,8 @@ import CourseSidebar from "@/components/features/CourseSidebar";
 import SectionContent from "@/components/features/SectionContent";
 import { Section, CourseSection } from "@/types/course";
 import { learningService } from "@/services/learningService";
+// Remove hamburger icon import
+// import { Menu } from "lucide-react";
 
 const LearningPage: React.FC = () => {
   const { courseId, sectionId } = useParams<{
@@ -25,6 +27,12 @@ const LearningPage: React.FC = () => {
     percentage: 0,
   });
   // const [useHLSPlayer, setUseHLSPlayer] = useState(false);
+  // Remove sidebarOpen state and related logic
+  // const [sidebarOpen, setSidebarOpen] = useState(false);
+  // Add mobile tab state
+  const [mobileTab, setMobileTab] = useState<"section" | "description">(
+    "section"
+  );
 
   // Fetch course progress
   useEffect(() => {
@@ -243,15 +251,17 @@ const LearningPage: React.FC = () => {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <CourseSidebar
-        courseTitle={courseTitle}
-        currentSectionId={currentSection?.id || sectionId || ""}
-        sections={courseSections}
-        onSectionClick={handleSectionClick}
-        progress={courseProgress}
-      />
+    <div className="h-screen bg-gray-50 flex flex-col md:flex-row">
+      {/* Sidebar: Desktop only */}
+      <div className="hidden md:block h-full">
+        <CourseSidebar
+          courseTitle={courseTitle}
+          currentSectionId={currentSection?.id || sectionId || ""}
+          sections={courseSections}
+          onSectionClick={handleSectionClick}
+          progress={courseProgress}
+        />
+      </div>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -286,17 +296,95 @@ const LearningPage: React.FC = () => {
                   </div>
                 </div>
               )}
+
+            {/* Mobile Tabs below video */}
+            <div className="md:hidden bg-white border-b border-gray-200">
+              <div className="flex">
+                <button
+                  className={`flex-1 py-3 text-center font-medium border-b-2 transition-colors duration-150 ${
+                    mobileTab === "section"
+                      ? "border-gray-900 text-gray-900"
+                      : "border-transparent text-gray-500"
+                  }`}
+                  onClick={() => setMobileTab("section")}
+                >
+                  章節內容
+                </button>
+                <button
+                  className={`flex-1 py-3 text-center font-medium border-b-2 transition-colors duration-150 ${
+                    mobileTab === "description"
+                      ? "border-gray-900 text-gray-900"
+                      : "border-transparent text-gray-500"
+                  }`}
+                  onClick={() => setMobileTab("description")}
+                >
+                  章節說明
+                </button>
+              </div>
+            </div>
+
+            {/* Mobile Tab Content */}
+            <div className="md:hidden">
+              {mobileTab === "section" && (
+                <div className="bg-white border-b border-gray-100">
+                  {/* Render section list (CourseSidebar content, but mobile style) */}
+                  <div className="p-4">
+                    <h2 className="text-sm font-medium text-gray-900 mb-4">
+                      章節列表
+                    </h2>
+                    <div className="space-y-1">
+                      {courseSections.length > 0 ? (
+                        courseSections.map((section) => (
+                          <button
+                            key={section.id}
+                            onClick={() => handleSectionClick(section.id)}
+                            className={`w-full flex items-center gap-3 p-3 rounded-lg text-left text-sm transition-colors ${
+                              section.id === (currentSection?.id || sectionId)
+                                ? "bg-orange-50 text-orange-600"
+                                : "text-gray-700 hover:bg-gray-50"
+                            }`}
+                          >
+                            <span className="flex-1">{section.title}</span>
+                          </button>
+                        ))
+                      ) : (
+                        <div className="text-sm text-gray-500 text-center py-8">
+                          載入課程章節中...
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+              {mobileTab === "description" && (
+                <div className="bg-white p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    章節說明
+                  </h3>
+                  <div
+                    className="prose max-w-none text-gray-700"
+                    dangerouslySetInnerHTML={{
+                      __html: currentSection?.content || "",
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           </SectionContent>
         </div>
       </div>
 
       {/* Footer */}
-      <div className="fixed bottom-0 right-0 p-4 text-xs text-gray-500 bg-white">
-        <div className="flex items-center gap-2">
-          <span>© 2024 程式學院 All rights reserved</span>
-          <span>•</span>
-          <span>Powered By Kaiso</span>
-        </div>
+      <div className="hidden md:fixed md:bottom-0 md:right-0 md:p-4 md:text-xs md:text-gray-500 md:bg-white md:flex md:items-center md:gap-2">
+        <span>© 2024 程式學院 All rights reserved</span>
+        <span>•</span>
+        <span>Powered By Kaiso</span>
+      </div>
+      {/* Mobile Footer */}
+      <div className="md:hidden p-4 text-xs text-gray-500 bg-white flex items-center gap-2 justify-center">
+        <span>© 2024 程式學院 All rights reserved</span>
+        <span>•</span>
+        <span>Powered By Kaiso</span>
       </div>
     </div>
   );

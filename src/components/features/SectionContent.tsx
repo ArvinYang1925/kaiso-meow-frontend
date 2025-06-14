@@ -51,7 +51,7 @@ const SectionContent: React.FC<SectionContentProps> = ({
       {children}
 
       {/* Content */}
-      <div className="p-6">
+      <div className="hidden md:block p-6">
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900">章節說明</h3>
           <div
