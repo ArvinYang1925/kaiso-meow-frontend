@@ -13,12 +13,14 @@ interface InstructorOrderListPageState {
 }
 
 interface InstructorOrderListPageAction {
-  fetchOrderList: (page: number, pageSize: number) => void;
+  fetchOrderList: (page: number, pageSize: number) => Promise<void>;
   setIsShowDialog: (isShowDialog: boolean) => void;
   resetStore: () => void;
 }
 
-export const useInstructorOrderListStore = create<InstructorOrderListPageState & InstructorOrderListPageAction>()(
+export const useInstructorOrderListStore = create<
+  InstructorOrderListPageState & InstructorOrderListPageAction
+>()(
   immer((set) => ({
     orderList: [],
     pagination: DEFAULT_PAGINATION,
@@ -34,8 +36,8 @@ export const useInstructorOrderListStore = create<InstructorOrderListPageState &
           state.orderList = response.orderList;
           state.pagination = response.pagination;
         });
-      } catch (error) {
-        console.error("Failed to fetch data", error);
+      } catch {
+        // console.error("Failed to fetch data", error);
       } finally {
         set((state) => {
           state.isLoading = false;

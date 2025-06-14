@@ -34,7 +34,7 @@ const API_CONFIG = {
 // ============================
 
 /**
- * 統一的 API 錯誤處理函數 - 優先使用 API 回傳的錯誤訊息
+ * 統一的 API 錯誤處理函數
  */
 const handleApiError = <T>(
   error: unknown,
@@ -43,9 +43,9 @@ const handleApiError = <T>(
   // 如果是 AxiosError 且有 response
   if (error instanceof AxiosError && error.response?.data) {
     const responseData = error.response.data as ApiResponseModel<unknown>;
-    
+
     // 優先使用 API 回傳的標準格式
-    if (responseData && typeof responseData === 'object') {
+    if (responseData && typeof responseData === "object") {
       return {
         status: responseData.status || "error",
         message: responseData.message || defaultMessage,
@@ -54,7 +54,7 @@ const handleApiError = <T>(
     }
   }
 
-  // 如果是一般的 Error
+  // 一般的 Error
   if (error instanceof Error) {
     return {
       status: "error",
@@ -97,15 +97,21 @@ export const getInstructorRevenue = async (
       timeout: API_CONFIG.TIMEOUTS.REVENUE_REPORT,
     });
 
-    if (!response.data || typeof response.data !== 'object') {
+    if (!response.data || typeof response.data !== "object") {
       throw new Error("API 回應格式無效");
     }
 
-    if (!response.data.data?.revenueData || !Array.isArray(response.data.data.revenueData)) {
+    if (
+      !response.data.data?.revenueData ||
+      !Array.isArray(response.data.data.revenueData)
+    ) {
       throw new Error("API 回應缺少必要的收益數據");
     }
 
-    if (!response.data.data?.summary || typeof response.data.data.summary !== 'object') {
+    if (
+      !response.data.data?.summary ||
+      typeof response.data.data.summary !== "object"
+    ) {
       throw new Error("API 回應缺少必要的摘要數據");
     }
 
@@ -127,16 +133,16 @@ export const getInstructorCourses = async (): Promise<GetCoursesResponse> => {
       page: API_CONFIG.PAGINATION.DEFAULT_PAGE,
       pageSize: API_CONFIG.PAGINATION.MAX_COURSES_LIMIT,
     };
-    
+
     const response = await axios.get(API_CONFIG.ENDPOINTS.COURSES, {
       params,
       timeout: API_CONFIG.TIMEOUTS.COURSE_OPTIONS,
     });
-    
-    if (!response.data || typeof response.data !== 'object') {
+
+    if (!response.data || typeof response.data !== "object") {
       throw new Error("API 回應格式無效");
     }
-    
+
     return response.data;
   } catch (error: unknown) {
     return handleApiError<{
@@ -180,7 +186,7 @@ export const validateDateRange = (
 
   const today = new Date();
   today.setHours(23, 59, 59, 999);
-  
+
   if (endDate > today) {
     return {
       isValid: false,
@@ -215,7 +221,11 @@ export const validateDashboardForm = (
     errors.dateRange = dateValidation.error;
   }
 
-  const intervalValidation = validateIntervalForDateRange(startDate, endDate, interval);
+  const intervalValidation = validateIntervalForDateRange(
+    startDate,
+    endDate,
+    interval
+  );
   if (!intervalValidation.isValid) {
     errors.dateRange = intervalValidation.message;
   }
@@ -239,7 +249,8 @@ export const validateIntervalForDateRange = (
   interval: IntervalType
 ): { isValid: boolean; message?: string; suggestion?: string } => {
   const daysDiff = getDateRangeDays(startDate, endDate);
-  const rule: IntervalRule | undefined = VALIDATION_LIMITS.INTERVAL_RULES[interval];
+  const rule: IntervalRule | undefined =
+    VALIDATION_LIMITS.INTERVAL_RULES[interval];
 
   if (!rule) {
     return {
@@ -251,7 +262,9 @@ export const validateIntervalForDateRange = (
   if (daysDiff < rule.minDays) {
     return {
       isValid: false,
-      message: `日期範圍過短（${daysDiff} 天），不適合使用「${getIntervalLabel(interval)}」間隔`,
+      message: `日期範圍過短（${daysDiff} 天），不適合使用「${getIntervalLabel(
+        interval
+      )}」間隔`,
       suggestion: rule.suggestion,
     };
   }
@@ -259,7 +272,9 @@ export const validateIntervalForDateRange = (
   if (rule.maxDays !== Infinity && daysDiff > rule.maxDays) {
     return {
       isValid: false,
-      message: `日期範圍過長（${daysDiff} 天），不適合使用「${getIntervalLabel(interval)}」間隔`,
+      message: `日期範圍過長（${daysDiff} 天），不適合使用「${getIntervalLabel(
+        interval
+      )}」間隔`,
       suggestion: rule.suggestion,
     };
   }
@@ -293,11 +308,11 @@ export const formatDateForAPI = (date: Date): string => {
   if (!isValidDate(date)) {
     throw new Error("無效的日期格式");
   }
-  
+
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
   return `${year}-${month}-${day}`;
 };
 
@@ -349,7 +364,7 @@ export const formatGrowthRate = (
 // ============================
 
 /**
- * 安全的數字解析
+ * 數字解析
  */
 export const safeParseNumber = (
   value: unknown,
@@ -358,15 +373,15 @@ export const safeParseNumber = (
   if (typeof value === "number" && !isNaN(value)) {
     return value;
   }
-  
+
   if (typeof value === "string") {
     const trimmed = value.trim();
     if (trimmed === "") return defaultValue;
-    
+
     const parsed = parseFloat(trimmed);
     return isNaN(parsed) ? defaultValue : parsed;
   }
-  
+
   return defaultValue;
 };
 
@@ -396,9 +411,9 @@ export const calculateAverage = (values: number[]): number => {
   }
 
   const validValues = values
-    .map(v => safeParseNumber(v))
-    .filter(v => !isNaN(v));
-    
+    .map((v) => safeParseNumber(v))
+    .filter((v) => !isNaN(v));
+
   if (validValues.length === 0) {
     return 0;
   }
@@ -419,9 +434,9 @@ export const isApiResponseSuccess = <T>(
 ): response is ApiResponseModel<T> & { data: NonNullable<T> } => {
   return Boolean(
     response &&
-    response.status === "success" &&
-    response.data !== undefined &&
-    response.data !== null
+      response.status === "success" &&
+      response.data !== undefined &&
+      response.data !== null
   );
 };
 
@@ -452,14 +467,14 @@ export const createCacheKey = (params: RevenueQueryParamsModel): string => {
 };
 
 /**
- * 防抖函數 - 避免頻繁 API 呼叫
+ * 避免頻繁 API 呼叫
  */
 export const debounce = <T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number
 ): ((...args: Parameters<T>) => void) => {
   let timeout: NodeJS.Timeout;
-  
+
   return (...args: Parameters<T>) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => func(...args), wait);
@@ -473,7 +488,7 @@ export const getDateRangeDays = (startDate: Date, endDate: Date): number => {
   if (!isValidDate(startDate) || !isValidDate(endDate)) {
     return 0;
   }
-  
+
   const diffTime = endDate.getTime() - startDate.getTime();
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 };
