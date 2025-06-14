@@ -292,6 +292,7 @@ const LearningPage: React.FC = () => {
                       onProgress={handleVideoProgress}
                       onEnded={handleVideoEnded}
                       className="w-full"
+                      skipSeconds={10}
                     />
                   </div>
                 </div>
