@@ -136,7 +136,7 @@ export const useBreadcrumbStore = create<BreadcrumbState>((set) => ({
     },
   ],
   setBreadcrumbs: async (pathname: string, params: Params) => {
-    // 如果是變更密碼頁面，直接設定麵包屑
+    // 如果是變更密碼頁面
     if (pathname === ADMIN_ROUTES.CHANGE_PASSWORD) {
       set({
         items: [
@@ -157,90 +157,108 @@ export const useBreadcrumbStore = create<BreadcrumbState>((set) => ({
       return;
     }
 
-    // 如果是課程相關頁面，直接設定麵包屑
-    if (pathname.includes("/admin/courses/")) {
-      const courseId = params.courseId;
-      const pathSnippets = pathname.split("/").filter((i) => i);
-      const lastPath = pathSnippets[pathSnippets.length - 1];
-
-      // 根據課程 ID 獲取對應的課程名稱
-      let courseName = "課程";
-      if (courseId) {
-        try {
-          const courseData = await getCourseById(courseId);
-          courseName = courseData.title;
-        } catch (error) {
-          console.error("Error fetching course name:", error);
-          courseName = "課程";
-        }
-      }
-
-      const items = [
+    // 如果是課程相關頁面
+    if (pathname.includes("/admin/courses")) {
+      const items: BreadcrumbItem[] = [
         {
           path: "/admin",
           title: "管理後台",
         },
-        {
-          path: "/admin/courses",
-          title: "課程管理",
-        },
       ];
 
-      // 處理課程相關的麵包屑
-      if (courseId) {
-        // 根據最後的路徑片段決定如何處理麵包屑
-        switch (lastPath) {
-          case "create":
-            // 這是創建課程頁面，不需要課程名稱層級
-            items.push({
-              path: "/admin/courses/create",
-              title: "建立課程",
-            });
-            break;
+      // 處理創建課程頁面
+      if (pathname === ADMIN_ROUTES.CREATE_COURSE) {
+        items.push(
+          {
+            path: ADMIN_ROUTES.COURSES,
+            title: "課程管理",
+          },
+          {
+            path: ADMIN_ROUTES.CREATE_COURSE,
+            title: ROUTE_TITLES[ADMIN_ROUTES.CREATE_COURSE],
+          }
+        );
+        set({ items });
+        return;
+      }
 
-          case "info":
-            // 課程資訊頁面：課程名稱指向課程列表，然後顯示課程資訊
-            items.push({
-              path: "/admin/courses",
-              title: courseName,
-            });
-            items.push({
+      // 處理課程列表頁面
+      if (
+        pathname === ADMIN_ROUTES.COURSES ||
+        pathname === ADMIN_ROUTES.COURSELIST
+      ) {
+        items.push({
+          path: ADMIN_ROUTES.COURSES,
+          title: "課程管理",
+        });
+        set({ items });
+        return;
+      }
+
+      // 處理課程詳細頁面
+      const courseId = params.courseId;
+      if (courseId) {
+        try {
+          const courseData = await getCourseById(courseId);
+          const courseName = courseData.title;
+
+          // 添加課程管理
+          items.push({
+            path: ADMIN_ROUTES.COURSES,
+            title: "課程管理",
+          });
+
+          // 根據不同的子頁面添加對應的麵包屑
+          if (pathname.endsWith("/info")) {
+            items.push(
+              {
+                path: `/admin/courses/${courseId}/info`,
+                title: courseName,
+              },
+              {
+                path: `/admin/courses/${courseId}/info`,
+                title: "課程資訊",
+              }
+            );
+          } else if (pathname.endsWith("/sections")) {
+            items.push(
+              {
+                path: `/admin/courses/${courseId}/info`,
+                title: courseName,
+              },
+              {
+                path: `/admin/courses/${courseId}/sections`,
+                title: "章節管理",
+              }
+            );
+          } else if (pathname.endsWith("/publishing")) {
+            items.push(
+              {
+                path: `/admin/courses/${courseId}/info`,
+                title: courseName,
+              },
+              {
+                path: `/admin/courses/${courseId}/publishing`,
+                title: "發佈/下架",
+              }
+            );
+          }
+        } catch (error) {
+          console.error("Error fetching course name:", error);
+          items.push(
+            {
+              path: ADMIN_ROUTES.COURSES,
+              title: "課程管理",
+            },
+            {
+              path: `/admin/courses/${courseId}/info`,
+              title: "課程",
+            },
+            {
               path: `/admin/courses/${courseId}/info`,
               title: "課程資訊",
-            });
-            break;
-
-          case "sections":
-            // 章節管理頁面：課程名稱指向課程資訊頁面，然後顯示當前頁面
-            items.push({
-              path: `/admin/courses/${courseId}/info`,
-              title: courseName,
-            });
-            items.push({
-              path: `/admin/courses/${courseId}/sections`,
-              title: "章節管理",
-            });
-            break;
-
-          case "publishing":
-            // 發佈管理頁面：課程名稱指向課程資訊頁面，然後顯示當前頁面
-            items.push({
-              path: `/admin/courses/${courseId}/info`,
-              title: courseName,
-            });
-            items.push({
-              path: `/admin/courses/${courseId}/publishing`,
-              title: "發佈/下架",
-            });
-            break;
-
-          default:
-            // 如果是課程根頁面或其他情況，預設跳轉到 info
-            items.push({
-              path: `/admin/courses/${courseId}/info`,
-              title: courseName,
-            });
-            break;
+            }
+          );
         }
       }
 
@@ -248,7 +266,7 @@ export const useBreadcrumbStore = create<BreadcrumbState>((set) => ({
       return;
     }
 
-    // 處理一般路由
+    // 處理其他一般路由
     const pathSnippets = pathname.split("/").filter((i) => i);
     const items: BreadcrumbItem[] = [
       {
@@ -263,7 +281,12 @@ export const useBreadcrumbStore = create<BreadcrumbState>((set) => ({
 
       if (config) {
         const routeItems = processRoute(pathSnippets, params, config);
-        items.push(...routeItems);
+        // 確保不添加重複的項目
+        routeItems.forEach((item) => {
+          if (!items.some((existing) => existing.path === item.path)) {
+            items.push(item);
+          }
+        });
       } else {
         const currentPath = `/${pathSnippets.join("/")}`;
         const title = ROUTE_TITLES[currentPath as keyof typeof ROUTE_TITLES];
@@ -276,13 +299,7 @@ export const useBreadcrumbStore = create<BreadcrumbState>((set) => ({
       }
     }
 
-    // 確保麵包屑項目是唯一的
-    const uniqueItems = items.filter(
-      (item, index, self) =>
-        index === self.findIndex((t) => t.path === item.path)
-    );
-
-    set({ items: uniqueItems });
+    set({ items });
   },
   getBreadcrumbItems: async (
     pathname: string,

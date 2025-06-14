@@ -54,6 +54,8 @@ import LearningPage from "@/pages/student/learning-page/LearningPage";
 import DashboardPage from "@/pages/admin/dashboard-page/DashboardPage";
 /** 我的學習頁面 */
 import MyLearningPage from "@/pages/student/my-learning-page/MyLearningPage";
+/** 前台課程列表頁面 */
+import CourseListPage from "@/pages/student/course-list-page/CourseListPage";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -163,6 +165,11 @@ function App() {
                 <OrderPage />
               </ProtectedRoute>
             }
+          />
+
+          <Route
+            path={CLIENT_ROUTES.COURSE_LIST}
+            element={<CourseListPage />}
           />
 
           <Route
