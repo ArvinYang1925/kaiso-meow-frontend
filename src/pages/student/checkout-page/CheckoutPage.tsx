@@ -36,7 +36,7 @@ const CheckoutPage = () => {
 
   // 開始觀看 : 跳轉到我的學習頁面
   const handleStartWatching = () => {
-    navigate(CLIENT_ROUTES.MY_LEARNING);
+    navigate(`/my-learning/${courseData.id}/section/first`);
   };
 
   // 重新下單: 跳轉到訂單預覽頁面 
