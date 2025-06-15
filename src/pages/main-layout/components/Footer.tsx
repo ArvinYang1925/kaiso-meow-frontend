@@ -11,7 +11,7 @@ export const Footer = () => {
           <div className="flex flex-row justify-between items-center h-[136px]">
             <div className="flex items-center">
               <LOGO className="w-[154px] mr-4" />
-              <a
+              {/* <a
                 href="/faq"
                 className="ml-12 text-slate-600 hover:text-orange-600 font-medium"
               >
@@ -22,7 +22,7 @@ export const Footer = () => {
                 className="ml-12 text-slate-600 hover:text-orange-600 font-medium"
               >
                 聯絡我們
-              </a>
+              </a> */}
             </div>
             <div className="text-right text-slate-500 text-base font-normal">
               © 2025 程式喵學院 All rights reserved
@@ -43,7 +43,7 @@ export const Footer = () => {
           {/* 第一層 */}
           <div className="flex flex-col items-center justify-center mt-12 mb-8">
             <LOGO className="w-[154px] mr-4" />
-            <div className="flex items-center space-x-12 mt-4">
+            {/* <div className="flex items-center space-x-12 mt-4">
               <a
                 href="/faq"
                 className="text-slate-600 hover:text-orange-600 font-medium"
@@ -56,7 +56,7 @@ export const Footer = () => {
               >
                 聯絡我們
               </a>
-            </div>
+            </div> */}
           </div>
           {/* 分隔線 */}
           <hr className="border-t border-gray-200 w-screen relative left-1/2 right-1/2 -translate-x-1/2 md:w-auto md:relative md:left-0 md:right-0 md:translate-x-0" />

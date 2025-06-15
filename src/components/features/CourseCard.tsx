@@ -14,7 +14,7 @@ interface CourseCardProps {
 export const CourseCard: React.FC<CourseCardProps> = ({
   id,
   title,
-  // instructorName,
+  instructorName,
   coverUrl,
   price,
 }) => {
@@ -39,7 +39,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({
           <Avatar className="cursor-pointer p-1 ring-1 ring-gray-300 me-2">
             <AvatarImage className="scale-x-[-1]" src={logo} />
           </Avatar>
-          <h5>程式喵</h5>
+          <h5>{instructorName}</h5>
         </div>
 
         {/* 價格與按鈕 */}

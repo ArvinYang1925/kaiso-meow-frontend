@@ -17,7 +17,8 @@ export default defineConfig({
     strictPort: true, // 如果端口被占用，則不自動切換到其他端口
     proxy: {
       '/api': {
-        target: 'http://localhost:3000', //後端啟動的 port
+        // target: 'http://localhost:3000', //後端啟動的 port
+        target: 'https://kaiso-meow-frontend.onrender.com',
         changeOrigin: true,
         secure: false,
         ws: true

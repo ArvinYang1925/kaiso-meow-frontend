@@ -53,10 +53,10 @@ const NewsletterComponent: React.FC = () => {
           <img src={newsletterCat} className="w-[96px] h-[87px] mb-6" />
           <div className="text-content text-white space-y-2">
             <div className="title">
-              <h1 className="font-medium text-[48px]">
+              <h1 className="font-medium text-[24px] md:text-[48px]">
                 免費加入 12000+ 人訂閱的
               </h1>
-              <h1 className="font-medium text-[48px]">「程式喵月報」</h1>
+              <h1 className="font-medium text-[24px] md:text-[48px]">「程式喵月報」</h1>
             </div>
 
             <p>每個月，寄送ㄧ則簡潔有力的喵報給你，</p>
