@@ -1,33 +1,30 @@
-import { execSync } from "child_process";
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
-// Node.js 18+ 內建支援 fetch，無需安裝 node-fetch
-// 若你使用的是 Node.js < 18，請安裝並改為：import fetch from "node-fetch"
-
-const commit = execSync("git rev-parse --short HEAD").toString().trim();
-const message = execSync("git log -1 --pretty=%B").toString().trim();
-
-const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
-const projectName = process.env.PROJECT_NAME || "React App";
-
-const content = `🌐 **${projectName} 前端部署成功**\n✅ Commit: \`${commit}\`\n📝 ${message}`;
-
-if (!webhookUrl) {
-  console.log("❗ DISCORD_WEBHOOK_URL 未設定，略過通知");
-  process.exit(0);
-}
-
-try {
-  const res = await fetch(webhookUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ content }),
-  });
-
-  if (!res.ok) {
-    throw new Error(`HTTP ${res.status}: ${await res.text()}`);
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  css: {
+    postcss: './postcss.config.js',
+  },
+  resolve: {
+    alias: {
+      '@': '/src',  // 確保這裡指向了 src 目錄
+    },
+  },
+  server: {
+    port: 5173, //前端啟動的 port (需要有被後端加入白名單)
+    strictPort: true, // 如果端口被占用，則不自動切換到其他端口
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000', //後端啟動的 port
+        changeOrigin: true,
+        secure: false,
+        ws: true
+      }
+    }
+  },
+  define: {
+    'process.env.VITE_API_URL': JSON.stringify(process.env.API_URL)
   }
-
-  console.log("✅ Discord 通知已發送");
-} catch (err) {
-  console.error("❌ 發送 Discord 通知失敗:", err);
-}
+})
