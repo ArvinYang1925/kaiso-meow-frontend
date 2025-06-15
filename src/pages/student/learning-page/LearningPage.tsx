@@ -6,6 +6,7 @@ import CourseSidebar from "@/components/features/CourseSidebar";
 import SectionContent from "@/components/features/SectionContent";
 import { Section, CourseSection } from "@/types/course";
 import { learningService } from "@/services/learningService";
+import { CheckCircle } from "lucide-react";
 // Remove hamburger icon import
 // import { Menu } from "lucide-react";
 
@@ -167,9 +168,9 @@ const LearningPage: React.FC = () => {
   };
 
   const handleNext = async () => {
-    if (currentSection?.nextSection && courseId && sectionId) {
+    if (courseId && sectionId && currentSection) {
       try {
-        // Mark current section as complete before navigating
+        // Mark current section as complete
         await learningService.markSectionAsComplete(courseId, sectionId);
 
         // Update course progress after marking as complete
@@ -185,12 +186,24 @@ const LearningPage: React.FC = () => {
           });
         }
 
-        // Navigate to next section
-        handleSectionClick(currentSection.nextSection.id);
+        // Navigate to next section if exists, otherwise stay on current section
+        if (currentSection.nextSection) {
+          handleSectionClick(currentSection.nextSection.id);
+        } else {
+          // This is the last section - show completion message and redirect to learning center
+          const shouldRedirect = window.confirm(
+            "恭喜！您已完成整個課程！\n\n點擊確定返回學習中心，點擊取消留在當前頁面。"
+          );
+          if (shouldRedirect) {
+            navigate("/my-learning");
+          }
+        }
       } catch (error) {
         console.error("Error marking section as complete:", error);
-        // Still navigate to next section even if marking as complete fails
-        handleSectionClick(currentSection.nextSection.id);
+        // Still navigate to next section if it exists, even if marking as complete fails
+        if (currentSection.nextSection) {
+          handleSectionClick(currentSection.nextSection.id);
+        }
       }
     }
   };
@@ -271,6 +284,8 @@ const LearningPage: React.FC = () => {
             section={currentSection}
             onPrevious={handlePrevious}
             onNext={handleNext}
+            courseTitle={courseTitle}
+            courseProgress={courseProgress}
           >
             {/* Video Player - Only show if video exists */}
             {currentSection &&
@@ -332,7 +347,7 @@ const LearningPage: React.FC = () => {
                   <div className="p-4 border-b border-gray-100">
                     <div className="flex gap-2">
                       <button
-                        onClick={() => (window.location.href = "/")}
+                        onClick={() => navigate("/")}
                         className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
                       >
                         <svg
@@ -351,7 +366,7 @@ const LearningPage: React.FC = () => {
                         首頁
                       </button>
                       <button
-                        onClick={() => (window.location.href = "/my-learning")}
+                        onClick={() => navigate("/my-learning")}
                         className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
                       >
                         <svg
@@ -389,7 +404,12 @@ const LearningPage: React.FC = () => {
                                 : "text-gray-700 hover:bg-gray-50"
                             }`}
                           >
-                            <span className="flex-1">{section.title}</span>
+                            <div className="flex items-center gap-2 flex-1">
+                              {section.isCompleted && (
+                                <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                              )}
+                              <span className="flex-1">{section.title}</span>
+                            </div>
                           </button>
                         ))
                       ) : (
@@ -421,13 +441,13 @@ const LearningPage: React.FC = () => {
 
       {/* Footer */}
       <div className="hidden md:fixed md:bottom-0 md:right-0 md:p-4 md:text-xs md:text-gray-500 md:bg-white md:flex md:items-center md:gap-2">
-        <span>© 2024 程式學院 All rights reserved</span>
+        <span>© 2025 程式學院 All rights reserved</span>
         <span>•</span>
         <span>Powered By Kaiso</span>
       </div>
       {/* Mobile Footer */}
       <div className="md:hidden p-4 text-xs text-gray-500 bg-white flex items-center gap-2 justify-center">
-        <span>© 2024 程式學院 All rights reserved</span>
+        <span>© 2025 程式學院 All rights reserved</span>
         <span>•</span>
         <span>Powered By Kaiso</span>
       </div>

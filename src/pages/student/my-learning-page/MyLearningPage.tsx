@@ -46,7 +46,7 @@ const MyLearningPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-8 min-h-[60vh]">
         <h1 className="text-2xl font-bold mb-8">我的學習</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
           {[1, 2, 3].map((i) => (
@@ -68,7 +68,7 @@ const MyLearningPage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-8 min-h-[60vh]">
         <h1 className="text-2xl font-bold mb-8">我的學習</h1>
         <div className="text-center py-12">
           <h2 className="text-xl font-semibold text-red-600 mb-2">載入失敗</h2>
@@ -85,7 +85,7 @@ const MyLearningPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 min-h-[60vh]">
       <h1 className="text-2xl font-bold mb-8">我的學習</h1>
 
       {courses.length === 0 ? (
