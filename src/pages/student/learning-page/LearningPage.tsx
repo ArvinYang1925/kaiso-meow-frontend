@@ -347,7 +347,7 @@ const LearningPage: React.FC = () => {
                   <div className="p-4 border-b border-gray-100">
                     <div className="flex gap-2">
                       <button
-                        onClick={() => (window.location.href = "/")}
+                        onClick={() => navigate("/")}
                         className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
                       >
                         <svg
@@ -366,7 +366,7 @@ const LearningPage: React.FC = () => {
                         首頁
                       </button>
                       <button
-                        onClick={() => (window.location.href = "/my-learning")}
+                        onClick={() => navigate("/my-learning")}
                         className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
                       >
                         <svg
@@ -441,13 +441,13 @@ const LearningPage: React.FC = () => {
 
       {/* Footer */}
       <div className="hidden md:fixed md:bottom-0 md:right-0 md:p-4 md:text-xs md:text-gray-500 md:bg-white md:flex md:items-center md:gap-2">
-        <span>© 2024 程式學院 All rights reserved</span>
+        <span>© 2025 程式學院 All rights reserved</span>
         <span>•</span>
         <span>Powered By Kaiso</span>
       </div>
       {/* Mobile Footer */}
       <div className="md:hidden p-4 text-xs text-gray-500 bg-white flex items-center gap-2 justify-center">
-        <span>© 2024 程式學院 All rights reserved</span>
+        <span>© 2025 程式學院 All rights reserved</span>
         <span>•</span>
         <span>Powered By Kaiso</span>
       </div>
