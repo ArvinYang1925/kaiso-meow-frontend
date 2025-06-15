@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ADMIN_ROUTES, PUBLIC_ROUTES } from "@/app/route-path";
 import {
   ChevronDown,
@@ -27,23 +27,41 @@ import {
   DropdownMenuPortal,
 } from "@radix-ui/react-dropdown-menu";
 import { useNavigate, useParams } from "react-router-dom";
-import AvatarUser03 from "@/assets/homepage/avatar_user03.jpg";
 import CatschooLogo from "@/assets/catschool_logo.jpg";
+import { useInstructorProfileStore } from "@/pages/admin/instructor-info-page/stores/instructorInfoStore";
 
 interface AdminSidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
 }
 
+// 新增預設頭像常數
+const DEFAULT_AVATAR =
+  "https://storage.googleapis.com/kaiso-meow-backend.firebasestorage.app/images/instructor_avatar/instructor-59f470c5-cae0-4053-a168-3de51253e470-1748317241181.png";
+
 export default function AdminSidebar({
   isOpen = true,
   onClose,
 }: AdminSidebarProps) {
   const [courseOpen, setCourseOpen] = useState(false);
-  const { userInfo, logout } = useAuthStore();
+  const { logout } = useAuthStore();
 
   const navigate = useNavigate();
   const { courseId } = useParams();
+  const { profile, avatarPreview, fetchProfile } = useInstructorProfileStore();
+
+  // 初始化載入講師資料
+  useEffect(() => {
+    const initializeProfile = async () => {
+      try {
+        await fetchProfile();
+      } catch (error) {
+        console.error("Failed to fetch instructor profile:", error);
+      }
+    };
+
+    initializeProfile();
+  }, [fetchProfile]);
 
   const handleLogout = () => {
     logout();
@@ -119,15 +137,17 @@ export default function AdminSidebar({
         <div className="md:hidden p-4 border-b flex items-center gap-3 bg-slate-50">
           <div className="shrink-0">
             <img
-              src={AvatarUser03}
+              src={avatarPreview}
               alt="User Avatar"
               className="h-10 w-10 rounded-full object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = DEFAULT_AVATAR;
+              }}
             />
           </div>
           <div className="flex flex-col flex-1 min-w-0">
-            <div className="text-sm font-medium truncate">
-              {userInfo ? userInfo.email : ""}
-            </div>
+            <div className="text-sm font-medium truncate">{profile.email}</div>
             <div className="text-xs text-gray-500 truncate">
               講師 / 學院擁有者
             </div>
@@ -241,17 +261,19 @@ export default function AdminSidebar({
           {/* Avatar */}
           <div className="shrink-0">
             <img
-              src={AvatarUser03}
+              src={avatarPreview}
               alt="User Avatar"
               className="h-10 w-10 rounded-full object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = DEFAULT_AVATAR;
+              }}
             />
           </div>
 
           {/* Email & Role */}
           <div className="flex flex-col flex-1 min-w-0">
-            <div className="text-sm font-medium truncate">
-              {userInfo ? userInfo.email : ""}
-            </div>
+            <div className="text-sm font-medium truncate">{profile.email}</div>
             <div className="text-xs text-gray-500 truncate">
               講師 / 學院擁有者
             </div>
