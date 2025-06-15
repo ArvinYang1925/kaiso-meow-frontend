@@ -8,9 +8,12 @@ import {
   updateSectionPublishedStatus,
   updateSectionOrder,
   deleteVideo,
-  fetchVideoStatus
+  fetchVideoStatus,
+  createAiSectionsDraft,
+  batchCreateSection
 } from "../services/section-management.service";
 import {
+  CreateAiSectionDraftRequestModel,
   CreateSectionRequestModel,
   Section,
   SectionOrder,
@@ -25,6 +28,7 @@ import { ApiDataResponse } from "@/services/types";
 
 interface SectionManagementState {
   sectionList: Section[];
+  aiSectionList: Section[];
   section: Section;
   currentSectionId: string;
   video: Video;
@@ -68,12 +72,19 @@ interface SectionManagementAction {
   setVideoFileName: (fileName: string) => void;
   setIsShowVideoStatusModal: (isShowModal: boolean) => void;
   setIsShowAiSectionGeneratorModal: (isShowModal: boolean) => void;
+  createAiSectionsDraft: (courseId: string, data: CreateAiSectionDraftRequestModel) => void;
+  batchCreateSection: (courseId: string, data: CreateSectionRequestModel[]) => void;
+  setAiDraftSection: (index: number, field: keyof Section, value: string) => void;
+  addAiDraftSection: () => void;
+  removeAiDraftSection: (index: number) => void;
+  clearAiSectionList: () => void;
 }
 
 export const useSectionManagementStore = create<
   SectionManagementState & SectionManagementAction
 >()(
   immer((set) => ({
+    aiSectionList: [],
     sectionList: [],
     section: {
       id: "",
@@ -265,6 +276,43 @@ export const useSectionManagementStore = create<
         });
       }
     },
+    createAiSectionsDraft: async (courseId, data) => {
+      set((state) => {
+        state.isLoading = true;
+      });
+      try {
+        const response = await createAiSectionsDraft(courseId, data);
+        const { sections } = response || {}
+        set((state) => {
+          state.aiSectionList = sections;
+        });
+      } catch (error) {
+        console.log('error in createAiSectionsDraft', error)
+        throw error;
+      } finally {
+        set((state) => {
+          state.isLoading = false;
+        });
+      }
+    },
+    batchCreateSection: async (courseId, data) => {
+      set((state) => {
+        state.isLoading = true;
+      });
+      try {
+        const response = await batchCreateSection(courseId, data);
+        set((state) => {
+          state.sectionList = response;
+        });
+      } catch (error) {
+        console.log('error in batchCreateSection', error)
+        throw error;
+      } finally {
+        set((state) => {
+          state.isLoading = false;
+        });
+      }
+    },
     setIsShowCreateSectionModal: (isShowCreateModal) => {
       set((state) => {
         state.isShowCreateSectionModal = isShowCreateModal;
@@ -310,5 +358,20 @@ export const useSectionManagementStore = create<
         state.currentSectionId = sectionId;
       });
     },
+    setAiDraftSection: (index, field, value) =>
+      set((state) => {
+        const updated = [...state.aiSectionList];
+        updated[index] = { ...updated[index], [field]: value };
+        return { aiSectionList: updated };
+      }),
+    clearAiSectionList: () => set(() => ({ aiSectionList: [] })),
+    addAiDraftSection: () =>
+      set((state) => ({
+        aiSectionList: [...state.aiSectionList, { title: "", content: "" }],
+      })),
+    removeAiDraftSection: (index) =>
+      set((state) => ({
+        aiSectionList: state.aiSectionList.filter((_, i) => i !== index),
+      })),
   }))
 );

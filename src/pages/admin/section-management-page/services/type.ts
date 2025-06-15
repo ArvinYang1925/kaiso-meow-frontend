@@ -51,3 +51,8 @@ export type VideoStatus = {
     videoUrl: null | string;
     errorType?: "transcode" | "upload" | "unknown";
 }
+
+export type AiSectionDraftResponse = {
+    count: number;
+    sections: Section[]
+}
