@@ -29,9 +29,9 @@ const CheckoutPage = () => {
     }
   }, [orderId]);
 
-  // 繼續購買：跳轉到首頁
+  // 繼續購買：跳轉到課程列表
   const handleBackToHome = () => {
-    navigate(`${CLIENT_ROUTES.HOME}#course-section`);
+    navigate(CLIENT_ROUTES.COURSE_LIST);
   };
 
   // 開始觀看 : 跳轉到我的學習頁面
