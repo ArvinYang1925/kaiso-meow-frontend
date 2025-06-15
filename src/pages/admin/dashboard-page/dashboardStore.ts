@@ -400,7 +400,7 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
           state.updateState.lastUpdated = new Date();
         });
 
-        showSuccessToast("儀表板載入完成", "數據已成功載入");
+        // showSuccessToast("儀表板載入完成", "數據已成功載入");
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : "初始化失敗";
@@ -413,7 +413,7 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
           };
         });
 
-        showErrorToast("載入失敗", "無法初始化儀表板，請重新整理頁面");
+        // showErrorToast("載入失敗", "無法初始化儀表板，請重新整理頁面");
       } finally {
         set((state) => {
           state.isLoading = false;
