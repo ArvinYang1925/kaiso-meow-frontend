@@ -1,4 +1,8 @@
+import { config } from 'dotenv';
 import { execSync } from "child_process";
+
+// 載入 .env 文件
+config();
 
 // Node.js 18+ 內建支援 fetch，無需安裝 node-fetch
 // 若你使用的是 Node.js < 18，請安裝並改為：import fetch from "node-fetch"
