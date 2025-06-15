@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   ChevronRight,
   PlayCircle,
@@ -29,12 +30,14 @@ const CourseSidebar: React.FC<CourseSidebarProps> = ({
   onSectionClick,
   progress,
 }) => {
+  const navigate = useNavigate();
+
   const handleHomeClick = () => {
-    window.location.href = "/";
+    navigate("/");
   };
 
   const handleLearningCenterClick = () => {
-    window.location.href = "/my-learning";
+    navigate("/my-learning");
   };
 
   return (
