@@ -10,6 +10,7 @@ interface VideoPlayerProps {
   className?: string;
   onProgress?: (currentTime: number, duration: number) => void;
   onEnded?: () => void;
+  skipSeconds?: number;
 }
 
 const VideoPlayer: React.FC<VideoPlayerProps> = ({
@@ -18,6 +19,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   className = "",
   onProgress,
   onEnded,
+  skipSeconds = 10,
 }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const playerRef = useRef<Player | null>(null);
@@ -39,6 +41,29 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
     return "video/mp4"; // default fallback
   };
+
+  // Skip forward function
+  const skipForward = useCallback(() => {
+    if (playerRef.current && !playerRef.current.isDisposed()) {
+      const currentTime = playerRef.current.currentTime();
+      const duration = playerRef.current.duration();
+      if (typeof currentTime === "number" && typeof duration === "number") {
+        const newTime = Math.min(currentTime + skipSeconds, duration);
+        playerRef.current.currentTime(newTime);
+      }
+    }
+  }, [skipSeconds]);
+
+  // Skip backward function
+  const skipBackward = useCallback(() => {
+    if (playerRef.current && !playerRef.current.isDisposed()) {
+      const currentTime = playerRef.current.currentTime();
+      if (typeof currentTime === "number") {
+        const newTime = Math.max(currentTime - skipSeconds, 0);
+        playerRef.current.currentTime(newTime);
+      }
+    }
+  }, [skipSeconds]);
 
   // Stable cleanup function
   const cleanupPlayer = useCallback(() => {
@@ -227,17 +252,95 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     };
   }, [cleanupPlayer]);
 
+  // Add keyboard event listeners for skip functionality
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.target && (event.target as HTMLElement).tagName === "INPUT") {
+        return; // Don't interfere with input fields
+      }
+
+      switch (event.key) {
+        case "ArrowLeft":
+          event.preventDefault();
+          skipBackward();
+          break;
+        case "ArrowRight":
+          event.preventDefault();
+          skipForward();
+          break;
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [skipForward, skipBackward]);
+
   return (
-    <div data-vjs-player className="w-full">
+    <div data-vjs-player className="w-full relative">
       {src ? (
-        <video
-          ref={videoRef}
-          className={`video-js vjs-default-skin vjs-big-play-centered w-full ${className}`}
-          controls
-          preload="auto"
-          data-setup="{}"
-          crossOrigin="anonymous"
-        />
+        <>
+          <video
+            ref={videoRef}
+            className={`video-js vjs-default-skin vjs-big-play-centered w-full ${className}`}
+            controls
+            preload="auto"
+            data-setup="{}"
+            crossOrigin="anonymous"
+          />
+
+          {/* Skip buttons overlay */}
+          <div className="absolute inset-0 pointer-events-none flex items-center justify-between px-4">
+            {/* Skip backward button */}
+            <button
+              onClick={skipBackward}
+              className="video-skip-button pointer-events-auto"
+              title={`Skip backward ${skipSeconds} seconds`}
+              aria-label={`Skip backward ${skipSeconds} seconds`}
+            >
+              <div className="flex items-center justify-center w-8 h-8">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"
+                    fill="currentColor"
+                  />
+                </svg>
+                <span className="text-xs font-bold ml-1">{skipSeconds}</span>
+              </div>
+            </button>
+
+            {/* Skip forward button */}
+            <button
+              onClick={skipForward}
+              className="video-skip-button pointer-events-auto"
+              title={`Skip forward ${skipSeconds} seconds`}
+              aria-label={`Skip forward ${skipSeconds} seconds`}
+            >
+              <div className="flex items-center justify-center w-8 h-8">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"
+                    fill="currentColor"
+                  />
+                </svg>
+                <span className="text-xs font-bold ml-1">{skipSeconds}</span>
+              </div>
+            </button>
+          </div>
+        </>
       ) : (
         <div className="flex items-center justify-center h-64 bg-gray-900 text-white">
           <div className="text-center">
