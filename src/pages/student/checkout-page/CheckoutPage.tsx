@@ -109,7 +109,7 @@ const CheckoutPage = () => {
     const leftButton = (
       <Button 
         variant="default" 
-        className="px-4 py-2 h-9 text-sm bg-gray-600 hover:bg-gray-700 w-[30%] text-white"
+        className="h-9 text-sm bg-gray-600 hover:bg-gray-700 w-full md:w-[30%] text-white"
         onClick={handleBackToHome}
       >
         繼續購買
@@ -124,7 +124,7 @@ const CheckoutPage = () => {
         rightButton = (
           <Button 
             variant="default" 
-            className="px-2 py-2 h-9 text-sm bg-orange-600 hover:bg-orange-700 w-[30%] text-white"
+            className="h-9 text-sm bg-orange-600 hover:bg-orange-700 w-full md:w-[30%] text-white"
             onClick={handleStartWatching}
           >
             開始觀看
@@ -135,7 +135,7 @@ const CheckoutPage = () => {
         rightButton = (
           <Button 
             variant="default" 
-            className="px-4 py-2 h-9 text-sm bg-orange-500 hover:bg-orange-600 w-[30%] text-white"
+            className="px-4 py-2 h-9 text-sm bg-orange-500 hover:bg-orange-600 w-full md:w-[30%] text-white"
             onClick={handleRebuy}
           >
             重新下單
@@ -146,7 +146,7 @@ const CheckoutPage = () => {
         rightButton = (
           <Button 
             variant="default" 
-            className="px-4 py-2 h-9 text-sm bg-orange-500 hover:bg-orange-600 w-[30%] text-white"
+            className="px-4 py-2 h-9 text-sm bg-orange-500 hover:bg-orange-600 w-full md:w-[30%] text-white"
             onClick={() => handleRepay(orderData.id)}
           >
             重新付款
