@@ -39,10 +39,15 @@ const UploadVideoDropzoneSection = () => {
         setVideoFileName(file.name);
         try {
           const response = await createVideo(section.id, file);
+
+          console.log('response in upload video dropzone section', response)
+
           setIsShowUploadVideoModal(false);
           setIsShowEditVideoModal(false);
 
           const { data } = response.data;
+
+            console.log('data in upload video dropzone section', data)
 
           addVideo(data);
 
