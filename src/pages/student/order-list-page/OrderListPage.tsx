@@ -78,7 +78,7 @@ export default function OrderListPage() {
             renderRow={(order) => (
               <>
                 <TableCell>{order.title}</TableCell>
-                <TableCell>{Math.floor(order.orderPrice)}</TableCell>
+                <TableCell>{Math.floor(order.orderPrice).toLocaleString()}</TableCell>
                 <TableCell>{order.paidAt}</TableCell>
                 <TableCell>{order.status}</TableCell>
                 <TableCell>

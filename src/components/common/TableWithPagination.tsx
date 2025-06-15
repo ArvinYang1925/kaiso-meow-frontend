@@ -36,12 +36,12 @@ export function TableWithPagination<T>({
     <div className="space-y-4">
       <Table className="h-[24rem]">
         <TableHeader>
-          <TableRow>{columns}</TableRow>
+          <TableRow className="text-nowrap">{columns}</TableRow>
         </TableHeader>
         <TableBody>
           {data.length > 0
             ? data.map((item, index) => (
-                <TableRow key={index}>{renderRow(item)}</TableRow>
+                <TableRow className="text-nowrap" key={index}>{renderRow(item)}</TableRow>
               ))
             : Array.from({ length: skeletonRowCount }).map((_, rowIndex) => (
                 <tr key={`skeleton-${rowIndex}`} className="border-b">
