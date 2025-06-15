@@ -19,7 +19,8 @@ import {
   Video,
   VideoStatus,
 } from "../services/type";
-import axios, { AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
+import axios from "@/services/axiosInstance"; //很重要，這邊必須確認呼叫到的是 axiosInstance!!
 import { ApiDataResponse } from "@/services/types";
 
 interface SectionManagementState {
