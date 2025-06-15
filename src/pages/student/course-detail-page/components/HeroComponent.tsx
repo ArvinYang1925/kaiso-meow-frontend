@@ -6,7 +6,7 @@ const HeroComponent = () => {
   const { courseDetail } = useCourseDetailStore();
 
   return (
-    <div className="mt-16">
+    <div className="mt-16 hidden sm:block">
       <div className="relative w-full h-[596px] overflow-hidden">
         {/* 背景圖模糊 */}
         <img

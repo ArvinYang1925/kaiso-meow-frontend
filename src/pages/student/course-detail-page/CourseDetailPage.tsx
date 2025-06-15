@@ -80,8 +80,29 @@ const CourseDetailPage = () => {
   return (
     <div className="mt-16">
       <HeroComponent />
-      <div className="container py-20 flex gap-12">
-        <div className="text-section basis-2/3 space-y-18">
+   <div className="container py-10 md:py-20 flex flex-col lg:flex-row gap-12">
+        <div className="card-section order-1 lg:order-2 w-full lg:basis-1/3">
+          <Card className="p-6 space-y-4">
+            <img src={courseDetail?.coverUrl} className="rounded-lg" alt="" />
+            <p className="price text-orange-500 font-medium text-2xl">
+              NT$ {courseDetail.price.toLocaleString()}
+            </p>
+            <div className="text-base">
+              <p>本課程包含以下內容</p>
+              <ul className="text-slate-500 list-disc ps-4">
+                <li>課程長度約 {courseDetail.duration} 小時</li>
+              </ul>
+            </div>
+            <Button
+              className="w-full bg-orange-600 hover:bg-orange-500"
+              onClick={handleCreatePreviewOrder}
+            >
+              立即購買
+            </Button>
+          </Card>
+        </div>
+
+        <div className="text-section order-2 lg:order-1 w-full lg:basis-2/3 space-y-18">
           <Tabs
             defaultValue="courseIntro"
             className="w-full mb-18 text-sm border-b border-slate-200"
@@ -137,27 +158,6 @@ const CourseDetailPage = () => {
             <h2 className="mb-10 font-medium text-3xl">常見問答</h2>
             <FAQAccordion />
           </div>
-        </div>
-
-        <div className="card-section basis-1/3">
-          <Card className="p-6 space-y-4">
-            <img src={courseDetail?.coverUrl} className="rounded-lg" alt="" />
-            <p className="price text-orange-500 font-medium text-2xl">
-              NT$ {courseDetail.price.toLocaleString()}
-            </p>
-            <div className="text-base">
-              <p>本課程包含以下內容</p>
-              <ul className="text-slate-500 list-disc ps-4">
-                <li>課程長度約 {courseDetail.duration} 小時</li>
-              </ul>
-            </div>
-            <Button
-              className="w-full bg-orange-600 hover:bg-orange-500"
-              onClick={handleCreatePreviewOrder}
-            >
-              立即購買
-            </Button>
-          </Card>
         </div>
       </div>
     </div>
