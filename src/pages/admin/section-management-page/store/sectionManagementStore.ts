@@ -218,7 +218,7 @@ export const useSectionManagementStore = create<
           formData,
           {
             headers: {
-              "Content-Type": "multipart/form-data", // axios 會自動補上 boundary
+              // "Content-Type": "multipart/form-data", // axios 會自動補上 boundary
               Authorization: `Bearer ${token}`,
             },
           })
