@@ -84,6 +84,7 @@ const OrderPage = () => {
     const couponId = couponData?.id ?? "";
     const course_id = courseId ?? "";
     const reqData = { couponId, courseId: course_id };
+    const { originalPrice, orderPrice } = orderData || {};
 
     if (!courseId) {
       showCommonDialog({
@@ -97,7 +98,7 @@ const OrderPage = () => {
       /** response 為綠界的 form HTML 字串 */
       const response = await createOrder(reqData);
       /** 免費課程，就不打綠界 */
-      if (response.includes('checkout')) {
+      if (originalPrice === 0 && orderPrice === 0) {
         navigate(response);
         return;
       }
