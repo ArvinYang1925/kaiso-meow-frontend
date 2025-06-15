@@ -38,21 +38,14 @@ const UploadVideoDropzoneSection = () => {
         const file = acceptedFiles[0];
         setVideoFileName(file.name);
         try {
-          const response = await createVideo(section.id, file);
-
-          console.log('response in upload video dropzone section', response)
-
+          const videoData = await createVideo(section.id, file);
           setIsShowUploadVideoModal(false);
           setIsShowEditVideoModal(false);
 
-          const { data } = response.data;
-
-            console.log('data in upload video dropzone section', data)
-
-          addVideo(data);
+          addVideo(videoData);
 
           //開啟狀態監控 Modal
-          setCurrentSectionId(data.id);
+          setCurrentSectionId(videoData.id);
           setIsShowVideoStatusModal(true);
         } catch (error) {
           console.error("上傳失敗", error);

@@ -1,16 +1,15 @@
 import axios from 'axios';
 
 /** 處理 cors 的反向代理設定 */
-const baseURL = import.meta.env.DEV 
-  ? 'http://localhost:3000'  // 開發環境直接使用後端 URL
-  : import.meta.env.VITE_API_URL || 'https://kaiso-meow-backend.onrender.com/';
+const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 
 const axiosInstance = axios.create({
   baseURL, // 所有請求都會自動加上這個 baseURL 開頭
   timeout: 20000, // 請求最多等 20 秒
-  headers: {
-    'Content-Type': 'application/json', // 預設的標頭（所有請求）
-  },
+  // 移除預設的 Content-Type，讓 axios 自動處理如 FormData 的類型
+  // headers: {
+  //   'Content-Type': 'application/json',
+  // },
 });
 
 // ✅ 請求攔截器：自動加入 token

@@ -10,6 +10,7 @@ const isProd = import.meta.env.MODE === "production";
 const Router = isProd ? HashRouter : BrowserRouter;
 
 console.log('log for router, isProd:',isProd)
+console.log("VITE_API_BASE_URL in main.tsx:", import.meta.env.VITE_API_BASE_URL)
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

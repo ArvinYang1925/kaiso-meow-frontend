@@ -62,7 +62,14 @@ export const createAiSectionsDraft = async (courseId: string, data: CreateAiSect
 
 /** 上傳影片 (檔案) */
 export const createVideo = async (sectionId: string, file: File): Promise<Video> => {
-    const response = await axios.post(`/api/v1/instructor/sections/${sectionId}/video`, file);
+    const formData = new FormData();
+    formData.append("file", file); // 確保後端接收檔案的 key 是 "file"
+
+    const response = await axios.post(`/api/v1/instructor/sections/${sectionId}/video`, formData);
+    
+    console.log('Backend 202 response:', response);
+    console.log('Backend 202 response.data:', response.data);
+
     return response.data.data;
 }
 

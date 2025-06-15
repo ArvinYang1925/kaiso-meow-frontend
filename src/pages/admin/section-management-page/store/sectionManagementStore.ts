@@ -2,13 +2,14 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import {
   fetchSectionList,
-  createSection,
+  createSection as createSectionService,
   updateSection,
   deleteSection,
   updateSectionPublishedStatus,
   updateSectionOrder,
   deleteVideo,
-  fetchVideoStatus
+  fetchVideoStatus,
+  createVideo as createVideoService
 } from "../services/section-management.service";
 import {
   CreateSectionRequestModel,
@@ -19,8 +20,6 @@ import {
   Video,
   VideoStatus,
 } from "../services/type";
-import axios, { AxiosResponse } from "axios";
-import { ApiDataResponse } from "@/services/types";
 
 interface SectionManagementState {
   sectionList: Section[];
@@ -54,7 +53,7 @@ interface SectionManagementAction {
     data: UpdateSectionPublishedStatusRequestModel
   ) => Promise<void>;
   updateSectionOrder: (courseId: string, newSectionOrderList: SectionOrder[]) => Promise<void>;
-  createVideo: (sectionId: string, file: File) => Promise<AxiosResponse<ApiDataResponse<Video>>>;//Promise<AxiosResponse<BaseApiResponseModel, any>>
+  createVideo: (sectionId: string, file: File) => Promise<Video>;
   deleteVideo: (sectionId: string) => Promise<void>;
   fetchVideoStatus: (sectionId: string) => Promise<VideoStatus>;
   setSectionList: (newSectionList: Section[]) => void;
@@ -127,7 +126,7 @@ export const useSectionManagementStore = create<
         state.isLoading = true;
       });
       try {
-        const data = await createSection(sectionId, reqData);
+        const data = await createSectionService(sectionId, reqData);
         set((state) => {
           state.section = data;
           state.isLoading = false;
@@ -157,15 +156,13 @@ export const useSectionManagementStore = create<
         state.isLoading = true;
       });
       try {
-        const data = await deleteSection(sectionId);
-        console.log("delete res in store", data);
-      } catch (error: any) {
-        console.error("Failed to delete section", error.response.data);
-        throw error;
-      } finally {
+        await deleteSection(sectionId);
         set((state) => {
           state.isLoading = false;
         });
+      } catch (error: any) {
+        console.error("Failed to delete section", error.response.data);
+        throw error;
       }
     },
     updateSectionPublishedStatus: async (sectionId, reqData) => {
@@ -174,13 +171,12 @@ export const useSectionManagementStore = create<
       });
       try {
         const data = await updateSectionPublishedStatus(sectionId, reqData);
-        console.log("update status res in store", data);
         set((state) => {
           state.section = data;
           state.isLoading = false;
         });
       } catch (error: any) {
-        console.log('error in update section status', error)
+        console.error("Failed to update section published status", error.response.data);
         throw error;
       }
     },
@@ -190,17 +186,13 @@ export const useSectionManagementStore = create<
       });
       try {
         const data = await updateSectionOrder(courseId, newSectionOrderList);
-        console.log("update section order in store", data);
         set((state) => {
           state.sectionList = data;
-        });
-      } catch (error: any) {
-        console.log('error in section order', error)
-        throw error;
-      } finally {
-        set((state) => {
           state.isLoading = false;
         });
+      } catch (error: any) {
+        console.error("Failed to update section order", error.response.data);
+        throw error;
       }
     },
     createVideo: async (sectionId, file) => {
@@ -208,22 +200,9 @@ export const useSectionManagementStore = create<
         state.isLoading = true;
       });
       try {
-        const formData = new FormData();
-        formData.append("file", file); // key 要和後端預期的對應
-
-        const token = localStorage.getItem("token"); // 或從其他地方取得
-        if (!token) throw new Error("Token not found");
-
-        const response = await axios.post<ApiDataResponse<Video>>(`/api/v1/instructor/sections/${sectionId}/video`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data", // axios 會自動補上 boundary
-              Authorization: `Bearer ${token}`,
-            },
-          })
-        console.log('in store create video', response.data)
-        return response
+        const data = await createVideoService(sectionId, file);
+        console.log('in store create video', data)
+        return data;
       } catch (error) {
         console.log('error in createVideo', error)
         throw error;
