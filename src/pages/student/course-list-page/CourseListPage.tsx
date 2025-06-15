@@ -110,7 +110,7 @@ const AnimatedCourseCard: React.FC<AnimatedCourseCardProps> = ({
             <Avatar className="cursor-pointer p-1 ring-1 ring-gray-300 me-2">
               <AvatarImage className="scale-x-[-1]" src={logo} />
             </Avatar>
-            <h5>程式喵</h5>
+            <h5>{course.instructorName}</h5>
           </motion.div>
 
           {/* 價格與按鈕 */}
