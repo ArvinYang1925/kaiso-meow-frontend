@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node scripts/notify-discord.js",
     "lint": "eslint .",
     "preview": "vite preview",
     "compress:images": "node scripts/compress-images.js"
@@ -32,6 +32,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "dompurify": "^3.2.6",
+    "dotenv": "^16.5.0",
     "framer-motion": "^12.12.1",
     "immer": "^10.1.1",
     "lucide-react": "^0.494.0",
