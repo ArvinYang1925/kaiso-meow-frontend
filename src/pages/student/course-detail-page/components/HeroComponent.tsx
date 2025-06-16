@@ -24,7 +24,7 @@ const HeroComponent = () => {
             <div className="grid grid-cols-2 gap-8 items-center">
               <img
                 src={courseDetail?.coverUrl}
-                alt="Foreground"
+                alt="課程圖片"
                 className="rounded-lg w-full self-center"
               />
               <div className="text-content text-white flex flex-col justify-center justify-center space-y-6">
@@ -41,7 +41,7 @@ const HeroComponent = () => {
                   <Avatar className="cursor-pointer p-1 ring-1 ring-gray-300 me-2 bg-white rounded-full">
                     <AvatarImage className="scale-x-[-1] w-8 h-8" src={logo} />
                   </Avatar>
-                  <p className="text-md font-base">程式喵</p>
+                  <p className="text-md font-base">{courseDetail?.instructor.name}</p>
                 </div>
               </div>
             </div>
