@@ -1,5 +1,5 @@
 import axios from "@/services/axiosInstance"; //很重要，這邊必須確認呼叫到的是 axiosInstance!!
-import { Section, CreateSectionRequestModel, UpdateSectionRequestModel, UpdateSectionPublishedStatusRequestModel, SectionOrder, Video, VideoStatus, CreateAiSectionDraftRequestModel } from './type'
+import { Section, CreateSectionRequestModel, UpdateSectionRequestModel, UpdateSectionPublishedStatusRequestModel, SectionOrder, Video, VideoStatus, CreateAiSectionDraftRequestModel, AiSectionDraftResponse } from './type'
 import { BaseApiResponseModel } from "@/services/types";
 
 /** 查詢某課程的所有章節列表 */
@@ -55,7 +55,7 @@ export const batchCreateSection = async (courseId: string, sections: CreateSecti
 };
 
 /** AI 章節草稿產生 */
-export const createAiSectionsDraft = async (courseId: string, data: CreateAiSectionDraftRequestModel): Promise<Section[]> => {
+export const createAiSectionsDraft = async (courseId: string, data: CreateAiSectionDraftRequestModel): Promise<AiSectionDraftResponse> => {
     const response = await axios.post(`/api/v1/instructor/courses/${courseId}/ai-generated-sections`, data);
     return response.data.data;
 };
