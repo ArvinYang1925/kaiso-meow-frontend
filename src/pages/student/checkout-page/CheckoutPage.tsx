@@ -164,7 +164,7 @@ const CheckoutPage = () => {
   };
 
   return (
-    <div className="bg-slate-100 px-4 pt-6 pb-4 md:px-80 md:py-12">
+    <div className="bg-slate-100 px-4 py-20 md:px-80 md:py-12">
       <div className="order-card-section w-full md:basis-1/2">
         <Card className="rounded-lg p-4 md:p-6">
           <CardHeader className="border-b">
