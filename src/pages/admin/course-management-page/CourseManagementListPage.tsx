@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ADMIN_ROUTES } from "@/app/route-path";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Users, User, EyeOff } from "lucide-react";
+import { Plus, Users, User, EyeOff, Search } from "lucide-react";
 import { motion } from "framer-motion";
 import { useBreadcrumbStore } from "@/stores/breadcrumbStore";
 import { useCourseStore } from "./courseManagementStore";
@@ -188,9 +189,55 @@ export default function CourseManagementListPage() {
   const { ScreenLoading, withLoading } = useScreenLoading();
 
   // 使用課程 store
-  const { courses, pagination, fetchCourses, resetCourses } = useCourseStore();
+  const { courses, pagination, filter, fetchCourses, resetCourses, setFilter } =
+    useCourseStore();
 
   const [isPageInitialized, setIsPageInitialized] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(
+    null
+  );
+
+  // 搜尋處理函數
+  const handleSearch = async (query: string) => {
+    try {
+      // 使用 setFilter 來處理搜尋，這會觸發重新獲取資料
+      setFilter({ search: query.trim() });
+    } catch {
+      // 靜默處理錯誤
+    }
+  };
+
+  // 處理搜尋輸入變化 - 防抖處理
+  const handleSearchInputChange = (value: string) => {
+    setSearchQuery(value);
+
+    // 清除之前的定時器
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // 設置新的定時器，500ms 後執行搜尋
+    const newTimeout = setTimeout(() => {
+      handleSearch(value);
+    }, 500);
+
+    setSearchTimeout(newTimeout);
+  };
+
+  // 初始化時同步搜尋狀態
+  useEffect(() => {
+    setSearchQuery(filter.search || "");
+  }, [filter.search]);
+
+  // 清理定時器
+  useEffect(() => {
+    return () => {
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
+      }
+    };
+  }, [searchTimeout]);
 
   useEffect(() => {
     // 設置麵包屑
@@ -202,6 +249,10 @@ export default function CourseManagementListPage() {
       if (resetCourses) {
         resetCourses();
       }
+
+      // 重置搜尋狀態
+      setFilter({ search: "" });
+      setSearchQuery("");
 
       setIsPageInitialized(false);
 
@@ -222,6 +273,7 @@ export default function CourseManagementListPage() {
     fetchCourses,
     withLoading,
     resetCourses,
+    setFilter,
   ]);
 
   // 分頁處理 - 使用全域 LOADING
@@ -236,7 +288,7 @@ export default function CourseManagementListPage() {
     }
   };
 
-  // 空狀態組件
+  // 空狀態組件 - 真的沒有課程時顯示
   const EmptyState = () => (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -269,6 +321,34 @@ export default function CourseManagementListPage() {
     </motion.div>
   );
 
+  // 搜尋無結果狀態組件
+  const NoSearchResults = () => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="flex flex-col items-center justify-center p-12 bg-white rounded-lg shadow-sm"
+    >
+      <div className="text-center">
+        <div className="text-6xl mb-4">🔍</div>
+        <h2 className="text-2xl font-semibold mb-4">無此課程</h2>
+        <p className="text-gray-500 text-md mb-8">
+          找不到與「{searchQuery}」相關的課程，請嘗試其他關鍵字
+        </p>
+        <Button
+          variant="outline"
+          onClick={() => {
+            setSearchQuery("");
+            setFilter({ search: "" });
+          }}
+          className="text-gray-700 border-gray-300 hover:bg-gray-100"
+        >
+          清除搜尋條件
+        </Button>
+      </div>
+    </motion.div>
+  );
+
   const shouldShowContent = isPageInitialized;
 
   return (
@@ -277,23 +357,42 @@ export default function CourseManagementListPage() {
       <ScreenLoading />
 
       <div className="container mx-auto py-8">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-2xl font-bold">課程管理</h1>
-            {shouldShowContent && courses.length > 0 && (
-              <p className="text-gray-500 mt-1">
-                共 {pagination.totalItems} 個課程
-              </p>
+        <div className="flex flex-col gap-4 mb-8">
+          {/* 標題區域 */}
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-bold">課程管理</h1>
+              {shouldShowContent && pagination.totalItems > 0 && (
+                <p className="text-gray-500 mt-1">
+                  共 {pagination.totalItems} 個課程
+                </p>
+              )}
+            </div>
+            {shouldShowContent && pagination.totalItems > 0 && (
+              <Button
+                onClick={() => navigate(ADMIN_ROUTES.CREATE_COURSE)}
+                className="bg-orange-600 hover:bg-orange-700 text-white"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                建立課程
+              </Button>
             )}
           </div>
-          {shouldShowContent && courses.length > 0 && (
-            <Button
-              onClick={() => navigate(ADMIN_ROUTES.CREATE_COURSE)}
-              className="bg-orange-600 hover:bg-orange-700 text-white"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              建立課程
-            </Button>
+
+          {/* 搜尋區域 - 只在頁面初始化後顯示 */}
+          {shouldShowContent && (
+            <div className="flex items-center gap-4">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  type="text"
+                  placeholder="搜尋課程名稱..."
+                  value={searchQuery}
+                  onChange={(e) => handleSearchInputChange(e.target.value)}
+                  className="pl-10 pr-4 py-2 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
           )}
         </div>
 
@@ -301,8 +400,15 @@ export default function CourseManagementListPage() {
         {shouldShowContent && (
           <>
             {courses.length === 0 ? (
-              // 無資料時顯示空狀態
-              <EmptyState />
+              // 區分沒有課程和搜尋無結果兩種情況
+              (filter.search && filter.search.trim() !== "") ||
+              searchQuery.trim() !== "" ? (
+                // 有搜尋條件但無結果
+                <NoSearchResults />
+              ) : (
+                // 沒有搜尋條件且沒有課程，顯示建立新課程
+                <EmptyState />
+              )
             ) : (
               // 正常顯示課程列表 - 響應式設計：手機版1張、中螢幕2張、大螢幕3張
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -328,7 +434,7 @@ export default function CourseManagementListPage() {
 
         {/* 分頁控制 - 手機版優化 */}
         {shouldShowContent &&
-          courses.length > 0 &&
+          pagination.totalItems > 0 &&
           pagination.totalPages > 1 && (
             <div className="flex flex-col md:flex-row justify-center md:justify-between items-center mt-8 gap-4 md:gap-0">
               {/* 桌面版顯示分頁資訊，手機版隱藏 */}

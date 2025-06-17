@@ -13,6 +13,7 @@ import { ImagePlus, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCourseStore } from "./courseManagementStore";
 import { useScreenLoading } from "@/components/common/useScreenLoading";
+import { useDialogStore } from "@/stores/commonDialogStore";
 import {
   useImageWithFallback,
   DEFAULT_COURSE_COVER,
@@ -31,7 +32,14 @@ const courseCreateSchema = z
       .max(200, "課程副標題不能超過200個字元")
       .optional()
       .or(z.literal("")),
-    description: z.string().min(1, "課程介紹為必填項目"),
+    description: z
+      .string()
+      .min(1, "課程介紹為必填項目")
+      .refine((content) => {
+        // 移除 HTML 標籤並檢查是否有實際內容
+        const textContent = content.replace(/<[^>]*>/g, "").trim();
+        return textContent.length > 0;
+      }, "課程介紹為必填項目"),
     // .max(5000, "課程介紹不能超過5000個字元"),
     highlight: z
       .string()
@@ -40,12 +48,11 @@ const courseCreateSchema = z
       .or(z.literal("")),
     duration: z
       .string()
-      .optional()
-      .refine((val: string | undefined): boolean => {
-        if (!val || val === "") return true;
+      .min(1, "課程時長為必填項目")
+      .refine((val: string): boolean => {
         const num = parseFloat(val);
-        return !isNaN(num) && num >= 0 && num <= 1000;
-      }, "課程時長必須是0-1000之間的數字"),
+        return !isNaN(num) && num > 0;
+      }, "課程時長必須大於0"),
     courseType: z.enum(["paid", "free"], {
       required_error: "請選擇課程類型",
     }),
@@ -76,6 +83,7 @@ export default function CoursesCreatePage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { showCommonDialog } = useDialogStore();
 
   // 全螢幕 Loading
   const { ScreenLoading, withLoading } = useScreenLoading();
@@ -322,10 +330,6 @@ export default function CoursesCreatePage() {
         throw new Error("課程標題為必填項目");
       }
 
-      if (!data.description?.trim()) {
-        throw new Error("課程描述為必填項目");
-      }
-
       if (
         data.courseType === "paid" &&
         (!data.price || parseFloat(data.price) <= 0)
@@ -373,8 +377,7 @@ export default function CoursesCreatePage() {
         errorMessage = error.message;
       }
 
-      toast({
-        variant: "destructive",
+      showCommonDialog({
         title: "創建失敗",
         description: errorMessage,
       });
@@ -525,10 +528,16 @@ export default function CoursesCreatePage() {
                   <RichTextEditor
                     id="description"
                     value={watch("description")}
-                    onChange={(content) => setValue("description", content)}
+                    onChange={(content) => {
+                      setValue("description", content, {
+                        shouldValidate: true,
+                      });
+                    }}
                     minHeight={window.innerWidth < 768 ? 240 : 200}
                     maxHeight={window.innerWidth < 768 ? 240 : 398}
-                    className="w-full"
+                    className={`w-full ${
+                      errors.description ? "border-red-500" : ""
+                    }`}
                   />
                   {errors.description && (
                     <p className="text-sm text-red-500">
@@ -626,7 +635,9 @@ export default function CoursesCreatePage() {
 
                 {/* 課程時長 */}
                 <div className="space-y-2">
-                  <Label htmlFor="duration">課程時長（小時）</Label>
+                  <Label htmlFor="duration">
+                    課程時長（小時） <span className="text-red-500">*</span>
+                  </Label>
                   <Input
                     id="duration"
                     type="number"
@@ -643,7 +654,7 @@ export default function CoursesCreatePage() {
                   )}
                   <p className="text-sm text-gray-500">
                     例如，對於10小時30分鐘，輸入
-                    10.5。若留空，系統將自動計算課程中所有單元的總學時數。
+                    10.5。課程時長為必填，不可留白。
                   </p>
                 </div>
 
