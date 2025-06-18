@@ -4,10 +4,10 @@ export type InstructorOrder = {
   title: string;
   originalPrice: number;
   orderPrice: number;
-  status: string;
-  couponType: string;
-  couponValue: number;
+  status: "pending" | "paid" | "failed";
+  couponType?: string;
+  couponValue?: string;
   createdAt: string;
   updatedAt: string;
-  paidAt: string;
+  paidAt?: string;
 };
