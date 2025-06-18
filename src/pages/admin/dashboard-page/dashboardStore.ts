@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { toast } from "@/hooks/use-toast";
+import { useDialogStore } from "@/stores/commonDialogStore";
 import {
   getInstructorRevenue,
   getInstructorCourses,
@@ -135,22 +136,20 @@ const showSuccessToast = (title: string, description?: string): void => {
 /**
  * 顯示錯誤訊息
  */
-const showErrorToast = (title: string, description?: string): void => {
-  toast({
+const showErrorDialog = (title: string, description?: string): void => {
+  useDialogStore.getState().showCommonDialog({
     title,
-    description,
-    variant: "destructive",
+    description: description || "",
   });
 };
 
 /**
  * 顯示警告訊息
  */
-const showWarningToast = (title: string, description?: string): void => {
-  toast({
+const showWarningDialog = (title: string, description?: string): void => {
+  useDialogStore.getState().showCommonDialog({
     title,
-    description,
-    variant: "destructive",
+    description: description || "",
   });
 };
 
@@ -510,7 +509,7 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
           state.chartData = null;
         });
 
-        showErrorToast("載入失敗", errorMessage);
+        showErrorDialog("載入失敗", errorMessage);
       } finally {
         set((state) => {
           state.isLoading = false;
@@ -564,7 +563,7 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
               });
 
               if (validCourses.length === 0) {
-                showWarningToast("課程資料", "目前沒有可用的課程資料");
+                showWarningDialog("課程資料", "目前沒有可用的課程資料");
               }
             } else {
               throw new Error("課程資料格式錯誤 - courseList 不是陣列");
@@ -590,7 +589,7 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
           };
         });
 
-        showErrorToast("載入失敗", `課程選項載入失敗: ${errorMessage}`);
+        showErrorDialog("載入失敗", `課程選項載入失敗: ${errorMessage}`);
       } finally {
         set((state) => {
           state.isLoadingCourseOptions = false;
@@ -612,7 +611,7 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
 
         showSuccessToast("數據刷新", "所有數據已更新至最新狀態");
       } catch {
-        showErrorToast("刷新失敗", "無法刷新數據，請稍後再試");
+        showErrorDialog("刷新失敗", "無法刷新數據，請稍後再試");
       } finally {
         set((state) => {
           state.isRefreshing = false;
@@ -646,7 +645,7 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
 
       if (!validation.isValid) {
         get().setError(validation.error || "日期範圍無效", "validation");
-        showErrorToast("日期範圍錯誤", validation.error);
+        showErrorDialog("日期範圍錯誤", validation.error);
         return;
       }
 
@@ -860,7 +859,7 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
         const errorMessage =
           Object.values(validation.errors)[0] || "篩選條件無效";
         get().setError(errorMessage, "validation");
-        showErrorToast("驗證失敗", errorMessage);
+        showErrorDialog("驗證失敗", errorMessage);
         return false;
       }
 

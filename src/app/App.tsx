@@ -2,6 +2,7 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import { CLIENT_ROUTES, ADMIN_ROUTES, PUBLIC_ROUTES } from "./route-path";
 import { useAuthStore } from "@/stores/authStore";
 import { Role } from "@/lib/enum";
+import { Toaster } from "@/components/ui/toaster";
 /** 前台頁面模板 */
 import { StudentLayout } from "../pages/main-layout/StudentLayout";
 /** 後台頁面模板 */
@@ -245,6 +246,7 @@ function App() {
         />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      <Toaster />
     </div>
   );
 }

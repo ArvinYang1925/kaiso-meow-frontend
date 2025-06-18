@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useInstructorProfileStore } from "@/pages/admin/instructor-info-page/stores/instructorInfoStore";
 import { useScreenLoading } from "@/components/common/useScreenLoading";
+import { useDialogStore } from "@/stores/commonDialogStore";
 import cloudUpload from "@/assets/cloud-upload.svg";
 import { useDropzone } from "react-dropzone";
 import { X } from "lucide-react";
@@ -30,6 +31,7 @@ type FormValues = z.infer<typeof formSchema>;
 export default function InstructorInfoPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { showCommonDialog } = useDialogStore();
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [isPageDragActive, setIsPageDragActive] = useState(false);
 
@@ -230,8 +232,7 @@ export default function InstructorInfoPage() {
       // 錯誤處理
       const errorMessage =
         error instanceof Error ? error.message : "更新失敗，請稍後再試";
-      toast({
-        variant: "destructive",
+      showCommonDialog({
         title: "更新失敗",
         description: errorMessage,
       });

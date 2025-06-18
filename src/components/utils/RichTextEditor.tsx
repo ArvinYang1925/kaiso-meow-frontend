@@ -105,7 +105,9 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         ref={quillRef}
         id={id}
         value={value}
-        onChange={handleChange}
+        onChange={(content) => {
+          handleChange(content);
+        }}
         modules={modules}
         formats={formats}
         theme="snow"

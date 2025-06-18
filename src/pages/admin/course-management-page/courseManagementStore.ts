@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { toast } from "@/hooks/use-toast";
+import { useDialogStore } from "@/stores/commonDialogStore";
 import {
   getCourseCoverUrl,
   DEFAULT_COURSE_COVER,
@@ -138,8 +139,8 @@ const handleSuccessMessage = (title: string, description: string) => {
  */
 const handleErrorMessage = (title: string, message?: string) => {
   const finalMessage = message || "操作失敗，請稍後再試。";
-  toast({
-    variant: "destructive",
+  const showCommonDialog = useDialogStore.getState().showCommonDialog;
+  showCommonDialog({
     title,
     description: finalMessage,
   });
@@ -293,12 +294,19 @@ export const useCourseStore = create<CourseState & CourseActions>()(
         }
 
         // 取得所有課程資料後進行排序和分頁
-        const { allCourses: currentAllCourses } = get();
+        const { allCourses: currentAllCourses, filter } = get();
 
-        // 步驟1：固定排序（發布狀態 → 建立時間）
-        const sortedCourses = sortCoursesFixed(currentAllCourses);
+        // 步驟1：套用搜尋過濾
+        const filteredCourses = filter.search
+          ? currentAllCourses.filter((course) =>
+              course.title.toLowerCase().includes(filter.search!.toLowerCase())
+            )
+          : currentAllCourses;
 
-        // 步驟2：前端分頁
+        // 步驟2：固定排序（發布狀態 → 建立時間）
+        const sortedCourses = sortCoursesFixed(filteredCourses);
+
+        // 步驟3：前端分頁
         const { paginatedCourses, pagination: newPagination } = paginateCourses(
           sortedCourses,
           params.page,
@@ -384,12 +392,12 @@ export const useCourseStore = create<CourseState & CourseActions>()(
 
           return response;
         } else {
-          handleErrorMessage("建立失敗", response.message);
+          // 移除 Toast，讓頁面層處理錯誤顯示
           return response;
         }
       } catch (error) {
         const errorMessage = extractErrorMessage(error);
-        handleErrorMessage("建立失敗", errorMessage);
+        // 移除 Toast，讓頁面層處理錯誤顯示
 
         return {
           status: "error" as const,

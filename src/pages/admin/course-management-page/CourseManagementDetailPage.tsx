@@ -19,6 +19,7 @@ import {
 } from "@/components/utils/courseImageUtils";
 import type { FileRejection } from "react-dropzone";
 import type { UpdateCourseModel } from "./courseManagement.model";
+import { useDialogStore } from "@/stores/commonDialogStore";
 
 const courseDetailSchema = z
   .object({
@@ -31,7 +32,14 @@ const courseDetailSchema = z
       .max(200, "課程副標題不能超過200個字元")
       .optional()
       .or(z.literal("")),
-    description: z.string().min(1, "課程介紹為必填項目"),
+    description: z
+      .string()
+      .min(1, "課程介紹為必填項目")
+      .refine((content) => {
+        // 移除 HTML 標籤並檢查是否有實際內容
+        const textContent = content.replace(/<[^>]*>/g, "").trim();
+        return textContent.length > 0;
+      }, "課程介紹為必填項目"),
     // .max(5000, "課程介紹不能超過5000個字元"),
     highlight: z
       .string()
@@ -40,12 +48,11 @@ const courseDetailSchema = z
       .or(z.literal("")),
     duration: z
       .string()
-      .optional()
-      .refine((val: string | undefined): boolean => {
-        if (!val || val === "") return true;
+      .min(1, "課程時長為必填項目")
+      .refine((val: string): boolean => {
         const num = parseFloat(val);
-        return !isNaN(num) && num >= 0 && num <= 1000;
-      }, "課程時長必須是0-1000之間的數字"),
+        return !isNaN(num) && num > 0;
+      }, "課程時長必須大於0"),
     courseType: z.enum(["paid", "free"], {
       required_error: "請選擇課程類型",
     }),
@@ -76,6 +83,7 @@ export default function CourseManagementDetailPage() {
   const navigate = useNavigate();
   const { courseId } = useParams<{ courseId: string }>();
   const { toast } = useToast();
+  const { showCommonDialog } = useDialogStore();
 
   // 全螢幕 Loading
   const { ScreenLoading, withLoading } = useScreenLoading();
@@ -156,7 +164,6 @@ export default function CourseManagementDetailPage() {
     }
   }, []);
 
-  // 🔧 關鍵修正：完全隔離的上傳函數
   const handleUploadImageStable = useCallback(
     async (file: File) => {
       // 防重複檢查
@@ -269,7 +276,6 @@ export default function CourseManagementDetailPage() {
     [cleanupObjectUrl, uploadCourseImage, toast, withLoading]
   );
 
-  // 使用極度穩定的 onDrop 函數
   const onDropStable = useCallback(
     (acceptedFiles: File[], fileRejections: FileRejection[]) => {
       // 如果正在上傳或已禁用，直接返回
@@ -558,14 +564,6 @@ export default function CourseManagementDetailPage() {
     }
 
     await withLoading(async () => {
-      if (!data.title?.trim()) {
-        throw new Error("課程標題為必填項目");
-      }
-
-      if (!data.description?.trim()) {
-        throw new Error("課程描述為必填項目");
-      }
-
       if (
         data.courseType === "paid" &&
         (!data.price || parseFloat(data.price) <= 0)
@@ -595,39 +593,31 @@ export default function CourseManagementDetailPage() {
       };
 
       try {
-        const success = await updateCourseDetail(courseId, courseData);
+        const result = await updateCourseDetail(courseId, courseData);
 
-        if (success) {
+        if (result.success) {
           toast({
             title: "更新成功",
             description: "課程已成功更新，正在跳轉到章節管理...",
           });
 
-          // 清理臨時 URL
           cleanupObjectUrl();
           isLeavingPageRef.current = true;
-
           navigate(`${ADMIN_ROUTES.COURSES}/${courseId}/sections`);
         } else {
-          throw new Error("更新課程失敗");
+          throw new Error(result.message || "更新課程失敗");
         }
       } catch (error) {
         let errorMessage = "更新課程時發生錯誤，請稍後再試";
 
         if (error instanceof Error) {
-          if (error.message.includes("401")) {
-            errorMessage = "未授權操作，請重新登入";
-          } else {
-            errorMessage = error.message;
-          }
+          errorMessage = error.message;
         }
 
-        toast({
-          variant: "destructive",
+        showCommonDialog({
           title: "更新失敗",
           description: errorMessage,
         });
-        throw error;
       }
     });
   };
@@ -754,10 +744,16 @@ export default function CourseManagementDetailPage() {
                   <RichTextEditor
                     id="description"
                     value={watch("description")}
-                    onChange={(content) => setValue("description", content)}
+                    onChange={(content) => {
+                      setValue("description", content, {
+                        shouldValidate: true,
+                      });
+                    }}
                     minHeight={window.innerWidth < 768 ? 240 : 200}
                     maxHeight={window.innerWidth < 768 ? 240 : 398}
-                    className="w-full"
+                    className={`w-full ${
+                      errors.description ? "border-red-500" : ""
+                    }`}
                   />
                   {errors.description && (
                     <p className="text-sm text-red-500">
@@ -855,7 +851,9 @@ export default function CourseManagementDetailPage() {
 
                 {/* 課程時長 */}
                 <div className="space-y-2">
-                  <Label htmlFor="duration">課程時長（小時）</Label>
+                  <Label htmlFor="duration">
+                    課程時長（小時） <span className="text-red-500">*</span>
+                  </Label>
                   <Input
                     id="duration"
                     type="number"
@@ -872,7 +870,7 @@ export default function CourseManagementDetailPage() {
                   )}
                   <p className="text-sm text-gray-500">
                     例如，對於10小時30分鐘，輸入
-                    10.5。若留空，系統將自動計算課程中所有單元的總學時數。
+                    10.5。課程時長為必填，不可留白。
                   </p>
                 </div>
 
