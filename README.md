@@ -8,14 +8,16 @@
 ---
 
 ## 🚀 線上服務
-| 環境 | URL |
-| ---- | --- |
+
+| 環境       | URL        |
+| ---------- | ---------- |
 | Production | `<待補充>` |
-| Staging | `<待補充>` |
+| Staging    | `<待補充>` |
 
 ---
 
 ## ✨ 特色
+
 - React 18 + TypeScript
 - Vite 6 建構工具
 - Tailwind CSS + Radix UI 元件庫
@@ -30,6 +32,7 @@
 ---
 
 ## 🏗️ 專案結構
+
 ```text
 src/
 ├── app/          # 應用程式核心設定
@@ -47,6 +50,7 @@ src/
 ---
 
 ## 🛠️ 開發環境需求
+
 - Node.js 20.x
 - npm 或 yarn
 
@@ -55,21 +59,25 @@ src/
 ## 🚀 快速開始
 
 1. 安裝依賴
+
 ```bash
 npm install
 ```
 
 2. 啟動開發伺服器
+
 ```bash
 npm run dev
 ```
 
 3. 建置生產版本
+
 ```bash
 npm run build
 ```
 
 4. 預覽生產版本
+
 ```bash
 npm run preview
 ```
@@ -77,6 +85,7 @@ npm run preview
 ---
 
 ## 📝 可用指令
+
 - `npm run dev` - 啟動開發伺服器
 - `npm run build` - 建置生產版本
 - `npm run preview` - 預覽生產版本
@@ -86,19 +95,21 @@ npm run preview
 ---
 
 ## 🎨 技術棧
+
 - **前端框架**: React 18
 - **建構工具**: Vite 6
 - **程式語言**: TypeScript
-- **樣式解決方案**: 
+- **樣式解決方案**:
   - Tailwind CSS
   - SASS
   - Radix UI
+  - Swiper
 - **狀態管理**: Zustand
 - **路由**: React Router v6
-- **表單處理**: 
+- **表單處理**:
   - React Hook Form
   - Zod
-- **UI 元件**: 
+- **UI 元件**:
   - Radix UI
   - Lucide React Icons
 - **動畫**: Framer Motion
@@ -106,11 +117,14 @@ npm run preview
 - **圖表**: Recharts
 - **富文本編輯**: React Quill
 - **拖曳排序**: SortableJS
+- **圖片上傳**: react-dropzone
 
 ---
 
 ## 🔧 環境變數
+
 建立 `.env` 檔案並設定以下變數：
+
 ```env
 VITE_API_BASE_URL=<API 基礎 URL>
 ```
@@ -118,7 +132,9 @@ VITE_API_BASE_URL=<API 基礎 URL>
 ---
 
 ## 📦 部署
+
 專案使用 Vite 建構，可部署至任何靜態網站託管服務：
+
 - Vercel
 - Netlify
 - GitHub Pages
@@ -127,6 +143,7 @@ VITE_API_BASE_URL=<API 基礎 URL>
 ---
 
 ## 🤝 貢獻指南
+
 1. Fork 專案
 2. 建立功能分支 (`git checkout -b feature/AmazingFeature`)
 3. 提交變更 (`git commit -m 'Add some AmazingFeature'`)
@@ -136,5 +153,9 @@ VITE_API_BASE_URL=<API 基礎 URL>
 ---
 
 ## 📄 授權
+
 此專案採用 MIT 授權條款 - 詳見 [LICENSE](LICENSE) 檔案
+
+```
+
 ```
