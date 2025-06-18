@@ -149,6 +149,7 @@ const CourseDetailPage = () => {
                 className="mb-4"
                 dangerouslySetInnerHTML={{ __html: cleanHTML }}
               />
+               <h2 className="mb-10 font-medium text-3xl">課程亮點</h2>
               <div>
                 {courseDetail.highlight.split("\n").map((line, index) => (
                   <p key={index}>{line}</p>
