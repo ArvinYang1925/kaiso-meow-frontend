@@ -19,6 +19,27 @@ const ORDER_STATUS_MAP = {
   failed: "付款失敗",
 } as const;
 
+// 折扣類型對應的中文說明
+const COUPON_TYPE_MAP = {
+  percentage: "百分比",
+  fixed: "固定金額",
+} as const;
+
+// 表格欄位配置
+const tableColumn = [
+  { label: "訂單編號", key: "id" },
+  { label: "學生姓名", key: "name" },
+  { label: "訂單名稱", key: "title" },
+  { label: "訂單原價", key: "originalPrice" },
+  { label: "訂單實付金額", key: "orderPrice" },
+  { label: "訂單狀態", key: "status" },
+  { label: "折扣碼類型", key: "couponType" },
+  { label: "折扣金額", key: "couponValue" },
+  { label: "建立時間", key: "createdAt" },
+  { label: "異動時間", key: "updatedAt" },
+  { label: "付款時間", key: "paidAt" },
+];
+
 // 獨立的分頁器組件
 const PaginationControls = ({
   pagination,
@@ -107,7 +128,7 @@ const OrderDetailModal = ({
 
         <div className="space-y-6">
           {/* 第一列：學生姓名 */}
-          <div>
+          <div className="pb-4 border-b border-gray-200">
             <label className="text-sm font-medium text-gray-500">
               學生姓名
             </label>
@@ -179,14 +200,22 @@ const OrderDetailModal = ({
               <label className="text-sm font-medium text-gray-500">
                 折扣類型
               </label>
-              <p className="text-sm">{order.couponType || "-"}</p>
+              <p className="text-sm">
+                {COUPON_TYPE_MAP[
+                  order.couponType as keyof typeof COUPON_TYPE_MAP
+                ] || order.couponType}
+              </p>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-500">
                 折扣金額
               </label>
               <p className="font-mono text-sm">
-                {order.couponValue ? order.couponValue.toLocaleString() : "-"}
+                {order.couponValue
+                  ? `${order.couponValue.toLocaleString()}${
+                      order.couponType === "percentage" ? "%" : ""
+                    }`
+                  : "-"}
               </p>
             </div>
           </div>
@@ -293,9 +322,19 @@ const OrderItem = ({
             <span className="text-gray-500">折扣類型:</span>
             <span
               className="truncate max-w-[80px]"
-              title={order.couponType || "-"}
+              title={
+                COUPON_TYPE_MAP[
+                  order.couponType as keyof typeof COUPON_TYPE_MAP
+                ] ||
+                order.couponType ||
+                "-"
+              }
             >
-              {order.couponType || "-"}
+              {COUPON_TYPE_MAP[
+                order.couponType as keyof typeof COUPON_TYPE_MAP
+              ] ||
+                order.couponType ||
+                "-"}
             </span>
           </div>
           <div className="flex justify-between text-sm">
@@ -303,10 +342,18 @@ const OrderItem = ({
             <span
               className="font-mono"
               title={
-                order.couponValue ? order.couponValue.toLocaleString() : "-"
+                order.couponValue
+                  ? `${order.couponValue.toLocaleString()}${
+                      order.couponType === "percentage" ? "%" : ""
+                    }`
+                  : "-"
               }
             >
-              {order.couponValue ? order.couponValue.toLocaleString() : "-"}
+              {order.couponValue
+                ? `${order.couponValue.toLocaleString()}${
+                    order.couponType === "percentage" ? "%" : ""
+                  }`
+                : "-"}
             </span>
           </div>
         </div>
@@ -340,15 +387,17 @@ const OrderTable = ({
       {/* 表頭 */}
       <div className="bg-gray-50 border-b border-gray-200">
         <div className="grid grid-cols-[1fr_150px_150px_100px_100px_120px_100px_100px_100px] text-sm font-medium text-gray-700">
-          <div className="px-4 py-4">訂單編號</div>
-          <div className="px-4 py-4">學生姓名</div>
-          <div className="px-4 py-4">訂單名稱</div>
-          <div className="px-4 py-4 text-right">訂單原價</div>
-          <div className="px-4 py-4 text-right">實付金額</div>
-          <div className="px-4 py-4">訂單狀態</div>
-          <div className="px-4 py-4">折扣類型</div>
-          <div className="px-4 py-4 text-right">折扣金額</div>
-          <div className="px-4 py-4 text-center">操作</div>
+          {tableColumn.slice(0, 8).map((column, index) => (
+            <div
+              key={column.key}
+              className={`px-4 py-4 whitespace-nowrap ${
+                index === 3 || index === 4 || index === 7 ? "text-right" : ""
+              }`}
+            >
+              {column.label}
+            </div>
+          ))}
+          <div className="px-4 py-4 text-center whitespace-nowrap">操作</div>
         </div>
       </div>
 
@@ -357,7 +406,7 @@ const OrderTable = ({
         {orders.map((order, index) => (
           <div
             key={order.id}
-            className={`grid grid-cols-[1fr_150px_150px_100px_100px_120px_100px_100px_100px] text-sm items-center hover:bg-blue-50 transition-colors ${
+            className={`grid grid-cols-[1fr_150px_150px_100px_100px_120px_100px_100px_100px] text-sm items-center hover:bg-slate-100 transition-colors ${
               index % 2 === 0 ? "bg-white" : "bg-gray-50/50"
             }`}
           >
@@ -402,14 +451,21 @@ const OrderTable = ({
                 ] || order.status}
               </span>
             </div>
-            <div
-              className="px-4 py-4 truncate text-gray-900"
-              title={order.couponType || "-"}
-            >
-              {order.couponType || "-"}
+            <div className="px-4 py-4">
+              <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                {COUPON_TYPE_MAP[
+                  order.couponType as keyof typeof COUPON_TYPE_MAP
+                ] ||
+                  order.couponType ||
+                  "-"}
+              </span>
             </div>
             <div className="px-4 py-4 text-right font-mono text-gray-900">
-              {order.couponValue ? order.couponValue.toLocaleString() : "-"}
+              {order.couponValue
+                ? `${order.couponValue.toLocaleString()}${
+                    order.couponType === "percentage" ? "%" : ""
+                  }`
+                : "-"}
             </div>
             <div className="px-4 py-4 text-center">
               <Button
