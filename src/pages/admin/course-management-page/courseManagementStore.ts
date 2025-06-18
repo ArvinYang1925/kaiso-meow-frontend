@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { toast } from "@/hooks/use-toast";
+import { useDialogStore } from "@/stores/commonDialogStore";
 import {
   getCourseCoverUrl,
   DEFAULT_COURSE_COVER,
@@ -138,8 +139,8 @@ const handleSuccessMessage = (title: string, description: string) => {
  */
 const handleErrorMessage = (title: string, message?: string) => {
   const finalMessage = message || "操作失敗，請稍後再試。";
-  toast({
-    variant: "destructive",
+  const showCommonDialog = useDialogStore.getState().showCommonDialog;
+  showCommonDialog({
     title,
     description: finalMessage,
   });
