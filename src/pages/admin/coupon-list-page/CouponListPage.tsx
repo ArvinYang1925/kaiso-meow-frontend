@@ -10,6 +10,12 @@ import { getInteger } from "@/lib/priceHelper";
 import { Plus } from "lucide-react";
 import { useScreenLoading } from "@/components/common/useScreenLoading";
 
+// 折扣類型對應的中文說明
+const COUPON_TYPE_MAP = {
+  percentage: "百分比",
+  fixed: "固定金額",
+} as const;
+
 export default function CouponListPage() {
   const { couponList, pagination, fetchCouponList, deleteCouponList } =
     useCouponListStore();
@@ -86,8 +92,20 @@ export default function CouponListPage() {
               <>
                 <TableCell>{coupon.couponName}</TableCell>
                 <TableCell>{coupon.code}</TableCell>
-                <TableCell>{coupon.type}</TableCell>
-                <TableCell>{getInteger(coupon.value)}</TableCell>
+                <TableCell>
+                  <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    {COUPON_TYPE_MAP[
+                      coupon.type as keyof typeof COUPON_TYPE_MAP
+                    ] || coupon.type}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  {getInteger(coupon.value)
+                    ? `${getInteger(coupon.value).toLocaleString()}${
+                        coupon.type === "percentage" ? "%" : ""
+                      }`
+                    : "-"}
+                </TableCell>
                 <TableCell>{coupon.startsAt}</TableCell>
                 <TableCell>{coupon.expiresAt}</TableCell>
                 <TableCell>
