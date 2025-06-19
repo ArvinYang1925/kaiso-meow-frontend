@@ -13,6 +13,7 @@ import { useDialogStore } from "@/stores/commonDialogStore";
 import axios from "axios";
 import DOMPurify from "dompurify";
 import { useScreenLoading } from "@/components/common/useScreenLoading";
+import "@/styles/course-detail.css";
 
 const CourseDetailPage = () => {
   const courseIntroRef = useRef<HTMLDivElement>(null);
@@ -146,7 +147,7 @@ const CourseDetailPage = () => {
             >
               <h2 className="mb-10 font-medium text-3xl">課程簡介</h2>
               <div
-                className="mb-4"
+                className="mb-4 course-content"
                 dangerouslySetInnerHTML={{ __html: cleanHTML }}
               />
                <h2 className="mb-10 font-medium text-3xl">課程亮點</h2>

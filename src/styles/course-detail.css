@@ -1,0 +1,170 @@
+/* 課程內容基本樣式 */
+.course-content {
+    font-size: 1rem;
+    line-height: 1.7;
+    overflow: visible !important; /* 確保內容不會被裁剪 */
+    max-height: none !important; /* 移除最大高度限制 */
+    height: auto !important; /* 自動調整高度 */
+}
+
+/* 所有標題元素 */
+.course-content h1,
+.course-content h2,
+.course-content h3,
+.course-content h4,
+.course-content h5,
+.course-content h6 {
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+/* 標題大小 */
+.course-content h1 {
+    font-size: 2rem;
+}
+
+.course-content h2 {
+    font-size: 1.75rem;
+}
+
+.course-content h3 {
+    font-size: 1.5rem;
+}
+
+.course-content h4 {
+    font-size: 1.25rem;
+}
+
+.course-content h5 {
+    font-size: 1.1rem;
+}
+
+.course-content h6 {
+    font-size: 1rem;
+}
+
+/* 段落和間距 */
+.course-content p,
+.course-content div {
+    margin-bottom: 1rem;
+}
+
+/* 列表樣式 - 確保顯示正確 */
+.course-content ul {
+    list-style-type: disc !important;
+    display: block !important;
+}
+
+.course-content ol {
+    list-style-type: decimal !important;
+    display: block !important;
+}
+
+.course-content ul,
+.course-content ol {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+    padding-left: 1rem;
+}
+
+.course-content li {
+    display: list-item !important;
+    margin-bottom: 0.5rem;
+}
+
+/* 連結樣式 */
+.course-content a {
+    color: #ea580c;
+    text-decoration: underline;
+}
+
+.course-content a:hover {
+    color: #c2410c;
+}
+
+/* 引用樣式 */
+.course-content blockquote {
+    border-left: 4px solid #e5e7eb;
+    padding-left: 1rem;
+    margin: 1rem 0;
+    font-style: italic;
+}
+
+/* 代碼樣式 */
+.course-content code {
+    background: #f3f4f6;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: monospace;
+}
+
+.course-content pre {
+    background: #f3f4f6;
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+}
+
+/* 表格樣式 */
+.course-content table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.course-content th,
+.course-content td {
+    border: 1px solid #e5e7eb;
+    padding: 0.5rem;
+    text-align: left;
+}
+
+.course-content th {
+    background-color: #f9fafb;
+}
+
+/* 圖片樣式 */
+.course-content img {
+    max-width: 100%;
+    height: auto;
+    margin: 1rem 0;
+    border-radius: 4px;
+}
+
+/* 水平線 */
+.course-content hr {
+    border: 0;
+    border-top: 1px solid #e5e7eb;
+    margin: 1.5rem 0;
+}
+
+/* 文本對齊 */
+.course-content .ql-align-center {
+    text-align: center;
+}
+
+.course-content .ql-align-right {
+    text-align: right;
+}
+
+.course-content .ql-align-justify {
+    text-align: justify;
+}
+
+/* 背景和文字顏色 */
+.course-content .ql-bg-black {
+    background-color: #000;
+}
+
+.course-content .ql-color-white {
+    color: #fff;
+}
+
+/* 確保內容區域不受限制 */
+.course-content.ql-editor {
+    overflow: visible;
+    max-height: none;
+    height: auto;
+}
