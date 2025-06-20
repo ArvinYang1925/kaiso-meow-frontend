@@ -13,10 +13,21 @@ const CourseCardListComponent: React.FC = () => {
     <div className="course-card-list grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
       {isLoading ? (
         Array.from({ length: 6 }).map((_, index) => (
-          <CourseCard key={index} id="" title="" instructorName="" coverUrl="" price={0} isLoading={true} />
+          <CourseCard
+            key={index}
+            id=""
+            title=""
+            instructorName=""
+            coverUrl=""
+            price={0}
+            isLoading={true}
+            isReady={false}
+          />
         ))
       ) : courseCardList.length === 0 ? (
-        <p className="col-span-full text-center text-gray-500">目前尚無課程資料</p>
+        <p className="col-span-full text-center text-gray-500">
+          目前尚無課程資料
+        </p>
       ) : (
         courseCardList.map((course) => (
           <CourseCard

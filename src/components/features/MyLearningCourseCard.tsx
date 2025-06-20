@@ -14,7 +14,7 @@ export const MyLearningCourseCard: React.FC<MyLearningCourseCardProps> = ({
   coverUrl,
   progressPercentage,
   instructorName,
-  isReady,
+  isReady = true,
   isLoading = false,
 }) => {
   const navigate = useNavigate();
@@ -28,7 +28,10 @@ export const MyLearningCourseCard: React.FC<MyLearningCourseCardProps> = ({
   };
 
   return (
-    <Card isLoading={isLoading} className="w-full rounded-lg shadow-md bg-white overflow-hidden flex flex-col cursor-pointer hover:shadow-lg transition-shadow">
+    <Card
+      isLoading={isLoading}
+      className="w-full rounded-lg shadow-md bg-white overflow-hidden flex flex-col cursor-pointer hover:shadow-lg transition-shadow"
+    >
       {/* 圖片區塊 */}
       <div className="relative">
         <img src={coverUrl} alt={title} className="w-full h-66 object-cover" />

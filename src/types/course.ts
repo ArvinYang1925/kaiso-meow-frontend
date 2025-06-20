@@ -79,7 +79,7 @@ export interface MyCourse {
   coverUrl: string;
   progressPercentage: number;
   instructorName: string;
-  isReady: boolean;
+  isReady?: boolean;
 }
 
 export interface MyLearningApiResponse {
