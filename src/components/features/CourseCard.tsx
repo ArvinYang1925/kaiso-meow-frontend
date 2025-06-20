@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import logo from "@/assets/catschool_logo.svg";
 import { useNavigate } from "react-router-dom";
+import { Card } from "@/components/ui/card";
 
 interface CourseCardProps {
   id: string;
@@ -10,6 +11,7 @@ interface CourseCardProps {
   coverUrl: string;
   price: number;
   isReady: boolean;
+  isLoading?: boolean;
 }
 
 export const CourseCard: React.FC<CourseCardProps> = ({
@@ -19,11 +21,12 @@ export const CourseCard: React.FC<CourseCardProps> = ({
   coverUrl,
   price,
   isReady,
+  isLoading = false,
 }) => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-full rounded-lg shadow-md bg-white overflow-hidden flex flex-col">
+    <Card isLoading={isLoading} className="w-full rounded-lg shadow-md bg-white overflow-hidden flex flex-col">
       {/* 圖片區塊 */}
       <div className="relative">
         <img
@@ -74,7 +77,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({
           </Button>
         </div>
       </div>
-    </div>
+    </Card>
   );
 };
 

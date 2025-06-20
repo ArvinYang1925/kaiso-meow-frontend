@@ -93,9 +93,9 @@ const CourseDetailPage = () => {
     <>
       <div className="mt-16">
         <HeroComponent isLoading={isLoading} />
-        <div className="container py-10 md:py-20 flex flex-col lg:flex-row gap-12">
+        <div className="container md:py-20 flex flex-col lg:flex-row gap-12">
           <div className="card-section order-1 lg:order-2 w-full lg:basis-1/3">
-            <Card className="p-6 space-y-4">
+            <Card isLoading={isLoading} className="p-6 space-y-4">
               <img src={courseDetail?.coverUrl} className="rounded-lg" alt="" />
               <p className="price text-orange-500 font-medium text-2xl">
                 NT$ {courseDetail?.price.toLocaleString()}
@@ -115,7 +115,7 @@ const CourseDetailPage = () => {
             </Card>
           </div>
 
-          <div className="text-section order-2 lg:order-1 w-full lg:basis-2/3 space-y-18">
+          <div className="text-section order-2 lg:order-1 w-full lg:basis-2/3 space-y-12 lg:space-y-18">
             <Tabs
               defaultValue="courseIntro"
               className="w-full mb-18 text-sm border-b border-slate-200"
@@ -124,21 +124,21 @@ const CourseDetailPage = () => {
                 <TabsTrigger
                   value="courseIntro"
                   onClick={() => handleScroll(courseIntroRef)}
-                  className="w-[88px] font-medium px-4 py-2 leading-[20px] data-[state=active]:border-b-2 data-[state=active]:border-black"
+                  className="w-1/3 font-medium px-4 py-2 leading-[20px] data-[state=active]:border-b-2 data-[state=active]:border-black"
                 >
                   課程簡介
                 </TabsTrigger>
                 <TabsTrigger
                   value="chapterContent"
                   onClick={() => handleScroll(chapterContentRef)}
-                  className="w-[88px] font-medium px-4 py-2 leading-[20px] data-[state=active]:border-b-2 data-[state=active]:border-black"
+                  className="w-1/3 font-medium px-4 py-2 leading-[20px] data-[state=active]:border-b-2 data-[state=active]:border-black"
                 >
                   章節內容
                 </TabsTrigger>
                 <TabsTrigger
                   value="FAQSection"
                   onClick={() => handleScroll(faqRef)}
-                  className="w-[88px] font-medium px-4 py-2 leading-[20px] data-[state=active]:border-b-2 data-[state=active]:border-black"
+                  className="w-1/3 font-medium px-4 py-2 leading-[20px] data-[state=active]:border-b-2 data-[state=active]:border-black"
                 >
                   常見問答
                 </TabsTrigger>

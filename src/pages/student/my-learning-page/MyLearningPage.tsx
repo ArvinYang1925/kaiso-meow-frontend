@@ -5,7 +5,7 @@ import { MyCourse } from "@/types/course";
 
 const MyLearningPage: React.FC = () => {
   const [courses, setCourses] = useState<MyCourse[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -16,7 +16,7 @@ const MyLearningPage: React.FC = () => {
 
   const fetchMyCourses = async (page = 1) => {
     try {
-      setLoading(true);
+      setIsLoading(true);
       setError(null);
       const response = await myLearningService.getMyLearningCourses(page, 9);
 
@@ -30,7 +30,7 @@ const MyLearningPage: React.FC = () => {
       console.error("Error fetching my learning courses:", err);
       setError("載入課程時發生錯誤");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -44,22 +44,21 @@ const MyLearningPage: React.FC = () => {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="container mx-auto py-8 min-h-[60vh]">
         <h1 className="text-2xl font-bold mb-8">我的學習</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-          {[1, 2, 3].map((i) => (
-            <div
+          {Array.from({ length: 6 }).map((_, i) => (
+            <MyLearningCourseCard
               key={i}
-              className="w-full rounded-lg shadow-md bg-gray-200 animate-pulse"
-            >
-              <div className="w-full h-48 bg-gray-300"></div>
-              <div className="p-4">
-                <div className="h-4 bg-gray-300 rounded mb-2"></div>
-                <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-              </div>
-            </div>
+              courseId=""
+              title=""
+              coverUrl=""
+              progressPercentage={0}
+              instructorName=""
+              isLoading={true}
+            />
           ))}
         </div>
       </div>
