@@ -221,8 +221,11 @@ const LearningPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex h-screen">
-        <div className="w-80 bg-gray-100 animate-pulse"></div>
+      <div className="h-screen bg-gray-50 flex flex-col md:flex-row">
+        {/* Sidebar skeleton - Desktop only */}
+        <div className="hidden md:block w-80 bg-gray-100 animate-pulse"></div>
+
+        {/* Main content skeleton */}
         <div className="flex-1 bg-gray-50 animate-pulse flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>

@@ -41,7 +41,7 @@ const CourseSidebar: React.FC<CourseSidebarProps> = ({
   };
 
   return (
-    <div className="w-80 bg-white border-r border-gray-200 flex flex-col h-screen">
+    <div className="w-80 bg-white border-r border-gray-200 flex flex-col h-screen shrink-0">
       {/* Top Navigation */}
       <div className="p-4 border-b border-gray-100">
         <div className="flex gap-2">
