@@ -7,7 +7,7 @@ import { useDialogStore } from "@/stores/commonDialogStore";
 import axios from "axios";
 
 export default function OrderListPage() {
-  const { orderList, pagination, fetchOrder, checkoutEcpay } =
+  const { orderList, pagination, fetchOrder, checkoutEcpay, isLoading } =
     useOrderListStore();
   const { showCommonDialog } = useDialogStore();
 
@@ -62,6 +62,7 @@ export default function OrderListPage() {
         <h1 className="font-semibold text-3xl mb-16">購買紀錄</h1>
         <main className="mb-8">
           <TableWithPagination
+            isLoading={isLoading}
             data={orderList}
             columnCount={tableColumn.length}
             pagination={pagination}
@@ -78,7 +79,9 @@ export default function OrderListPage() {
             renderRow={(order) => (
               <>
                 <TableCell>{order.title}</TableCell>
-                <TableCell>{Math.floor(order.orderPrice).toLocaleString()}</TableCell>
+                <TableCell>
+                  {Math.floor(order.orderPrice).toLocaleString()}
+                </TableCell>
                 <TableCell>{order.paidAt}</TableCell>
                 <TableCell>{order.status}</TableCell>
                 <TableCell>

@@ -21,7 +21,8 @@ const CourseDetailPage = () => {
   const faqRef = useRef<HTMLDivElement>(null);
 
   const { courseId } = useParams();
-  const { courseDetail, fetchCourseDetailById } = useCourseDetailStore();
+  const { courseDetail, fetchCourseDetailById, clearCourseDetail, isLoading } =
+    useCourseDetailStore();
   const { withLoading, ScreenLoading } = useScreenLoading();
 
   const navigate = useNavigate();
@@ -35,6 +36,8 @@ const CourseDetailPage = () => {
   useEffect(() => {
     if (!courseId) return;
 
+    clearCourseDetail();
+
     const loadInitialData = async () => {
       return withLoading(async () => {
         await fetchCourseDetailById(courseId);
@@ -44,7 +47,7 @@ const CourseDetailPage = () => {
     loadInitialData();
   }, [courseId, withLoading]);
 
-  if (!courseDetail) return <div>載入中...</div>;
+  // if (!courseDetail) return <div>載入中...</div>;
 
   /** Tab 所定位的頁面位置 */
   const handleScroll = (ref: React.RefObject<HTMLDivElement | null>) => {
@@ -89,18 +92,18 @@ const CourseDetailPage = () => {
   return (
     <>
       <div className="mt-16">
-        <HeroComponent />
+        <HeroComponent isLoading={isLoading} />
         <div className="container py-10 md:py-20 flex flex-col lg:flex-row gap-12">
           <div className="card-section order-1 lg:order-2 w-full lg:basis-1/3">
             <Card className="p-6 space-y-4">
               <img src={courseDetail?.coverUrl} className="rounded-lg" alt="" />
               <p className="price text-orange-500 font-medium text-2xl">
-                NT$ {courseDetail.price.toLocaleString()}
+                NT$ {courseDetail?.price.toLocaleString()}
               </p>
               <div className="text-base">
                 <p>本課程包含以下內容</p>
                 <ul className="text-slate-500 list-disc ps-4">
-                  <li>課程長度約 {courseDetail.duration} 小時</li>
+                  <li>課程長度約 {courseDetail?.duration} 小時</li>
                 </ul>
               </div>
               <Button
@@ -150,9 +153,9 @@ const CourseDetailPage = () => {
                 className="mb-4 course-content"
                 dangerouslySetInnerHTML={{ __html: cleanHTML }}
               />
-               <h2 className="mb-10 font-medium text-3xl">課程亮點</h2>
+              <h2 className="mb-10 font-medium text-3xl">課程亮點</h2>
               <div>
-                {courseDetail.highlight.split("\n").map((line, index) => (
+                {courseDetail?.highlight.split("\n").map((line, index) => (
                   <p key={index}>{line}</p>
                 ))}
               </div>
@@ -162,8 +165,10 @@ const CourseDetailPage = () => {
               ref={chapterContentRef}
             >
               <h2 className="mb-10 font-medium text-3xl">章節內容</h2>
-              {courseDetail.sections.length > 0 ? (
-                <CourseAccordion sections={courseDetail.sections} />
+              {!courseDetail ? (
+                <p>該課程目前尚無任何資料</p>
+              ) : courseDetail.sections.length > 0 ? (
+                <CourseAccordion sections={courseDetail?.sections ?? []} />
               ) : (
                 <p>該課程目前尚無章節內容</p>
               )}

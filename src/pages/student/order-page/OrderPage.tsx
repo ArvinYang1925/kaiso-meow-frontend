@@ -28,14 +28,6 @@ const OrderPage = () => {
   const navigate = useNavigate();
 
   const {
-    register,
-    // handleSubmit,
-    // watch,
-    getValues,
-    formState: { errors },
-  } = useForm<FormData>();
-
-  const {
     userData,
     orderData,
     courseData,
@@ -44,6 +36,22 @@ const OrderPage = () => {
     createOrder,
     // resetStore,
   } = useOrderStore();
+
+  const {
+    register,
+    // handleSubmit,
+    // watch,
+    getValues,
+    formState: { errors },
+    trigger,
+  } = useForm<FormData>({
+    defaultValues: {
+      name: userData.name || "",
+      phoneNumber: userData.phoneNumber || "",
+      email: userData.email || "",
+      couponId: "",
+    },
+  });
 
   const { showCommonDialog } = useDialogStore();
   const { courseId } = useParams();
@@ -81,6 +89,17 @@ const OrderPage = () => {
 
   /** 送出訂單、跳轉綠界 */
   const handleSubmitOrder = async () => {
+    // 手動觸發驗證
+    const isValid = await trigger();
+
+    if (!isValid) {
+      showCommonDialog({
+        title: "表單資料填寫不完整",
+        description: "請確認表單資料已填寫完整！",
+      });
+      return;
+    }
+
     const couponId = couponData?.id ?? "";
     const course_id = courseId ?? "";
     const reqData = { couponId, courseId: course_id };
@@ -164,7 +183,7 @@ const OrderPage = () => {
               type={"text"}
               placeholder={"請輸入姓名"}
               register={register}
-              rules={{ required: "請輸入姓名" }}
+              rules={{ required: "姓名為必填欄位" }}
               error={errors.name}
             />
 
@@ -174,8 +193,9 @@ const OrderPage = () => {
               type={"text"}
               placeholder={"請輸入聯絡電話"}
               register={register}
-              rules={{ required: "請輸入聯絡電話" }}
+              rules={{ required: "聯絡電話為必填欄位" }}
               error={errors.phoneNumber}
+              value={userData.phoneNumber}
             />
 
             <FormValidateInput
@@ -278,6 +298,8 @@ const OrderPage = () => {
                 <span>{formatPrice(orderData.orderPrice)}</span>
               </p>
               <Button
+                type="button"
+                form="orderForm"
                 className="bg-orange-600 hover:bg-orange-500 w-full h-[44px] hidden md:block"
                 onClick={handleSubmitOrder}
               >
@@ -294,6 +316,8 @@ const OrderPage = () => {
           </p>
         </div>
         <Button
+          type="button"
+          form="orderForm"
           className="bg-orange-600 hover:bg-orange-500 w-full h-[44px] md:hidden"
           onClick={handleSubmitOrder}
         >

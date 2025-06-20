@@ -114,7 +114,7 @@ export const Header = () => {
         {!isAuthenticated && (
           <div className="p-4 border-t flex-shrink-0">
             <Button
-              className="w-full bg-orange-600 h-12"
+              className="w-full bg-orange-600 hover:bg-orange-500 h-12"
               onClick={() => {
                 navigate(PUBLIC_ROUTES.AUTH);
                 setIsMobileMenuOpen(false);
@@ -198,7 +198,7 @@ export const Header = () => {
           <div className="flex-1"></div>
           <div className="p-4 flex-shrink-0">
             <Button
-              className="w-full bg-orange-600 h-12"
+              className="w-full bg-orange-600 hover:bg-orange-500 h-12"
               onClick={() => {
                 navigate(PUBLIC_ROUTES.AUTH);
                 setIsUserMenuOpen(false);
@@ -321,7 +321,7 @@ export const Header = () => {
               <>
                 <div className="hidden md:block">
                   <Button
-                    className="bg-orange-600 whitespace-nowrap text-sm px-3 py-2"
+                    className="bg-orange-600 hover:bg-orange-500 whitespace-nowrap text-sm px-3 py-2"
                     onClick={() => navigate(PUBLIC_ROUTES.AUTH)}
                   >
                     登入 / 註冊
