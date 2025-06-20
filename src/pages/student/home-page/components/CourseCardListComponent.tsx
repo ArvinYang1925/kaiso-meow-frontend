@@ -5,9 +5,9 @@ import { useEffect } from "react";
 const CourseCardListComponent: React.FC = () => {
   const { courseCardList, fetchCourseCardList } = useHomePageStore();
 
-  useEffect(()=>{
-    fetchCourseCardList()
-  },[])
+  useEffect(() => {
+    fetchCourseCardList();
+  }, []);
 
   return (
     <div className="course-card-list grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
@@ -19,6 +19,7 @@ const CourseCardListComponent: React.FC = () => {
           instructorName={course.instructorName}
           coverUrl={course.coverUrl}
           price={course.price}
+          isReady={course.isReady}
         />
       ))}
     </div>

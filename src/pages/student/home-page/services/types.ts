@@ -1,17 +1,18 @@
 import { Pagination } from "@/services/types";
 
 export type CourseItem = {
-    id: string;
-    title: string;
-    instructorName: string;
-    coverUrl: string;
-    price: number;
-}
+  id: string;
+  title: string;
+  instructorName: string;
+  coverUrl: string;
+  price: number;
+  isReady: boolean;
+};
 
 export type CourseListResponse = {
-    status: 'success';
-    data: {
-        courseList: CourseItem[];
-        pagination: Pagination;
-    };
-}
+  status: "success";
+  data: {
+    courseList: CourseItem[];
+    pagination: Pagination;
+  };
+};
