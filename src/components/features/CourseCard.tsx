@@ -20,13 +20,16 @@ export const CourseCard: React.FC<CourseCardProps> = ({
   instructorName,
   coverUrl,
   price,
-  isReady,
+  isReady = true,
   isLoading = false,
 }) => {
   const navigate = useNavigate();
 
   return (
-    <Card isLoading={isLoading} className="w-full rounded-lg shadow-md bg-white overflow-hidden flex flex-col">
+    <Card
+      isLoading={isLoading}
+      className="w-full rounded-lg shadow-md bg-white overflow-hidden flex flex-col"
+    >
       {/* 圖片區塊 */}
       <div className="relative">
         <img
