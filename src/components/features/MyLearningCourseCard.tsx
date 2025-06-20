@@ -2,8 +2,11 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import logo from "@/assets/catschool_logo.svg";
 import { useNavigate } from "react-router-dom";
 import { MyCourse } from "@/types/course";
+import { Card } from "@/components/ui/card";
 
-interface MyLearningCourseCardProps extends MyCourse {}
+interface MyLearningCourseCardProps extends MyCourse {
+  isLoading?: boolean;
+}
 
 export const MyLearningCourseCard: React.FC<MyLearningCourseCardProps> = ({
   courseId,
@@ -11,6 +14,7 @@ export const MyLearningCourseCard: React.FC<MyLearningCourseCardProps> = ({
   coverUrl,
   progressPercentage,
   instructorName,
+  isLoading = false,
 }) => {
   const navigate = useNavigate();
 
@@ -23,7 +27,7 @@ export const MyLearningCourseCard: React.FC<MyLearningCourseCardProps> = ({
   };
 
   return (
-    <div className="w-full rounded-lg shadow-md bg-white overflow-hidden flex flex-col cursor-pointer hover:shadow-lg transition-shadow">
+    <Card isLoading={isLoading} className="w-full rounded-lg shadow-md bg-white overflow-hidden flex flex-col cursor-pointer hover:shadow-lg transition-shadow">
       {/* 圖片區塊 */}
       <img src={coverUrl} alt={title} className="w-full h-66 object-cover" />
 
@@ -71,6 +75,6 @@ export const MyLearningCourseCard: React.FC<MyLearningCourseCardProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </Card>
   );
 };

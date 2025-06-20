@@ -1,17 +1,19 @@
 import { FC } from "react";
 import vector from "@/assets/homepage/vector.svg";
 import { ExpertRecommendationData } from "@/pages/student/home-page/data/expertRecommendations";
+import { Card } from "@/components/ui/card";
 
-type ExpertRecommendationCardProps = ExpertRecommendationData;
+type ExpertRecommendationCardProps = ExpertRecommendationData & { isLoading?: boolean };
 
 const ExpertRecommendationCard: FC<ExpertRecommendationCardProps> = ({
   name,
   role,
   description,
   imageSrc,
+  isLoading = false,
 }) => {
   return (
-    <div className="bg-gray-100 rounded-lg overflow-visible shadow-sm py-7 px-8 relative">
+    <Card isLoading={isLoading} className="bg-gray-100 rounded-lg overflow-visible shadow-sm py-7 px-8 relative">
       <div className="grid grid-cols-[2fr_3fr] gap-4">
         <div className="w-full h-full rounded-full overflow-visible">
           <img
@@ -29,7 +31,7 @@ const ExpertRecommendationCard: FC<ExpertRecommendationCardProps> = ({
       <div className="absolute -bottom-3 right-4 text-3xl text-gray-200 overflow-visible">
         <img src={vector} alt="vector" className="w-[24px] h-[20px]" />
       </div>
-    </div>
+    </Card>
   );
 };
 
