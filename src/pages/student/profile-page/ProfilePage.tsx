@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useProfileStore } from "./profileStore";
 import { useDialogStore } from "@/stores/commonDialogStore";
 import ChangePasswordDialog from "./components/ChangePasswordDialog";
+import axios from "axios";
 
 export type FormData = {
   email: string;
@@ -72,11 +73,13 @@ export default function ProfilePage() {
       });
       setIsEditing(false);
     } catch (error) {
-      console.error("Failed to save profile", error);
-      showCommonDialog({
-        title: "儲存失敗",
-        description: "無法儲存個人資料，請稍後再試。",
-      });
+      if (axios.isAxiosError(error) && error.response?.data) {
+        const { status, message } = error.response.data;
+        showCommonDialog({
+          title: status,
+          description: message,
+        });
+      }
     } finally {
       setIsLoading(false);
     }
