@@ -173,30 +173,49 @@ const LearningPage: React.FC = () => {
         // Mark current section as complete
         await learningService.markSectionAsComplete(courseId, sectionId);
 
+        // Update current section's completion status in the sections list
+        setCourseSections((prevSections) =>
+          prevSections.map((section) =>
+            section.id === sectionId
+              ? { ...section, isCompleted: true }
+              : section
+          )
+        );
+
         // Update course progress after marking as complete
         const progressResponse = await learningService.getCourseProgress(
           courseId
         );
+        let updatedProgress = courseProgress;
         if (progressResponse.status === "success") {
           const { progress } = progressResponse.data;
-          setCourseProgress({
+          updatedProgress = {
             completedSections: progress.completedSections,
             totalSections: progress.totalSections,
             percentage: Math.round(progress.percentage),
-          });
+          };
+          setCourseProgress(updatedProgress);
         }
 
-        // Navigate to next section if exists, otherwise stay on current section
+        // Check if all lessons are completed
+        const allLessonsCompleted =
+          updatedProgress.completedSections === updatedProgress.totalSections;
+
+        // Navigate to next section if exists
         if (currentSection.nextSection) {
           handleSectionClick(currentSection.nextSection.id);
         } else {
-          // This is the last section - show completion message and redirect to learning center
-          const shouldRedirect = window.confirm(
-            "恭喜！您已完成整個課程！\n\n點擊確定返回學習中心，點擊取消留在當前頁面。"
-          );
-          if (shouldRedirect) {
-            navigate("/my-learning");
+          // This is the last section
+          if (allLessonsCompleted) {
+            // Show completion message only if all lessons are completed
+            const shouldRedirect = window.confirm(
+              "恭喜！您已完成整個課程！\n\n點擊確定返回學習中心，點擊取消留在當前頁面。"
+            );
+            if (shouldRedirect) {
+              navigate("/my-learning");
+            }
           }
+          // If not all lessons are completed, just stay on current section
         }
       } catch (error) {
         console.error("Error marking section as complete:", error);
@@ -221,8 +240,11 @@ const LearningPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex h-screen">
-        <div className="w-80 bg-gray-100 animate-pulse"></div>
+      <div className="h-screen bg-gray-50 flex flex-col md:flex-row">
+        {/* Sidebar skeleton - Desktop only */}
+        <div className="hidden md:block w-80 bg-gray-100 animate-pulse"></div>
+
+        {/* Main content skeleton */}
         <div className="flex-1 bg-gray-50 animate-pulse flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>

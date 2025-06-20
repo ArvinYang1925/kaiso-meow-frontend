@@ -22,6 +22,7 @@ export type Course = {
   isFree: boolean;
   coverUrl?: string;
   instructorId: string;
+  isReady: boolean;
   created_at: Date;
   updated_at: Date;
   deleted_at?: Date;
@@ -41,6 +42,7 @@ export type CreateCourseModel = {
   price: number;
   isFree: boolean;
   coverUrl?: string;
+  isReady?: boolean;
 };
 
 // 更新課程模型 (API #35)
@@ -53,6 +55,7 @@ export type UpdateCourseModel = {
   price: number;
   isFree: boolean;
   coverUrl?: string;
+  isReady?: boolean;
 };
 
 // 切換課程發布狀態模型 (API #49)
@@ -77,6 +80,7 @@ export type CourseListItemModel = {
   studentCount: number;
   createdAt: Date;
   instructorName: string;
+  isReady: boolean;
 };
 
 // 分頁資訊模型

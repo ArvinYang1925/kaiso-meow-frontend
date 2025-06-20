@@ -112,6 +112,7 @@ const MyLearningPage: React.FC = () => {
                 coverUrl={course.coverUrl}
                 progressPercentage={course.progressPercentage}
                 instructorName={course.instructorName}
+                isReady={course.isReady}
               />
             ))}
           </div>
