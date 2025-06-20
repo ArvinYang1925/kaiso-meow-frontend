@@ -21,7 +21,7 @@ const CourseDetailPage = () => {
   const faqRef = useRef<HTMLDivElement>(null);
 
   const { courseId } = useParams();
-  const { courseDetail, fetchCourseDetailById, clearCourseDetail } =
+  const { courseDetail, fetchCourseDetailById, clearCourseDetail, isLoading } =
     useCourseDetailStore();
   const { withLoading, ScreenLoading } = useScreenLoading();
 
@@ -92,7 +92,7 @@ const CourseDetailPage = () => {
   return (
     <>
       <div className="mt-16">
-        <HeroComponent />
+        <HeroComponent isLoading={isLoading} />
         <div className="container py-10 md:py-20 flex flex-col lg:flex-row gap-12">
           <div className="card-section order-1 lg:order-2 w-full lg:basis-1/3">
             <Card className="p-6 space-y-4">
