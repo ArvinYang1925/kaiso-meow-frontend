@@ -195,7 +195,6 @@ const OrderPage = () => {
               register={register}
               rules={{ required: "聯絡電話為必填欄位" }}
               error={errors.phoneNumber}
-              value={userData.phoneNumber}
             />
 
             <FormValidateInput
