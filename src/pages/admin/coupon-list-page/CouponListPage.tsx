@@ -17,8 +17,13 @@ const COUPON_TYPE_MAP = {
 } as const;
 
 export default function CouponListPage() {
-  const { couponList, pagination, fetchCouponList, deleteCouponList } =
-    useCouponListStore();
+  const {
+    couponList,
+    pagination,
+    fetchCouponList,
+    deleteCouponList,
+    isLoading,
+  } = useCouponListStore();
 
   // 全螢幕 Loading
   const { ScreenLoading, withLoading } = useScreenLoading();
@@ -75,6 +80,7 @@ export default function CouponListPage() {
         </div>
         <main className="mb-8 bg-white rounded-lg p-4">
           <TableWithPagination
+            isLoading={isLoading}
             data={couponList}
             pagination={pagination}
             columnCount={tableColumn.length}

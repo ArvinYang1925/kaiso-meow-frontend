@@ -5,7 +5,8 @@ import { useStudentListStore } from "./studentListStore";
 import { useScreenLoading } from "@/components/common/useScreenLoading";
 
 export default function StudentListPage() {
-  const { studentList, pagination, fetchStudentList } = useStudentListStore();
+  const { studentList, pagination, fetchStudentList, isLoading } =
+    useStudentListStore();
   // 全螢幕 Loading
   const { ScreenLoading, withLoading } = useScreenLoading();
   const tableColumn = [
@@ -32,6 +33,7 @@ export default function StudentListPage() {
         <h1 className="font-semibold text-2xl mb-8">學生列表</h1>
         <main className="mb-8 bg-white rounded-lg p-4">
           <TableWithPagination
+            isLoading={isLoading}
             data={studentList}
             pagination={pagination}
             columnCount={tableColumn.length}
