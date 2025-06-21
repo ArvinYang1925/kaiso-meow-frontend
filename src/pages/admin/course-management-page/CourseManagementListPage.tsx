@@ -432,30 +432,26 @@ export default function CourseManagementListPage() {
           </>
         )}
 
-        {/* 分頁控制 - 手機版優化 */}
+        {/* 分頁控制 - 響應式設計 */}
         {shouldShowContent &&
           pagination.totalItems > 0 &&
           pagination.totalPages > 1 && (
-            <div className="flex flex-col md:flex-row justify-center md:justify-between items-center mt-8 gap-4 md:gap-0">
-              {/* 桌面版顯示分頁資訊，手機版隱藏 */}
-              <span className="hidden md:block text-sm text-muted-foreground">
-                第 {pagination.currentPage} 頁，共 {pagination.totalPages} 頁
-              </span>
-
-              {/* 分頁按鈕區域 - 手機版佔滿寬度，桌面版自適應 */}
-              <div className="w-full md:w-auto flex justify-center">
-                <div className="space-x-2 flex items-center">
+            <div className="mt-8 px-2 py-4">
+              {/* 桌面版：單行布局 */}
+              <div className="hidden sm:flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">
+                  第 {pagination.currentPage} 頁，共 {pagination.totalPages} 頁
+                </span>
+                <div className="flex items-center gap-1">
                   <Button
                     variant="outline"
                     size="sm"
-                    className={
+                    className={`px-3 py-2 text-sm ${
                       pagination.currentPage <= 1
                         ? "text-gray-400 border-gray-200 cursor-not-allowed"
                         : "text-gray-700 border-gray-300 hover:bg-gray-200"
-                    }
-                    onClick={() => {
-                      handlePageChange(pagination.currentPage - 1);
-                    }}
+                    }`}
+                    onClick={() => handlePageChange(pagination.currentPage - 1)}
                     disabled={pagination.currentPage <= 1}
                   >
                     上一頁
@@ -467,18 +463,15 @@ export default function CourseManagementListPage() {
                       <Button
                         key={page}
                         variant={
-                          page === pagination.currentPage ? "outline" : "ghost"
+                          page === pagination.currentPage ? "default" : "ghost"
                         }
                         size="sm"
-                        className={
+                        className={`px-3 py-2 min-w-[40px] text-sm ${
                           page === pagination.currentPage
-                            ? "text-gray-600 hover:bg-gray-100 hover:text-gray-500 cursor-not-allowed"
-                            : "text-gray-600 hover:bg-gray-300 hover:text-gray-700"
-                        }
-                        onClick={() => {
-                          handlePageChange(page);
-                        }}
-                        disabled={page === pagination.currentPage}
+                            ? "bg-gray-700 text-white hover:bg-gray-800"
+                            : "text-gray-600 hover:bg-gray-300"
+                        }`}
+                        onClick={() => handlePageChange(page)}
                       >
                         {page}
                       </Button>
@@ -488,18 +481,79 @@ export default function CourseManagementListPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => {
-                      handlePageChange(pagination.currentPage + 1);
-                    }}
+                    onClick={() => handlePageChange(pagination.currentPage + 1)}
                     disabled={pagination.currentPage >= pagination.totalPages}
-                    className={
+                    className={`px-3 py-2 text-sm ${
                       pagination.currentPage >= pagination.totalPages
                         ? "text-gray-400 border-gray-200 cursor-not-allowed"
                         : "text-gray-700 border-gray-300 hover:bg-gray-200"
-                    }
+                    }`}
                   >
                     下一頁
                   </Button>
+                </div>
+              </div>
+
+              {/* 手機版：兩列布局 */}
+              <div className="sm:hidden space-y-3">
+                {/* 第一列：頁碼切換 */}
+                <div className="flex justify-center items-center gap-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={`px-3 py-2 text-xs ${
+                      pagination.currentPage <= 1
+                        ? "text-gray-400 border-gray-200 cursor-not-allowed"
+                        : "text-gray-700 border-gray-300 hover:bg-gray-200"
+                    }`}
+                    onClick={() => handlePageChange(pagination.currentPage - 1)}
+                    disabled={pagination.currentPage <= 1}
+                  >
+                    上一頁
+                  </Button>
+
+                  {Array.from({ length: pagination.totalPages }, (_, index) => {
+                    const page = index + 1;
+                    return (
+                      <Button
+                        key={page}
+                        variant={
+                          page === pagination.currentPage ? "default" : "ghost"
+                        }
+                        size="sm"
+                        className={`px-2 py-2 min-w-[32px] text-xs ${
+                          page === pagination.currentPage
+                            ? "bg-gray-700 text-white hover:bg-gray-800"
+                            : "text-gray-600 hover:bg-gray-300"
+                        }`}
+                        onClick={() => handlePageChange(page)}
+                      >
+                        {page}
+                      </Button>
+                    );
+                  })}
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(pagination.currentPage + 1)}
+                    disabled={pagination.currentPage >= pagination.totalPages}
+                    className={`px-3 py-2 text-xs ${
+                      pagination.currentPage >= pagination.totalPages
+                        ? "text-gray-400 border-gray-200 cursor-not-allowed"
+                        : "text-gray-700 border-gray-300 hover:bg-gray-200"
+                    }`}
+                  >
+                    下一頁
+                  </Button>
+                </div>
+
+                {/* 第二列：總數統計 */}
+                <div className="flex justify-center">
+                  <span className="text-xs text-muted-foreground">
+                    第 {pagination.currentPage} 頁，共 {pagination.totalPages}{" "}
+                    頁
+                  </span>
                 </div>
               </div>
             </div>

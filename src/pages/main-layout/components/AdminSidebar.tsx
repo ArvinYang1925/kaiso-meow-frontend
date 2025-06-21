@@ -104,8 +104,8 @@ export default function AdminSidebar({
           "h-screen bg-white border-r shadow-sm fixed left-0 top-0 z-50",
           // 桌面版
           "md:w-80",
-          // 手機版：根據 isOpen 狀態控制顯示/隱藏
-          "w-[375px]",
+          // 手機版：調整寬度避免完全覆蓋螢幕
+          "w-80",
           // 手機版滑動效果
           "transform transition-transform duration-300 ease-in-out",
           isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"

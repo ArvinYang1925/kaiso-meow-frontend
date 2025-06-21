@@ -41,9 +41,9 @@ const UpdateSectionModal = () => {
     try {
       await updateSection(section.id, reqData);
       showCommonDialog({
-        title: '更新成功',
-        description: ''
-      })
+        title: "更新成功",
+        description: "",
+      });
       setIsShowUpdateSectionModal(false);
       fetchSectionList(courseId);
     } catch (error) {
@@ -56,7 +56,7 @@ const UpdateSectionModal = () => {
       setSectionTitle(section.title);
       setSectionContent(section.content);
     }
-  }, [isShowUpdateSectionModal]);
+  }, [isShowUpdateSectionModal, section]);
 
   return (
     <Modal
@@ -90,17 +90,17 @@ const UpdateSectionModal = () => {
           章節內容
         </label>
         <ReactQuill value={sectionContent} onChange={setSectionContent} />
-        <div className="btn-wrap flex justify-end mt-4">
+        <div className="btn-wrap flex gap-3 sm:justify-end mt-4">
           <Button
             type="button"
-            className="me-2"
+            className="flex-1 sm:flex-none sm:me-2"
             onClick={() => setIsShowUpdateSectionModal(false)}
           >
             關閉
           </Button>
           <Button
             type="submit"
-            className="bg-indigo-600 hover:bg-indigo-500"
+            className="bg-orange-600 hover:bg-orange-700 flex-1 sm:flex-none"
             disabled={sectionTitle == ""}
           >
             編輯章節

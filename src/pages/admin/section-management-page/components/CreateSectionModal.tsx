@@ -89,17 +89,18 @@ const CreateSectionModal = () => {
           章節內容
         </label>
         <ReactQuill value={sectionContent} onChange={setSectionContent} />
-        <div className="btn-wrap flex justify-end mt-4">
+        <div className="btn-wrap flex gap-3 mt-4">
           <Button
             type="button"
-            className="me-2"
+            variant="outline"
+            className="flex-1"
             onClick={() => setIsShowCreateSectionModal(false)}
           >
             關閉
           </Button>
           <Button
             type="submit"
-            className="bg-indigo-600 hover:bg-indigo-500"
+            className="bg-orange-600 hover:bg-orange-700 text-white flex-1"
             disabled={sectionTitle == ""}
           >
             新增章節
