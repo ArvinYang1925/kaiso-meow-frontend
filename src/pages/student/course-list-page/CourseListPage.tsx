@@ -87,14 +87,6 @@ const AnimatedCourseCard: React.FC<AnimatedCourseCardProps> = ({
               transition={{ duration: 0.3 }}
             />
 
-            {/* 課程準備中覆蓋層 */}
-            {!course.isReady && (
-              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                <div className="bg-orange-200 text-orange-800 px-4 py-2 rounded-lg font-medium">
-                  課程準備中
-                </div>
-              </div>
-            )}
           </div>
         </CardHeader>
 
@@ -136,18 +128,13 @@ const AnimatedCourseCard: React.FC<AnimatedCourseCardProps> = ({
             </span>
             <Button
               variant="outline"
-              className={`bg-orange-500 text-white hover:bg-orange-600 hover:text-gray ${
-                !course.isReady ? "opacity-40 cursor-not-allowed" : ""
-              }`}
-              disabled={!course.isReady}
+              className="bg-orange-500 text-white hover:bg-orange-600 hover:text-gray"
               onClick={(e) => {
                 e.stopPropagation();
-                if (course.isReady) {
-                  navigate(`/course/${course.id}`);
-                }
+                navigate(`/course/${course.id}`);
               }}
             >
-              {course.isReady ? "查看詳情" : "課程準備中"}
+              查看詳情
             </Button>
           </motion.div>
         </CardContent>
