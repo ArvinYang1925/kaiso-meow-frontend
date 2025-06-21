@@ -468,6 +468,11 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
           throw new Error("收益 API 回應為空");
         }
 
+        // 檢查 API 回應狀態，如果不是成功狀態則拋出錯誤
+        if (response.status !== "success") {
+          throw new Error(response.message || "API 回傳錯誤");
+        }
+
         if (isApiResponseSuccess(response) && response.data) {
           if (
             !response.data.revenueData ||
@@ -487,6 +492,7 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
             state.cacheKeys[cacheKey] = Date.now();
           });
 
+          // 只有在成功且強制刷新時才顯示成功提示
           if (forceRefresh) {
             showSuccessToast("數據更新", "收益報表已更新至最新數據");
           }
@@ -505,11 +511,17 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
             message: errorMessage,
             type: "api",
           };
-          state.revenueData = null;
-          state.chartData = null;
+          // 只在初次載入失敗時清空數據，其他情況保留之前的數據
+          if (!get().revenueData) {
+            state.revenueData = null;
+            state.chartData = null;
+          }
         });
 
         showErrorDialog("載入失敗", errorMessage);
+
+        // 拋出錯誤以阻擋後續操作
+        throw error;
       } finally {
         set((state) => {
           state.isLoading = false;
@@ -625,8 +637,12 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
         Object.assign(state.filter, newFilter);
       });
 
-      // 自動重新獲取數據
-      get().fetchRevenueReport();
+      // 自動重新獲取數據，不處理錯誤（讓個別函數處理）
+      get()
+        .fetchRevenueReport()
+        .catch(() => {
+          // 錯誤已在 fetchRevenueReport 中處理，這裡只是防止未捕獲的 Promise rejection
+        });
     }, UI_CONFIG.DEBOUNCE_DELAY),
 
     // 重置篩選條件
@@ -635,8 +651,15 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
         state.filter = getInitialFilter();
       });
 
-      get().fetchRevenueReport();
-      showSuccessToast("篩選重置", "已重置為預設篩選條件");
+      get()
+        .fetchRevenueReport()
+        .then(() => {
+          // 只有在數據獲取成功時才顯示重置成功提示
+          showSuccessToast("篩選重置", "已重置為預設篩選條件");
+        })
+        .catch(() => {
+          // 錯誤已在 fetchRevenueReport 中處理
+        });
     },
 
     // 設定日期範圍
@@ -655,7 +678,11 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
         state.error = getInitialErrorState();
       });
 
-      get().fetchRevenueReport();
+      get()
+        .fetchRevenueReport()
+        .catch(() => {
+          // 錯誤已在 fetchRevenueReport 中處理
+        });
     },
 
     // 設定時間間隔
@@ -664,7 +691,11 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
         state.filter.interval = interval;
       });
 
-      get().fetchRevenueReport();
+      get()
+        .fetchRevenueReport()
+        .catch(() => {
+          // 錯誤已在 fetchRevenueReport 中處理
+        });
     },
 
     // 設定課程篩選
@@ -673,7 +704,11 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
         state.filter.selectedCourseId = courseId || null;
       });
 
-      get().fetchRevenueReport();
+      get()
+        .fetchRevenueReport()
+        .catch(() => {
+          // 錯誤已在 fetchRevenueReport 中處理
+        });
     },
 
     // 設定選中的標籤
@@ -732,48 +767,86 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
       const dataPoints = revenueData.revenueData;
       const summary = revenueData.summary;
 
-      // 計算成長率
-      const midPoint = Math.floor(dataPoints.length / 2);
-      const firstHalf = dataPoints.slice(0, midPoint);
-      const secondHalf = dataPoints.slice(midPoint);
+      // 計算成長率 - 修正邏輯
+      let revenueGrowthRate = 0;
+      let ordersGrowthRate = 0;
 
-      const firstHalfRevenue = firstHalf.reduce(
-        (sum, item) => sum + (item.totalRevenue || 0),
-        0
-      );
-      const secondHalfRevenue = secondHalf.reduce(
-        (sum, item) => sum + (item.totalRevenue || 0),
-        0
-      );
-      const firstHalfOrders = firstHalf.reduce(
-        (sum, item) => sum + (item.orderCount || 0),
-        0
-      );
-      const secondHalfOrders = secondHalf.reduce(
-        (sum, item) => sum + (item.orderCount || 0),
-        0
-      );
+      if (dataPoints.length >= 2) {
+        // 按日期排序確保數據順序正確
+        const sortedData = [...dataPoints].sort(
+          (a, b) =>
+            new Date(a.intervalStart).getTime() -
+            new Date(b.intervalStart).getTime()
+        );
+
+        // 如果數據點少於4個，使用首尾比較
+        if (sortedData.length < 4) {
+          const firstPoint = sortedData[0];
+          const lastPoint = sortedData[sortedData.length - 1];
+
+          const firstRevenue = firstPoint.totalRevenue || 0;
+          const lastRevenue = lastPoint.totalRevenue || 0;
+          const firstOrders = firstPoint.orderCount || 0;
+          const lastOrders = lastPoint.orderCount || 0;
+
+          revenueGrowthRate =
+            firstRevenue === 0
+              ? lastRevenue > 0
+                ? 100
+                : 0
+              : ((lastRevenue - firstRevenue) / firstRevenue) * 100;
+
+          ordersGrowthRate =
+            firstOrders === 0
+              ? lastOrders > 0
+                ? 100
+                : 0
+              : ((lastOrders - firstOrders) / firstOrders) * 100;
+        } else {
+          // 使用前後半段比較
+          const midPoint = Math.floor(sortedData.length / 2);
+          const firstHalf = sortedData.slice(0, midPoint);
+          const secondHalf = sortedData.slice(midPoint);
+
+          const firstHalfRevenue = firstHalf.reduce(
+            (sum, item) => sum + (item.totalRevenue || 0),
+            0
+          );
+          const secondHalfRevenue = secondHalf.reduce(
+            (sum, item) => sum + (item.totalRevenue || 0),
+            0
+          );
+          const firstHalfOrders = firstHalf.reduce(
+            (sum, item) => sum + (item.orderCount || 0),
+            0
+          );
+          const secondHalfOrders = secondHalf.reduce(
+            (sum, item) => sum + (item.orderCount || 0),
+            0
+          );
+
+          revenueGrowthRate =
+            firstHalfRevenue === 0
+              ? secondHalfRevenue > 0
+                ? 100
+                : 0
+              : ((secondHalfRevenue - firstHalfRevenue) / firstHalfRevenue) *
+                100;
+
+          ordersGrowthRate =
+            firstHalfOrders === 0
+              ? secondHalfOrders > 0
+                ? 100
+                : 0
+              : ((secondHalfOrders - firstHalfOrders) / firstHalfOrders) * 100;
+        }
+      }
 
       // 限制成長率的最大值和最小值
-      const calculateLimitedGrowthRate = (
-        current: number,
-        previous: number
-      ) => {
-        if (previous === 0) {
-          return current > 0 ? 100 : 0;
-        }
-        const rate = ((current - previous) / previous) * 100;
-        return Math.max(Math.min(rate, 200), -200); // 限制在 -200% 到 200% 之間
-      };
-
-      const revenueGrowthRate = calculateLimitedGrowthRate(
-        secondHalfRevenue,
-        firstHalfRevenue
-      );
-      const ordersGrowthRate = calculateLimitedGrowthRate(
-        secondHalfOrders,
-        firstHalfOrders
-      );
+      // 上限 999%：允許極高成長但防止計算錯誤
+      // 下限 -100%：收益最多下降 100%（歸零）
+      revenueGrowthRate = Math.max(Math.min(revenueGrowthRate, 999), -100);
+      ordersGrowthRate = Math.max(Math.min(ordersGrowthRate, 999), -100);
 
       // 找出收益最高的一天
       const topDay = dataPoints.reduce(

@@ -14,7 +14,7 @@ interface OrderListPageState {
 }
 
 interface OrderListPageAction {
-  fetchOrder: (page: number, pageSize: number) => void;
+  fetchOrder: (page: number, pageSize: number) => Promise<void>;
   checkoutEcpay: (orderId: string) => Promise<string>;
   setIsShowDialog: (isShowDialog: boolean) => void;
   resetStore: () => void;
@@ -38,8 +38,8 @@ export const useOrderListStore = create<
           state.orderList = response.orderList;
           state.pagination = response.pagination;
         });
-      } catch (error) {
-        console.error("Failed to fetch data", error);
+      } catch {
+        // 靜默處理錯誤
       } finally {
         set((state) => {
           state.isLoading = false;
@@ -51,13 +51,8 @@ export const useOrderListStore = create<
       set((state) => {
         state.isLoading = true;
       });
-      try {
-        const ecpayFormString = await checkoutEcpay(orderId);
-        return ecpayFormString;
-      } catch (error) {
-        console.error("Failed to checkoutOrder", error);
-        throw error;
-      }
+      const ecpayFormString = await checkoutEcpay(orderId);
+      return ecpayFormString;
     },
     setIsShowDialog: (isShowDialog) => {
       set((state) => {

@@ -242,6 +242,7 @@ export const validateDashboardForm = (
 
 /**
  * 驗證時間間隔是否適合日期範圍
+ * 修改：年間隔不再阻擋 API 請求，只提供建議（暫時註解，後端不支援）
  */
 export const validateIntervalForDateRange = (
   startDate: Date,
@@ -258,6 +259,11 @@ export const validateIntervalForDateRange = (
       message: "無效的時間間隔",
     };
   }
+
+  // 特殊處理：年間隔不阻擋請求，只提供建議（暫時註解，後端不支援）
+  // if (interval === "year") {
+  //   return { isValid: true }; // 年間隔總是允許通過
+  // }
 
   if (daysDiff < rule.minDays) {
     return {
@@ -293,8 +299,9 @@ export const suggestOptimalInterval = (
 
   if (daysDiff <= 30) return "day";
   if (daysDiff <= 90) return "week";
-  if (daysDiff <= 365) return "month";
-  return "year";
+  // if (daysDiff <= 365) return "month";
+  // return "year"; // 暫時註解年間隔，後端不支援
+  return "month"; // 最大間隔改為月
 };
 
 // ============================
@@ -448,7 +455,7 @@ export const getIntervalLabel = (interval: IntervalType): string => {
     day: "日",
     week: "週",
     month: "月",
-    year: "年",
+    // year: "年", // 暫時註解年間隔，後端不支援
   };
   return labels[interval] || interval;
 };

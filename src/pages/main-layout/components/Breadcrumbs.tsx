@@ -14,13 +14,15 @@ export const Breadcrumbs: React.FC = () => {
   }, [location.pathname, params, setBreadcrumbs]);
 
   return (
-    <nav className="flex items-center space-x-1 text-sm text-muted-foreground">
+    <nav className="flex items-center space-x-1 text-xs sm:text-sm text-muted-foreground overflow-x-auto">
       {items.map((item, index) => (
         <React.Fragment key={`breadcrumb-${index}-${item.path}`}>
-          {index > 0 && <ChevronRight className="h-4 w-4" />}
+          {index > 0 && (
+            <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+          )}
           <Link
             to={item.path}
-            className={`hover:text-foreground ${
+            className={`hover:text-foreground whitespace-nowrap ${
               index === items.length - 1
                 ? "text-foreground font-medium"
                 : "text-muted-foreground"

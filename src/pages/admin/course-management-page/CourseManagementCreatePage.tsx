@@ -470,272 +470,402 @@ export default function CoursesCreatePage() {
   const hasPreview = true; // 預設圖片
 
   return (
-    <div className="py-4 md:py-8 md:container md:mx-auto md:px-6 lg:px-8 pb-20 md:pb-8">
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="flex flex-col gap-0 md:flex-row md:gap-6">
-          {/* 左側：課程資訊 */}
-          <div className="flex-1">
-            <h2 className="text-xl font-bold mb-4 md:mb-6 px-4 md:px-0">
-              課程資訊
-            </h2>
-            <div className="bg-white md:rounded-lg border-0 md:border border-slate-200">
-              <div className="p-4 md:p-6 space-y-6">
-                {/* 課程名稱 */}
-                <div className="space-y-2">
-                  <Label htmlFor="title">
-                    課程名稱 <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="title"
-                    placeholder="請輸入課程名稱"
-                    {...register("title")}
-                    className={errors.title ? "border-red-500" : ""}
-                  />
-                  {errors.title && (
-                    <p className="text-sm text-red-500">
-                      {errors.title.message}
-                    </p>
-                  )}
-                  <p className="text-sm text-gray-500">
-                    一個引人注目且簡單的課程名稱可以幫助您吸引更多的學生。
-                  </p>
-                </div>
-
-                {/* 課程副標題 */}
-                <div className="space-y-2">
-                  <Label htmlFor="subtitle">課程副標題</Label>
-                  <Input
-                    id="subtitle"
-                    placeholder="例：深入淺出的講解，從零開始完全掌握..."
-                    {...register("subtitle")}
-                    className={errors.subtitle ? "border-red-500" : ""}
-                  />
-                  {errors.subtitle && (
-                    <p className="text-sm text-red-500">
-                      {errors.subtitle.message}
-                    </p>
-                  )}
-                  <p className="text-sm text-gray-500">
-                    在課程名稱下方顯示，您可以為課程添加額外的說明、性格和或標語。
-                  </p>
-                </div>
-
-                {/* 課程介紹 */}
-                <div className="space-y-2">
-                  <Label htmlFor="description">
-                    課程介紹 <span className="text-red-500">*</span>
-                  </Label>
-                  <RichTextEditor
-                    id="description"
-                    value={watch("description")}
-                    onChange={(content) => {
-                      setValue("description", content, {
-                        shouldValidate: true,
-                      });
-                    }}
-                    minHeight={window.innerWidth < 768 ? 240 : 200}
-                    maxHeight={window.innerWidth < 768 ? 240 : 398}
-                    className={`w-full ${
-                      errors.description ? "border-red-500" : ""
-                    }`}
-                  />
-                  {errors.description && (
-                    <p className="text-sm text-red-500">
-                      {errors.description.message}
-                    </p>
-                  )}
-                  <p className="text-sm text-gray-500">
-                    詳細描述課程內容，讓學生更好地了解課程的學習目標和價值。
-                  </p>
-                </div>
-
-                {/* 課程亮點 */}
-                <div className="space-y-2">
-                  <Label htmlFor="highlight">課程亮點</Label>
-                  <Input
-                    id="highlight"
-                    placeholder="學習 xxx 的關鍵基礎知識"
-                    {...register("highlight")}
-                    className={`${
-                      errors.highlight ? "border-red-500" : ""
-                    } max-md:h-20`}
-                  />
-                  {errors.highlight && (
-                    <p className="text-sm text-red-500">
-                      {errors.highlight.message}
-                    </p>
-                  )}
-                  <p className="text-sm text-gray-500">
-                    列出本課程的學習亮點將有助於學生更好地理解你的課程內容。
-                  </p>
-                </div>
-
-                {/* 課程類型 */}
-                <div className="space-y-2">
-                  <Label>
-                    課程類型 <span className="text-red-500">*</span>
-                  </Label>
-                  <div className="flex flex-col space-y-4 md:flex-row md:gap-4 md:space-y-0">
-                    {/* 付費課程 */}
-                    <label
-                      className={`flex-1 border rounded-lg p-4 cursor-pointer flex items-start gap-2 transition
-                        ${
-                          courseType === "paid"
-                            ? "border-blue-500 bg-blue-50"
-                            : "border-slate-200 bg-white"
-                        }`}
-                    >
-                      <input
-                        type="radio"
-                        {...register("courseType")}
-                        value="paid"
-                        className="mt-1 accent-blue-500"
-                      />
-                      <div>
-                        <div className="font-bold">付費課程</div>
-                        <div className="text-sm text-gray-500">
-                          您可以設定付費內容的價格和促銷條件。
-                        </div>
-                      </div>
-                    </label>
-
-                    {/* 免費課程 */}
-                    <label
-                      className={`flex-1 border rounded-lg p-4 cursor-pointer flex items-start gap-2 transition
-                        ${
-                          courseType === "free"
-                            ? "border-blue-500 bg-blue-50"
-                            : "border-slate-200 bg-white"
-                        }`}
-                    >
-                      <input
-                        type="radio"
-                        {...register("courseType")}
-                        value="free"
-                        className="mt-1 accent-blue-500"
-                        onChange={(e) => {
-                          register("courseType").onChange(e);
-                          setValue("price", "");
-                        }}
-                      />
-                      <div>
-                        <div className="font-bold">免費課程 / 引導磁鐵</div>
-                        <div className="text-sm text-gray-500">
-                          引導磁石允許用戶在註冊後兌換和解鎖內容，可用於增加和累積您的會員名單。
-                        </div>
-                      </div>
-                    </label>
-                  </div>
-                  {errors.courseType && (
-                    <p className="text-sm text-red-500">
-                      {errors.courseType.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* 課程時長 */}
-                <div className="space-y-2">
-                  <Label htmlFor="duration">
-                    課程時長（小時） <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="duration"
-                    type="number"
-                    min="0"
-                    step="0.5"
-                    placeholder="請輸入課程時長"
-                    {...register("duration")}
-                    className={errors.duration ? "border-red-500" : ""}
-                  />
-                  {errors.duration && (
-                    <p className="text-sm text-red-500">
-                      {errors.duration.message}
-                    </p>
-                  )}
-                  <p className="text-sm text-gray-500">
-                    例如，對於10小時30分鐘，輸入
-                    10.5。課程時長為必填，不可留白。
-                  </p>
-                </div>
-
-                {/* 課程價格 - 只在付費課程時顯示 */}
-                {courseType === "paid" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="price">
-                      課程價格 <span className="text-red-500">*</span>
+    <div className="py-4 md:py-8 w-full max-w-full overflow-hidden">
+      <div className="md:container md:mx-auto md:px-6 lg:px-8 pb-20 md:pb-8">
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="flex flex-col gap-0 md:flex-row md:gap-6 w-full max-w-full">
+            {/* 左側：課程資訊 */}
+            <div className="flex-1 w-full max-w-full">
+              <h2 className="text-xl font-bold mb-4 md:mb-6 px-4 md:px-0">
+                課程資訊
+              </h2>
+              <div className="bg-white md:rounded-lg border-0 md:border border-slate-200 w-full max-w-full">
+                <div className="p-4 md:p-6 space-y-6 w-full max-w-full">
+                  {/* 課程名稱 */}
+                  <div className="space-y-2 w-full max-w-full">
+                    <Label htmlFor="title">
+                      課程名稱 <span className="text-red-500">*</span>
                     </Label>
-                    <div className="flex">
-                      <span
-                        className="flex items-center justify-center border border-slate-200 rounded-l-md bg-slate-50 px-4 text-gray-700 text-lg"
-                        style={{ height: 40 }}
-                      >
-                        $
-                      </span>
-                      <Input
-                        id="price"
-                        type="number"
-                        min="0"
-                        placeholder="0"
-                        {...register("price")}
-                        className={`rounded-l-none border-l-0 focus:ring-0 focus:border-slate-200 ${
-                          errors.price ? "border-red-500" : ""
+                    <Input
+                      id="title"
+                      placeholder="請輸入課程名稱"
+                      {...register("title")}
+                      className={`w-full max-w-full ${
+                        errors.title ? "border-red-500" : ""
+                      }`}
+                    />
+                    {errors.title && (
+                      <p className="text-sm text-red-500 break-words">
+                        {errors.title.message}
+                      </p>
+                    )}
+                    <p className="text-xs sm:text-sm text-gray-500 break-words">
+                      一個引人注目且簡單的課程名稱可以幫助您吸引更多的學生。
+                    </p>
+                  </div>
+
+                  {/* 課程副標題 */}
+                  <div className="space-y-2 w-full max-w-full">
+                    <Label htmlFor="subtitle">課程副標題</Label>
+                    <Input
+                      id="subtitle"
+                      placeholder="深入淺出的講解..."
+                      {...register("subtitle")}
+                      className={`w-full max-w-full ${
+                        errors.subtitle ? "border-red-500" : ""
+                      }`}
+                    />
+                    {errors.subtitle && (
+                      <p className="text-sm text-red-500 break-words">
+                        {errors.subtitle.message}
+                      </p>
+                    )}
+                    <p className="text-xs sm:text-sm text-gray-500 break-words">
+                      在課程名稱下方顯示，您可以為課程添加額外的說明、性格和或標語。
+                    </p>
+                  </div>
+
+                  {/* 課程介紹 */}
+                  <div className="space-y-2 w-full max-w-full">
+                    <Label htmlFor="description">
+                      課程介紹 <span className="text-red-500">*</span>
+                    </Label>
+                    <div className="w-full max-w-full">
+                      <RichTextEditor
+                        id="description"
+                        value={watch("description")}
+                        onChange={(content) => {
+                          setValue("description", content, {
+                            shouldValidate: true,
+                          });
+                        }}
+                        minHeight={window.innerWidth < 768 ? 200 : 200}
+                        maxHeight={window.innerWidth < 768 ? 300 : 398}
+                        className={`w-full max-w-full ${
+                          errors.description ? "border-red-500" : ""
                         }`}
-                        style={{ height: 40 }}
                       />
                     </div>
-                    {errors.price && (
-                      <p className="text-sm text-red-500">
-                        {errors.price.message}
+                    {errors.description && (
+                      <p className="text-sm text-red-500 break-words">
+                        {errors.description.message}
+                      </p>
+                    )}
+                    <p className="text-xs sm:text-sm text-gray-500 break-words">
+                      詳細描述課程內容，讓學生更好地了解課程的學習目標和價值。
+                    </p>
+                  </div>
+
+                  {/* 課程亮點 */}
+                  <div className="space-y-2 w-full max-w-full">
+                    <Label htmlFor="highlight">課程亮點</Label>
+                    <Input
+                      id="highlight"
+                      placeholder="學習 xxx 的關鍵基礎知識"
+                      {...register("highlight")}
+                      className={`w-full max-w-full ${
+                        errors.highlight ? "border-red-500" : ""
+                      }`}
+                    />
+                    {errors.highlight && (
+                      <p className="text-sm text-red-500 break-words">
+                        {errors.highlight.message}
+                      </p>
+                    )}
+                    <p className="text-xs sm:text-sm text-gray-500 break-words">
+                      列出本課程的學習亮點將有助於學生更好地理解你的課程內容。
+                    </p>
+                  </div>
+
+                  {/* 課程類型 */}
+                  <div className="space-y-2 w-full max-w-full">
+                    <Label>
+                      課程類型 <span className="text-red-500">*</span>
+                    </Label>
+                    <div className="flex flex-col space-y-3 md:flex-row md:gap-4 md:space-y-0 w-full max-w-full">
+                      {/* 付費課程 */}
+                      <label
+                        className={`flex-1 border rounded-lg p-3 md:p-4 cursor-pointer flex items-start gap-2 transition w-full max-w-full
+                          ${
+                            courseType === "paid"
+                              ? "border-blue-500 bg-blue-50"
+                              : "border-slate-200 bg-white"
+                          }`}
+                      >
+                        <input
+                          type="radio"
+                          {...register("courseType")}
+                          value="paid"
+                          className="mt-1 accent-blue-500 flex-shrink-0"
+                        />
+                        <div className="w-full max-w-full">
+                          <div className="font-bold text-sm md:text-base">
+                            付費課程
+                          </div>
+                          <div className="text-xs md:text-sm text-gray-500 break-words">
+                            您可以設定付費內容的價格和促銷條件。
+                          </div>
+                        </div>
+                      </label>
+
+                      {/* 免費課程 */}
+                      <label
+                        className={`flex-1 border rounded-lg p-3 md:p-4 cursor-pointer flex items-start gap-2 transition w-full max-w-full
+                          ${
+                            courseType === "free"
+                              ? "border-blue-500 bg-blue-50"
+                              : "border-slate-200 bg-white"
+                          }`}
+                      >
+                        <input
+                          type="radio"
+                          {...register("courseType")}
+                          value="free"
+                          className="mt-1 accent-blue-500 flex-shrink-0"
+                          onChange={(e) => {
+                            register("courseType").onChange(e);
+                            setValue("price", "");
+                          }}
+                        />
+                        <div className="w-full max-w-full">
+                          <div className="font-bold text-sm md:text-base">
+                            免費課程 / 引導磁鐵
+                          </div>
+                          <div className="text-xs md:text-sm text-gray-500 break-words">
+                            引導磁石允許用戶在註冊後兌換和解鎖內容，可用於增加和累積您的會員名單。
+                          </div>
+                        </div>
+                      </label>
+                    </div>
+                    {errors.courseType && (
+                      <p className="text-sm text-red-500 break-words">
+                        {errors.courseType.message}
                       </p>
                     )}
                   </div>
-                )}
 
-                {/* 桌面版按鈕 - 只在桌面版顯示 */}
-                <div className="hidden md:flex justify-end space-x-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleCancel}
-                    disabled={isCreating || isUploading}
-                  >
-                    取消
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={isCreating || isUploading}
-                    className="bg-orange-600 hover:bg-orange-700 text-white"
-                  >
-                    {isCreating
-                      ? "建立中..."
-                      : isUploading
-                      ? "上傳中..."
-                      : "建立課程"}
-                  </Button>
+                  {/* 課程時長 */}
+                  <div className="space-y-2 w-full max-w-full">
+                    <Label htmlFor="duration">
+                      課程時長（小時） <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="duration"
+                      type="number"
+                      min="0"
+                      step="0.5"
+                      placeholder="請輸入課程時長"
+                      {...register("duration")}
+                      className={`w-full max-w-full ${
+                        errors.duration ? "border-red-500" : ""
+                      }`}
+                    />
+                    {errors.duration && (
+                      <p className="text-sm text-red-500 break-words">
+                        {errors.duration.message}
+                      </p>
+                    )}
+                    <p className="text-xs sm:text-sm text-gray-500 break-words">
+                      例如，對於10小時30分鐘，輸入
+                      10.5。課程時長為必填，不可留白。
+                    </p>
+                  </div>
+
+                  {/* 課程價格 - 只在付費課程時顯示 */}
+                  {courseType === "paid" && (
+                    <div className="space-y-2 w-full max-w-full">
+                      <Label htmlFor="price">
+                        課程價格 <span className="text-red-500">*</span>
+                      </Label>
+                      <div className="flex w-full max-w-full">
+                        <span
+                          className="flex items-center justify-center border border-slate-200 rounded-l-md bg-slate-50 px-3 md:px-4 text-gray-700 text-lg flex-shrink-0"
+                          style={{ height: 40 }}
+                        >
+                          $
+                        </span>
+                        <Input
+                          id="price"
+                          type="number"
+                          min="0"
+                          placeholder="0"
+                          {...register("price")}
+                          className={`rounded-l-none border-l-0 focus:ring-0 focus:border-slate-200 flex-1 ${
+                            errors.price ? "border-red-500" : ""
+                          }`}
+                          style={{ height: 40 }}
+                        />
+                      </div>
+                      {errors.price && (
+                        <p className="text-sm text-red-500 break-words">
+                          {errors.price.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* 桌面版按鈕 - 只在桌面版顯示 */}
+                  <div className="hidden md:flex justify-end space-x-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleCancel}
+                      disabled={isCreating || isUploading}
+                    >
+                      取消
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={isCreating || isUploading}
+                      className="bg-orange-600 hover:bg-orange-700 text-white"
+                    >
+                      {isCreating
+                        ? "建立中..."
+                        : isUploading
+                        ? "上傳中..."
+                        : "建立課程"}
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* 右側：課程縮圖 */}
-          <div className="md:w-4/12 w-full mt-3 md:mt-0">
-            <h2 className="text-xl font-bold mb-4 md:mb-6 px-4 md:px-0">
-              課程縮圖
-            </h2>
+            {/* 右側：課程縮圖 */}
+            <div className="md:w-4/12 w-full max-w-full mt-3 md:mt-0">
+              <h2 className="text-xl font-bold mb-4 md:mb-6 px-4 md:px-0">
+                課程縮圖
+              </h2>
 
-            {/* 桌面版封面區域 */}
-            <div className="bg-white border border-blue-100 rounded-2xl hidden md:block">
-              <div className="p-4 pb-3 space-y-2">
-                <Label className="block font-medium text-slate-800">
-                  封面圖片
-                </Label>
+              {/* 桌面版封面區域 */}
+              <div className="bg-white border border-blue-100 rounded-2xl hidden md:block">
+                <div className="p-4 pb-3 space-y-2">
+                  <Label className="block font-medium text-slate-800">
+                    封面圖片
+                  </Label>
 
-                {/* 圖片預覽或上傳區域 */}
-                <div className="relative group">
-                  <div
-                    {...getRootProps()}
-                    className={`
-                      h-64 rounded-2xl border-2 border-dashed transition cursor-pointer flex flex-col items-center justify-center
+                  {/* 圖片預覽或上傳區域 */}
+                  <div className="relative group">
+                    <div
+                      {...getRootProps()}
+                      className={`
+                        h-64 rounded-2xl border-2 border-dashed transition cursor-pointer flex flex-col items-center justify-center
+                        ${
+                          fileRejections.length > 0
+                            ? "border-red-400 bg-red-50"
+                            : isDragActive
+                            ? "border-blue-400 bg-blue-50"
+                            : uploadedCoverUrl
+                            ? "border-green-400 bg-green-50"
+                            : "border-blue-300 bg-blue-50"
+                        }
+                        ${isUploading ? "opacity-50 cursor-not-allowed" : ""}
+                      `}
+                      style={{ minHeight: 260 }}
+                    >
+                      <input {...getInputProps()} disabled={isUploading} />
+
+                      {hasPreview ? (
+                        // 圖片預覽模式
+                        <div className="relative w-full h-full">
+                          <img
+                            src={imageSrc}
+                            alt="課程封面預覽"
+                            className="w-full h-full object-cover rounded-xl"
+                            onError={handleImageError}
+                          />
+
+                          {/* 移除/重置按鈕 - 覆蓋在圖片上，只在有自定義圖片時顯示 */}
+                          {hasCustomImage && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="absolute top-2 right-2 h-8 w-8 p-0 rounded-full shadow-lg bg-red-500 border-red-500 text-white hover:bg-red-600 hover:border-red-600"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveCover();
+                              }}
+                              disabled={isUploading}
+                              title="重置為預設圖片"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          )}
+
+                          {/* 上傳狀態指示器 */}
+                          {isUploading && (
+                            <div className="absolute inset-0 bg-black bg-opacity-50 rounded-xl flex items-center justify-center">
+                              <div className="text-white text-center">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
+                                <p className="text-sm">上傳中...</p>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 替換圖片提示 */}
+                          <div className="absolute bottom-2 left-2 right-2 bg-black bg-opacity-70 text-white text-xs p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                            {hasCustomImage
+                              ? "點擊或拖拽以替換圖片"
+                              : "點擊或拖拽以上傳自定義圖片"}
+                          </div>
+                        </div>
+                      ) : (
+                        // 上傳提示模式
+                        <div className="flex flex-col items-center">
+                          <ImagePlus
+                            size={40}
+                            className="text-slate-400 mb-2"
+                          />
+                          <div className="font-bold text-lg text-slate-800 mb-1 text-center">
+                            <p className="p-4">
+                              {isUploading
+                                ? "上傳中..."
+                                : "將圖片拖曳到此處或按一下以選擇圖片"}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 錯誤訊息 */}
+                  {fileRejections.length > 0 && (
+                    <div className="text-red-500 text-sm">
+                      檔案格式或大小不符，請選擇 2MB 以內的圖片檔案。
+                    </div>
+                  )}
+
+                  {/* 上傳狀態顯示 */}
+                  {isUploading && (
+                    <div className="text-blue-600 text-sm flex items-center">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
+                      圖片上傳中，請稍候...
+                    </div>
+                  )}
+
+                  {/* 上傳提示 */}
+                  <p className="text-xs text-gray-500">
+                    建議尺寸：1280x720 像素，格式：JPG、PNG、GIF，大小不超過 2MB
+                  </p>
+                </div>
+              </div>
+
+              {/* 手機版封面區域 */}
+              <div className="bg-white block md:hidden w-full max-w-full">
+                {/* 🔧 手機版獨立的封面圖片標籤 */}
+                <div className="px-4 pt-4 pb-2">
+                  <Label className="block font-medium text-slate-800 text-lg">
+                    封面圖片
+                  </Label>
+                </div>
+
+                {/* 手機版圖片上傳區域 */}
+                <div className="px-4 pb-2 space-y-2 w-full max-w-full">
+                  <div className="relative group w-full max-w-full">
+                    <div
+                      {...getRootProps()}
+                      className={`
+                      h-48 sm:h-64 border-2 border-dashed transition cursor-pointer flex flex-col items-center justify-center w-full max-w-full
                       ${
                         fileRejections.length > 0
                           ? "border-red-400 bg-red-50"
@@ -747,236 +877,123 @@ export default function CoursesCreatePage() {
                       }
                       ${isUploading ? "opacity-50 cursor-not-allowed" : ""}
                     `}
-                    style={{ minHeight: 260 }}
-                  >
-                    <input {...getInputProps()} disabled={isUploading} />
+                    >
+                      <input {...getInputProps()} disabled={isUploading} />
 
-                    {hasPreview ? (
-                      // 圖片預覽模式
-                      <div className="relative w-full h-full">
-                        <img
-                          src={imageSrc}
-                          alt="課程封面預覽"
-                          className="w-full h-full object-cover rounded-xl"
-                          onError={handleImageError}
-                        />
+                      {hasPreview ? (
+                        // 圖片預覽模式
+                        <div className="relative w-full h-full">
+                          <img
+                            src={imageSrc}
+                            alt="課程封面預覽"
+                            className="w-full h-full object-cover"
+                            onError={handleImageError}
+                          />
 
-                        {/* 移除/重置按鈕 - 覆蓋在圖片上，只在有自定義圖片時顯示 */}
-                        {hasCustomImage && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="absolute top-2 right-2 h-8 w-8 p-0 rounded-full shadow-lg bg-red-500 border-red-500 text-white hover:bg-red-600 hover:border-red-600"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRemoveCover();
-                            }}
-                            disabled={isUploading}
-                            title="重置為預設圖片"
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        )}
+                          {/* 移除/重置按鈕 - 覆蓋在圖片上，只在有自定義圖片時顯示 */}
+                          {hasCustomImage && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="absolute top-2 right-2 h-8 w-8 p-0 rounded-full shadow-lg bg-red-500 border-red-500 text-white hover:bg-red-600 hover:border-red-600"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveCover();
+                              }}
+                              disabled={isUploading}
+                              title="重置為預設圖片"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          )}
 
-                        {/* 上傳狀態指示器 */}
-                        {isUploading && (
-                          <div className="absolute inset-0 bg-black bg-opacity-50 rounded-xl flex items-center justify-center">
-                            <div className="text-white text-center">
-                              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
-                              <p className="text-sm">上傳中...</p>
+                          {/* 上傳狀態指示器 */}
+                          {isUploading && (
+                            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                              <div className="text-white text-center">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
+                                <p className="text-sm">上傳中...</p>
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
 
-                        {/* 替換圖片提示 */}
-                        <div className="absolute bottom-2 left-2 right-2 bg-black bg-opacity-70 text-white text-xs p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                          {hasCustomImage
-                            ? "點擊或拖拽以替換圖片"
-                            : "點擊或拖拽以上傳自定義圖片"}
+                          {/* 替換圖片提示 */}
+                          <div className="absolute bottom-2 left-2 right-2 bg-black bg-opacity-70 text-white text-xs p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                            {hasCustomImage
+                              ? "點擊或拖拽以替換圖片"
+                              : "點擊或拖拽以上傳自定義圖片"}
+                          </div>
                         </div>
-                      </div>
-                    ) : (
-                      // 上傳提示模式
-                      <div className="flex flex-col items-center">
-                        <ImagePlus size={40} className="text-slate-400 mb-2" />
-                        <div className="font-bold text-lg text-slate-800 mb-1 text-center">
-                          <p className="p-4">
-                            {isUploading
-                              ? "上傳中..."
-                              : "將圖片拖曳到此處或按一下以選擇圖片"}
-                          </p>
+                      ) : (
+                        // 上傳提示模式
+                        <div className="flex flex-col items-center px-2">
+                          <ImagePlus
+                            size={32}
+                            className="text-slate-400 mb-2"
+                          />
+                          <div className="font-bold text-base text-slate-800 mb-1 text-center">
+                            <p className="px-2 py-1 text-sm">
+                              {isUploading ? "上傳中..." : "點擊以選擇圖片"}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
+
+                  {/* 手機版錯誤訊息和提示 */}
+                  {fileRejections.length > 0 && (
+                    <div className="text-red-500 text-sm break-words">
+                      檔案格式或大小不符，請選擇 2MB 以內的圖片檔案。
+                    </div>
+                  )}
+
+                  {isUploading && (
+                    <div className="text-blue-600 text-sm flex items-center">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
+                      圖片上傳中，請稍候...
+                    </div>
+                  )}
+
+                  <p className="text-xs text-gray-500 break-words">
+                    建議尺寸：1280x720 像素，格式：JPG、PNG、GIF，大小不超過 2MB
+                  </p>
                 </div>
 
-                {/* 錯誤訊息 */}
-                {fileRejections.length > 0 && (
-                  <div className="text-red-500 text-sm">
-                    檔案格式或大小不符，請選擇 2MB 以內的圖片檔案。
+                {/* 手機版按鈕區域 - 固定在底部 */}
+                <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-3 py-3 block md:hidden z-50 shadow-lg">
+                  <div className="flex space-x-3 w-full max-w-full">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleCancel}
+                      disabled={isCreating || isUploading}
+                      className="flex-1 text-sm h-10"
+                    >
+                      取消
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={isCreating || isUploading}
+                      className="bg-orange-600 hover:bg-orange-700 text-white flex-1 text-sm h-10"
+                    >
+                      {isCreating
+                        ? "建立中..."
+                        : isUploading
+                        ? "上傳中..."
+                        : "建立課程"}
+                    </Button>
                   </div>
-                )}
-
-                {/* 上傳狀態顯示 */}
-                {isUploading && (
-                  <div className="text-blue-600 text-sm flex items-center">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
-                    圖片上傳中，請稍候...
-                  </div>
-                )}
-
-                {/* 上傳提示 */}
-                <p className="text-xs text-gray-500">
-                  建議尺寸：1280x720 像素，格式：JPG、PNG、GIF，大小不超過 2MB
-                </p>
-              </div>
-            </div>
-
-            {/* 手機版封面區域 */}
-            <div className="bg-white block md:hidden">
-              {/* 🔧 手機版獨立的封面圖片標籤 */}
-              <div className="px-4 pt-4 pb-2">
-                <Label className="block font-medium text-slate-800 text-lg">
-                  封面圖片
-                </Label>
-              </div>
-
-              {/* 手機版圖片上傳區域 */}
-              <div className="px-4 pb-2 space-y-2">
-                <div className="relative group">
-                  <div
-                    {...getRootProps()}
-                    className={`
-                      h-64 border-2 border-dashed transition cursor-pointer flex flex-col items-center justify-center
-                      ${
-                        fileRejections.length > 0
-                          ? "border-red-400 bg-red-50"
-                          : isDragActive
-                          ? "border-blue-400 bg-blue-50"
-                          : uploadedCoverUrl
-                          ? "border-green-400 bg-green-50"
-                          : "border-blue-300 bg-blue-50"
-                      }
-                      ${isUploading ? "opacity-50 cursor-not-allowed" : ""}
-                    `}
-                    style={{ minHeight: 260 }}
-                  >
-                    <input {...getInputProps()} disabled={isUploading} />
-
-                    {hasPreview ? (
-                      // 圖片預覽模式
-                      <div className="relative w-full h-full">
-                        <img
-                          src={imageSrc}
-                          alt="課程封面預覽"
-                          className="w-full h-full object-cover"
-                          onError={handleImageError}
-                        />
-
-                        {/* 移除/重置按鈕 - 覆蓋在圖片上，只在有自定義圖片時顯示 */}
-                        {hasCustomImage && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="absolute top-2 right-2 h-8 w-8 p-0 rounded-full shadow-lg bg-red-500 border-red-500 text-white hover:bg-red-600 hover:border-red-600"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRemoveCover();
-                            }}
-                            disabled={isUploading}
-                            title="重置為預設圖片"
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        )}
-
-                        {/* 上傳狀態指示器 */}
-                        {isUploading && (
-                          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                            <div className="text-white text-center">
-                              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
-                              <p className="text-sm">上傳中...</p>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* 替換圖片提示 */}
-                        <div className="absolute bottom-2 left-2 right-2 bg-black bg-opacity-70 text-white text-xs p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                          {hasCustomImage
-                            ? "點擊或拖拽以替換圖片"
-                            : "點擊或拖拽以上傳自定義圖片"}
-                        </div>
-                      </div>
-                    ) : (
-                      // 上傳提示模式
-                      <div className="flex flex-col items-center">
-                        <ImagePlus size={40} className="text-slate-400 mb-2" />
-                        <div className="font-bold text-lg text-slate-800 mb-1 text-center">
-                          <p className="p-4">
-                            {isUploading
-                              ? "上傳中..."
-                              : "將圖片拖曳到此處或按一下以選擇圖片"}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* 手機版錯誤訊息和提示 */}
-                {fileRejections.length > 0 && (
-                  <div className="text-red-500 text-sm">
-                    檔案格式或大小不符，請選擇 2MB 以內的圖片檔案。
-                  </div>
-                )}
-
-                {isUploading && (
-                  <div className="text-blue-600 text-sm flex items-center">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
-                    圖片上傳中，請稍候...
-                  </div>
-                )}
-
-                <p className="text-xs text-gray-500">
-                  建議尺寸：1280x720 像素，格式：JPG、PNG、GIF，大小不超過 2MB
-                </p>
-              </div>
-
-              {/* 手機版按鈕區域 - 固定在底部 */}
-              <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-4 block md:hidden z-50 shadow-lg">
-                <div className="flex space-x-4 max-w-screen-sm mx-auto">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleCancel}
-                    disabled={isCreating || isUploading}
-                    className="flex-1"
-                  >
-                    取消
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={isCreating || isUploading}
-                    className="bg-orange-600 hover:bg-orange-700 text-white flex-1"
-                  >
-                    {isCreating
-                      ? "建立中..."
-                      : isUploading
-                      ? "上傳中..."
-                      : "建立課程"}
-                  </Button>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </form>
+        </form>
 
-      {/* 全螢幕 Loading */}
-      <ScreenLoading />
+        {/* 全螢幕 Loading */}
+        <ScreenLoading />
+      </div>
     </div>
   );
 }

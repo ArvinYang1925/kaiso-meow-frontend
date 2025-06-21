@@ -157,10 +157,10 @@ const AiSectionGeneratorModal = () => {
             ></textarea>
           </div>
 
-          <div className="btn-wrap flex justify-end">
+          <div className="btn-wrap flex">
             <Button
               type="submit"
-              className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 text-sm"
+              className="bg-orange-600 hover:bg-orange-700 text-white w-full px-4 py-2 rounded-lg text-sm"
               disabled={isLoading || description == ""}
             >
               {isLoading ? "章節產生中..." : "產生章節建議"}
@@ -220,13 +220,13 @@ const AiSectionGeneratorModal = () => {
             </div>
           ))}
 
-          <div className="btn-wrap flex justify-end">
-            <button
+          <div className="btn-wrap flex">
+            <Button
               type="submit"
-              className="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 text-sm"
+              className="bg-orange-600 hover:bg-orange-700 text-white w-full sm:w-auto px-6 py-2 rounded text-sm"
             >
               批次建立 AI 章節
-            </button>
+            </Button>
           </div>
         </form>
       )}
