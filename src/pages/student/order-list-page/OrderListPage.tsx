@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { TableCell, TableHead } from "@/components/ui/table";
 import { TableWithPagination } from "@/components/common/TableWithPagination";
 import { useOrderListStore } from "./orderListStore";
@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useDialogStore } from "@/stores/commonDialogStore";
 import { Pagination } from "@/services/types";
 import { Order } from "./types";
+import { useScreenLoading } from "@/components/common/useScreenLoading";
 import axios from "axios";
 
 // 訂單狀態對應的中文說明
@@ -235,9 +236,14 @@ const OrderItem = ({
 };
 
 export default function OrderListPage() {
-  const { orderList, pagination, fetchOrder, checkoutEcpay, isLoading } =
+  const { orderList, pagination, fetchOrder, checkoutEcpay } =
     useOrderListStore();
   const { showCommonDialog } = useDialogStore();
+
+  // 全螢幕 Loading
+  const { ScreenLoading, withLoading } = useScreenLoading();
+
+  const [isPageInitialized, setIsPageInitialized] = useState(false);
 
   const tableColumn = [
     { label: "產品名稱", key: "title" },
@@ -280,76 +286,107 @@ export default function OrderListPage() {
     }
   };
 
-  const handlePageChange = (newPage: number) => {
-    fetchOrder(newPage, 10);
+  const handlePageChange = async (newPage: number) => {
+    try {
+      await withLoading(async () => {
+        await fetchOrder(newPage, 10);
+      }, "正在載入訂單資料...");
+    } catch {
+      // 靜默處理錯誤
+    }
   };
 
   useEffect(() => {
-    fetchOrder(pagination.currentPage, 10);
-  }, [fetchOrder, pagination.currentPage]);
+    // 頁面初始載入 - 使用全域 LOADING
+    const initializeOrderPage = async () => {
+      setIsPageInitialized(false);
+
+      try {
+        await withLoading(async () => {
+          await fetchOrder(pagination.currentPage, 10);
+        }, "正在載入購買紀錄...");
+      } finally {
+        setIsPageInitialized(true);
+      }
+    };
+
+    initializeOrderPage();
+  }, [fetchOrder, withLoading, pagination.currentPage]);
+
+  const shouldShowContent = isPageInitialized;
 
   return (
     <>
+      {/* 全螢幕 Loading */}
+      <ScreenLoading />
+
       <div className="mt-32 px-8 w-full md:w-[1200px] mx-auto">
         <h1 className="font-semibold text-3xl mb-16">購買紀錄</h1>
-        <main className="mb-8">
-          {/* 桌面版表格視圖 */}
-          <div className="hidden lg:block">
-            <TableWithPagination
-              isLoading={isLoading}
-              data={orderList}
-              columnCount={tableColumn.length}
-              pagination={pagination}
-              onPageChange={handlePageChange}
-              columns={
-                <>
-                  {tableColumn.map((col, index) => (
-                    <TableHead key={index}>{col.label}</TableHead>
-                  ))}
-                </>
-              }
-              renderRow={(order) => (
-                <>
-                  <TableCell>{order.title}</TableCell>
-                  <TableCell>
-                    {Math.floor(order.orderPrice).toLocaleString()}
-                  </TableCell>
-                  <TableCell>{order.paidAt}</TableCell>
-                  <TableCell>{order.status}</TableCell>
-                  <TableCell>
-                    {order.status === "待付款" && (
-                      <Button
-                        onClick={() => handleRepay(order.id)}
-                        variant="default"
-                        size="sm"
-                      >
-                        重新付款
-                      </Button>
-                    )}
-                  </TableCell>
-                </>
-              )}
-            />
-          </div>
 
-          {/* 手機版卡片視圖 */}
-          <div className="lg:hidden">
-            {/* 卡片區塊 */}
-            <div className="space-y-3 sm:space-y-4">
-              {orderList.map((order) => (
-                <OrderItem key={order.id} order={order} onRepay={handleRepay} />
-              ))}
-            </div>
-
-            {/* 分頁區塊 */}
-            <div className="mt-4 sm:mt-6">
-              <PaginationControls
+        {shouldShowContent && (
+          <main className="mb-8">
+            {/* 桌面版表格視圖 */}
+            <div className="hidden lg:block">
+              <TableWithPagination
+                isLoading={false} // 使用全域 loading，這裡設為 false
+                data={orderList}
+                columnCount={tableColumn.length}
                 pagination={pagination}
                 onPageChange={handlePageChange}
+                columns={
+                  <>
+                    {tableColumn.map((col, index) => (
+                      <TableHead key={index}>{col.label}</TableHead>
+                    ))}
+                  </>
+                }
+                renderRow={(order) => (
+                  <>
+                    <TableCell>{order.title}</TableCell>
+                    <TableCell>
+                      {Math.floor(order.orderPrice).toLocaleString()}
+                    </TableCell>
+                    <TableCell>{order.paidAt}</TableCell>
+                    <TableCell>{order.status}</TableCell>
+                    <TableCell>
+                      {order.status === "待付款" && (
+                        <Button
+                          onClick={() => handleRepay(order.id)}
+                          variant="default"
+                          size="sm"
+                        >
+                          重新付款
+                        </Button>
+                      )}
+                    </TableCell>
+                  </>
+                )}
               />
             </div>
-          </div>
-        </main>
+
+            {/* 手機版卡片視圖 */}
+            <div className="lg:hidden">
+              {/* 卡片區塊 */}
+              <div className="space-y-3 sm:space-y-4">
+                {orderList.map((order) => (
+                  <OrderItem
+                    key={order.id}
+                    order={order}
+                    onRepay={handleRepay}
+                  />
+                ))}
+              </div>
+
+              {/* 分頁區塊 */}
+              <div className="mt-4 sm:mt-6">
+                <PaginationControls
+                  pagination={pagination}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            </div>
+          </main>
+        )}
       </div>
     </>
   );
