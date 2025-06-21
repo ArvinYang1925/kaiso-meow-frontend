@@ -96,7 +96,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         state.isLoading = true;
         state.errorMsg = null;
       });
-      ßß;
+
       try {
         const response = await registerUser(formData);
         const { token, userInfo } = response.data.data;
