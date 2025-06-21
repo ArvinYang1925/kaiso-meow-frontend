@@ -1,7 +1,18 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import { loginUser, logoutUser, registerUser, sendPasswordForgotLetter } from "@/services/auth.service";
-import { LoginFormData, RegisterFormData, LoginResponseData, PasswordForgotFormData, LoginResponse } from "@/services/types";
+import {
+  loginUser,
+  logoutUser,
+  registerUser,
+  sendPasswordForgotLetter,
+} from "@/services/auth.service";
+import {
+  LoginFormData,
+  RegisterFormData,
+  LoginResponseData,
+  PasswordForgotFormData,
+  LoginResponse,
+} from "@/services/types";
 import { Role } from "@/lib/enum";
 
 interface AuthState {
@@ -16,12 +27,17 @@ interface AuthState {
 interface AuthActions {
   login: (formData: LoginFormData) => Promise<LoginResponse>;
   logout: () => void;
-  register: (formData: RegisterFormData) => Promise<{ success: boolean; message?: string }>;
-  sendPasswordForgotLetter: (formData: PasswordForgotFormData) => Promise<{ status: string; message?: string }>;
+  register: (
+    formData: RegisterFormData
+  ) => Promise<{ success: boolean; message?: string }>;
+  sendPasswordForgotLetter: (
+    formData: PasswordForgotFormData
+  ) => Promise<{ status: string; message?: string }>;
   getRole: () => Role | null;
   getHomeRedirect: () => string;
   clearError: () => void;
   setIsShowPasswordForgotForm: (isShow: boolean) => void;
+  updateUserInfo: (updates: Partial<LoginResponseData>) => void;
 }
 
 export const useAuthStore = create<AuthState & AuthActions>()(
@@ -80,7 +96,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         state.isLoading = true;
         state.errorMsg = null;
       });
-
+      ßß;
       try {
         const response = await registerUser(formData);
         const { token, userInfo } = response.data.data;
@@ -132,7 +148,6 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       }
     },
 
-
     getRole: () => {
       return get().userInfo?.role || null;
     },
@@ -153,7 +168,19 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       set((state) => {
         state.isShowPasswordForgottenForm = isShow;
       });
-    }
+    },
+    updateUserInfo: (updates: Partial<LoginResponseData>) => {
+      console.log("update");
+      set((state) => {
+        if (state.userInfo) {
+          // 更新 state 中的 userInfo
+          Object.assign(state.userInfo, updates);
+
+          // 同時更新 localStorage
+          localStorage.setItem("userInfo", JSON.stringify(state.userInfo));
+        }
+      });
+    },
   }))
 );
 

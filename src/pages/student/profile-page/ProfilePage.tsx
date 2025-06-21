@@ -58,6 +58,7 @@ export default function ProfilePage() {
   };
 
   const handleUpdateFormData = async () => {
+    console.log('submit!!!!!')
     if (!validateProfile()) return;
 
     setIsLoading(true);
@@ -67,6 +68,7 @@ export default function ProfilePage() {
         phoneNumber: profile.phoneNumber,
       };
       const response = await updateProfile(data);
+      console.log("res", response)
       showCommonDialog({
         title: "儲存成功",
         description: response.status,
