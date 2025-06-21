@@ -472,7 +472,6 @@ export default function DashboardPage() {
     refreshAllData,
     resetFilter,
     clearError,
-    getStatistics,
     fetchRevenueReport,
     fetchCourseOptions,
   } = useRevenueStore();
@@ -558,7 +557,127 @@ export default function DashboardPage() {
     []
   );
 
-  const statistics = useMemo(() => getStatistics(), [getStatistics]);
+  const statistics = useMemo(() => {
+    // 直接計算統計數據，確保響應數據變化
+    if (!revenueData) {
+      return {
+        totalRevenue: 0,
+        totalOrders: 0,
+        averageOrderValue: 0,
+        revenueGrowthRate: 0,
+        ordersGrowthRate: 0,
+        topRevenueDay: "",
+        averageDailyRevenue: 0,
+      };
+    }
+
+    const dataPoints = revenueData.revenueData;
+    const summary = revenueData.summary;
+
+    // 計算成長率
+    let revenueGrowthRate = 0;
+    let ordersGrowthRate = 0;
+
+    if (dataPoints.length >= 2) {
+      // 按日期排序確保數據順序正確
+      const sortedData = [...dataPoints].sort(
+        (a, b) =>
+          new Date(a.intervalStart).getTime() -
+          new Date(b.intervalStart).getTime()
+      );
+
+      // 如果數據點少於4個，使用首尾比較
+      if (sortedData.length < 4) {
+        const firstPoint = sortedData[0];
+        const lastPoint = sortedData[sortedData.length - 1];
+
+        const firstRevenue = firstPoint.totalRevenue || 0;
+        const lastRevenue = lastPoint.totalRevenue || 0;
+        const firstOrders = firstPoint.orderCount || 0;
+        const lastOrders = lastPoint.orderCount || 0;
+
+        revenueGrowthRate =
+          firstRevenue === 0
+            ? lastRevenue > 0
+              ? 100
+              : 0
+            : ((lastRevenue - firstRevenue) / firstRevenue) * 100;
+
+        ordersGrowthRate =
+          firstOrders === 0
+            ? lastOrders > 0
+              ? 100
+              : 0
+            : ((lastOrders - firstOrders) / firstOrders) * 100;
+      } else {
+        // 使用前後半段比較
+        const midPoint = Math.floor(sortedData.length / 2);
+        const firstHalf = sortedData.slice(0, midPoint);
+        const secondHalf = sortedData.slice(midPoint);
+
+        const firstHalfRevenue = firstHalf.reduce(
+          (sum, item) => sum + (item.totalRevenue || 0),
+          0
+        );
+        const secondHalfRevenue = secondHalf.reduce(
+          (sum, item) => sum + (item.totalRevenue || 0),
+          0
+        );
+        const firstHalfOrders = firstHalf.reduce(
+          (sum, item) => sum + (item.orderCount || 0),
+          0
+        );
+        const secondHalfOrders = secondHalf.reduce(
+          (sum, item) => sum + (item.orderCount || 0),
+          0
+        );
+
+        revenueGrowthRate =
+          firstHalfRevenue === 0
+            ? secondHalfRevenue > 0
+              ? 100
+              : 0
+            : ((secondHalfRevenue - firstHalfRevenue) / firstHalfRevenue) * 100;
+
+        ordersGrowthRate =
+          firstHalfOrders === 0
+            ? secondHalfOrders > 0
+              ? 100
+              : 0
+            : ((secondHalfOrders - firstHalfOrders) / firstHalfOrders) * 100;
+      }
+    }
+
+    // 限制成長率的最大值和最小值
+    revenueGrowthRate = Math.max(Math.min(revenueGrowthRate, 999), -100);
+    ordersGrowthRate = Math.max(Math.min(ordersGrowthRate, 999), -100);
+
+    // 找出收益最高的一天
+    const topDay = dataPoints.reduce(
+      (max, current) =>
+        (current.totalRevenue || 0) > (max.totalRevenue || 0) ? current : max,
+      dataPoints[0]
+    );
+
+    // 計算平均每日收益
+    const daysDiff =
+      Math.ceil(
+        (filter.endDate.getTime() - filter.startDate.getTime()) /
+          (1000 * 60 * 60 * 24)
+      ) + 1;
+    const averageDailyRevenue =
+      daysDiff > 0 ? summary.totalRevenue / daysDiff : 0;
+
+    return {
+      totalRevenue: summary.totalRevenue || 0,
+      totalOrders: summary.totalOrders || 0,
+      averageOrderValue: summary.averageOrderValue || 0,
+      revenueGrowthRate,
+      ordersGrowthRate,
+      topRevenueDay: topDay?.intervalStart || "",
+      averageDailyRevenue,
+    };
+  }, [revenueData, filter]);
 
   const growthMetrics = useMemo(
     () => ({
