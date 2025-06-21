@@ -69,6 +69,13 @@ const LearningPage: React.FC = () => {
         const response = await learningService.getCourseSectionsList(courseId);
 
         if (response.status === "success") {
+          // Check if course is not ready (empty sections array)
+          if (!response.data.sections || response.data.sections.length === 0) {
+            alert("此課程尚未準備就緒，章節內容暫不可用。");
+            navigate("/my-learning");
+            return;
+          }
+
           // Fetch all section details in parallel
           const sectionDetails = await Promise.all(
             response.data.sections.map((section: any) =>
