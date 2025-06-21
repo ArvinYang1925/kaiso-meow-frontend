@@ -5,7 +5,7 @@ import { ApiResponseModel } from "@/pages/admin/models/api.model";
 // ============================
 
 // 時間間隔類型
-export type IntervalType = "day" | "week" | "month" | "year";
+export type IntervalType = "day" | "week" | "month"; // | "year"; // 暫時註解年選項，後端不支援
 
 // 時間間隔規則型別
 export type IntervalRule = {
@@ -69,7 +69,7 @@ export type RevenueQueryParamsModel = {
 export type GetRevenueReportResponse = ApiResponseModel<RevenueReportDataModel>;
 
 // ============================
-// 課程相關模型 - 修正版
+// 課程相關模型
 // ============================
 
 // 分頁查詢參數模型
@@ -104,7 +104,7 @@ export type CourseListItemModel = {
   displayName?: string;
 };
 
-// 課程選項模型（用於下拉選單）- 簡化版
+// 課程選項模型（用於下拉選單）
 export type CourseOptionModel = {
   id: string;
   title: string;
@@ -119,7 +119,7 @@ export type CoursePaginationModel = {
   totalItems: number;
 };
 
-// 課程列表 API 回應模型 - 修正為使用簡化的課程選項
+// 課程列表 API 回應模型
 export type GetCoursesResponse = ApiResponseModel<{
   courseList: CourseOptionModel[]; // 使用簡化模型
   pagination: CoursePaginationModel;
@@ -149,11 +149,11 @@ export type RevenueChartDataModel = {
   }[];
 };
 
-// 前端錯誤狀態類型 - 移除 any
+// 前端錯誤狀態類型
 export type ErrorStateModel = {
   hasError: boolean;
-  message: string;
-  type: "api" | "validation" | "network" | "unknown";
+  message: string; // 直接使用後端返回的 message
+  type: "api" | "validation" | "network" | "timeout" | "unknown";
   timestamp?: Date;
   details?: {
     statusCode?: number;
@@ -195,6 +195,21 @@ export type FormValidationState = {
 export type DateRangeValidationResult = {
   isValid: boolean;
   error?: string;
+};
+
+// ============================
+// 年統計相關型別
+// ============================
+export type YearStatisticsOptions = {
+  autoAdjustDateRange: boolean; // 是否自動調整日期範圍
+  fallbackToMonth: boolean; // 是否降級到月統計
+  showWarningDialog: boolean; // 是否顯示警告對話框
+};
+
+export const DEFAULT_YEAR_OPTIONS: YearStatisticsOptions = {
+  autoAdjustDateRange: true,
+  fallbackToMonth: true,
+  showWarningDialog: true,
 };
 
 // ============================
@@ -257,12 +272,37 @@ export const getDefaultDateRange = () => {
   };
 };
 
-// 時間間隔選項
+// 預設日期範圍函數
+export const getDefaultDateRangeForInterval = (interval: IntervalType) => {
+  const endDate = new Date();
+  const startDate = new Date();
+
+  switch (interval) {
+    case "day":
+      startDate.setDate(endDate.getDate() - 30); // 30天
+      break;
+    case "week":
+      startDate.setDate(endDate.getDate() - 56); // 8週
+      break;
+    case "month":
+      startDate.setMonth(endDate.getMonth() - 6); // 6個月
+      break;
+    // case "year": // 暫時註解年間隔，後端不支援
+    //   startDate.setFullYear(endDate.getFullYear() - 2); // 2年
+    //   break;
+    default:
+      startDate.setDate(endDate.getDate() - 30);
+  }
+
+  return { startDate, endDate };
+};
+
+// 時間間隔選項 - 更清楚的標籤
 export const INTERVAL_OPTIONS: { value: IntervalType; label: string }[] = [
-  { value: "day", label: "天" },
+  { value: "day", label: "日" },
   { value: "week", label: "週" },
   { value: "month", label: "月" },
-  { value: "year", label: "年" },
+  // { value: "year", label: "年" }, // 暫時註解年選項，後端不支援
 ];
 
 // 預設分頁參數
@@ -326,23 +366,50 @@ export const API_TIMEOUTS = {
   DEFAULT: 8000, // 8秒
 } as const;
 
-// 驗證限制配置
+// 前端專用錯誤訊息 - 只保留前端特有的情況
+export const FRONTEND_ERROR_MESSAGES = {
+  NETWORK_ERROR: "網路連線錯誤，請檢查網路狀態",
+  TIMEOUT_ERROR: "請求超時，請稍後再試",
+  UNKNOWN_ERROR: "發生未知錯誤，請聯繫技術支援",
+} as const;
+
+// 時間間隔驗證限制配置
 export const VALIDATION_LIMITS = {
-  MAX_DATE_RANGE_DAYS: 365,
+  MAX_DATE_RANGE_DAYS: 730, // 增加到2年，支援年統計
   MIN_DATE_RANGE_DAYS: 1,
   MAX_COURSE_TITLE_LENGTH: 100,
   MIN_COURSE_TITLE_LENGTH: 1,
   INTERVAL_RULES: {
-    day: { minDays: 0, maxDays: 90, suggestion: "建議使用「週」或「月」間隔" },
-    week: { minDays: 14, maxDays: 365, suggestion: "建議使用「日」間隔" },
-    month: {
-      minDays: 60,
-      maxDays: 730,
-      suggestion: "建議使用「日」或「週」間隔",
+    day: {
+      minDays: 1, // 修正：最少需要1天
+      maxDays: 31, // 修正：建議最多31天
+      suggestion: "建議日期範圍不超過31天時使用日統計",
     },
-    year: { minDays: 365, maxDays: Infinity, suggestion: "建議使用「月」間隔" },
+    week: {
+      minDays: 7, // 修正：週統計至少需要7天
+      maxDays: 90, // 修正：建議最多90天
+      suggestion: "建議日期範圍在7-90天之間時使用週統計",
+    },
+    month: {
+      minDays: 30, // 修正：月統計至少需要30天
+      maxDays: 365, // 修正：建議最多365天
+      suggestion: "建議日期範圍在30-365天之間時使用月統計",
+    },
+    // year: { // 暫時註解年間隔，後端不支援
+    //   minDays: 90,       // 年統計建議至少90天（不強制）
+    //   maxDays: Infinity, // 保持無限制
+    //   suggestion: "建議日期範圍超過90天時使用年統計，最佳效果為365天以上（僅供參考，不會阻擋查詢）"
+    // },
   } as Record<IntervalType, IntervalRule>,
 } as const;
+
+// 年統計專用配置
+// export const YEAR_STATISTICS_CONFIG = {
+//   MIN_RECOMMENDED_DAYS: 90,     // 年統計建議最少天數
+//   OPTIMAL_DAYS: 365,            // 年統計最佳天數
+//   AUTO_ADJUST_THRESHOLD: 30,    // 少於30天自動調整門檻
+//   DEFAULT_RANGE_YEARS: 1,       // 預設範圍（年）
+// } as const;
 
 // 快取配置
 export const CACHE_CONFIG = {
@@ -357,3 +424,58 @@ export const UI_CONFIG = {
   AUTO_REFRESH_INTERVAL: 30 * 60 * 1000, // 30分鐘自動更新
   TOAST_DURATION: 5000, // Toast 顯示時間
 } as const;
+
+// ============================
+// 輔助函數
+// ============================
+
+// 智能間隔選擇器函數
+export const getRecommendedInterval = (daysDiff: number): IntervalType => {
+  if (daysDiff <= 31) return "day";
+  if (daysDiff <= 90) return "week";
+  // if (daysDiff <= 365) return "month";
+  // return "year"; // 暫時註解年間隔，後端不支援
+  return "month"; // 最大間隔改為月
+};
+
+// 間隔驗證輔助函數（僅用於 UI 提示，不阻止 API 請求）
+export const isIntervalValidForRange = (
+  daysDiff: number,
+  interval: IntervalType
+): { isValid: boolean; message?: string; suggestion?: IntervalType } => {
+  const rule = VALIDATION_LIMITS.INTERVAL_RULES[interval];
+
+  // 特殊處理：年間隔不阻擋請求，只提供建議（暫時註解，後端不支援）
+  // if (interval === "year") {
+  //   return { isValid: true }; // 年間隔總是允許通過
+  // }
+
+  if (daysDiff < rule.minDays) {
+    const recommended = getRecommendedInterval(daysDiff);
+    return {
+      isValid: false,
+      message: `日期範圍過短（${daysDiff}天），${rule.suggestion}`,
+      suggestion: recommended,
+    };
+  }
+
+  if (rule.maxDays !== Infinity && daysDiff > rule.maxDays) {
+    const recommended = getRecommendedInterval(daysDiff);
+    return {
+      isValid: false,
+      message: `日期範圍過長（${daysDiff}天），${rule.suggestion}`,
+      suggestion: recommended,
+    };
+  }
+
+  return { isValid: true };
+};
+
+// 計算兩個日期之間的天數差
+export const calculateDaysDifference = (
+  startDate: Date,
+  endDate: Date
+): number => {
+  const timeDiff = endDate.getTime() - startDate.getTime();
+  return Math.ceil(timeDiff / (1000 * 3600 * 24));
+};

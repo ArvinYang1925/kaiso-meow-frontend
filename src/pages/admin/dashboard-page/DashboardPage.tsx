@@ -10,6 +10,7 @@ import {
   PieChart as PieChartIcon,
   Activity,
   Clock,
+  AlertCircle,
 } from "lucide-react";
 import {
   Card,
@@ -139,7 +140,7 @@ const getIntervalDisplayName = (interval: IntervalType): string => {
     day: "日",
     week: "週",
     month: "月",
-    year: "年",
+    // year: "年", // 暫時註解年間隔，後端不支援
   };
   return map[interval] || interval;
 };
@@ -206,6 +207,7 @@ const FilterForm = ({
   courseOptions,
   isLoadingCourses,
   isLoading,
+  error,
   onStartDateChange,
   onEndDateChange,
   onIntervalChange,
@@ -220,6 +222,7 @@ const FilterForm = ({
   courseOptions: Array<{ id: string; title: string }>;
   isLoadingCourses: boolean;
   isLoading: boolean;
+  error?: { hasError: boolean; message: string; type: string };
   onStartDateChange: (value: string) => void;
   onEndDateChange: (value: string) => void;
   onIntervalChange: (value: IntervalType) => void;
@@ -227,10 +230,40 @@ const FilterForm = ({
   onApply: () => void;
   onReset: () => void;
 }) => {
-  const isFormValid = useMemo(
-    () => startDate && endDate && new Date(startDate) <= new Date(endDate),
-    [startDate, endDate]
-  );
+  // 獲取今日日期字串 (YYYY-MM-DD 格式)
+  const todayString = useMemo(() => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  }, []);
+
+  // 表單驗證和錯誤訊息
+  const validationResult = useMemo(() => {
+    if (!startDate) {
+      return { isValid: false, message: "請選擇開始時間" };
+    }
+    if (!endDate) {
+      return { isValid: false, message: "請選擇結束時間" };
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (start > end) {
+      return { isValid: false, message: "開始時間不能大於結束時間" };
+    }
+
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+
+    if (end > today) {
+      return { isValid: false, message: "結束時間不能大於今天" };
+    }
+
+    return { isValid: true, message: "" };
+  }, [startDate, endDate]);
+
+  const isFormValid = validationResult.isValid;
+  const isButtonDisabled = isLoading || !isFormValid;
 
   return (
     <Card className="bg-white">
@@ -248,8 +281,14 @@ const FilterForm = ({
               <Input
                 type="date"
                 value={startDate}
+                max={todayString}
                 onChange={(e) => onStartDateChange(e.target.value)}
-                className="h-11"
+                className="h-11 [&::-webkit-calendar-picker-indicator]:ml-auto [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
               />
             </div>
             <div className="space-y-2">
@@ -257,8 +296,14 @@ const FilterForm = ({
               <Input
                 type="date"
                 value={endDate}
+                max={todayString}
                 onChange={(e) => onEndDateChange(e.target.value)}
-                className="h-11"
+                className="h-11 [&::-webkit-calendar-picker-indicator]:ml-auto [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
               />
             </div>
             <div className="space-y-2">
@@ -310,7 +355,7 @@ const FilterForm = ({
               <div className="flex gap-2">
                 <Button
                   onClick={onApply}
-                  disabled={isLoading || !isFormValid}
+                  disabled={isButtonDisabled}
                   className="flex-1 h-11"
                 >
                   {isLoading ? "載入中..." : "查詢"}
@@ -326,14 +371,35 @@ const FilterForm = ({
               </div>
             </div>
           </div>
+
+          {/* 錯誤提示區域 - 佔據整行 */}
+          {(!isFormValid ||
+            (error?.hasError && error.type === "validation") ||
+            (error?.hasError && error.type === "api")) &&
+            !isLoading && (
+              <div className="flex items-center gap-2 text-sm text-red-600">
+                <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                <span>
+                  {!isFormValid ? validationResult.message : error?.message}
+                </span>
+              </div>
+            )}
         </div>
       </CardContent>
     </Card>
   );
 };
 
-// 頁面標題組件
-const PageHeader = ({
+// 修改後的頁面標題組件 - 只包含標題和描述
+const PageTitle = () => (
+  <div>
+    <h2 className="text-2xl font-bold mb-2">收益數據儀表板</h2>
+    <p className="text-gray-600">追蹤您的課程收益和銷售表現</p>
+  </div>
+);
+
+// 新增的更新控制組件 - 包含最後更新時間和刷新按鈕
+const UpdateControls = ({
   lastUpdated,
   isRefreshing,
   onRefresh,
@@ -342,33 +408,25 @@ const PageHeader = ({
   isRefreshing: boolean;
   onRefresh: () => void;
 }) => (
-  <div className="space-y-2">
-    <div className="flex items-center justify-between">
-      <div>
-        <h2 className="text-2xl font-bold mb-2">收益數據儀表板</h2>
-        <p className="text-gray-600">追蹤您的課程收益和銷售表現</p>
+  <div className="flex items-center justify-between gap-3 p-4 bg-gray-50 rounded-lg border">
+    {lastUpdated && (
+      <div className="flex items-center gap-2 text-sm text-gray-500 flex-1 min-w-0">
+        <Clock className="h-4 w-4 flex-shrink-0" />
+        <span className="truncate">
+          最後更新: {lastUpdated.toLocaleTimeString()}
+        </span>
       </div>
-      <div className="flex items-center gap-3">
-        {lastUpdated && (
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <Clock className="h-4 w-4" />
-            <span>最後更新: {lastUpdated.toLocaleTimeString()}</span>
-          </div>
-        )}
-        <Button
-          onClick={onRefresh}
-          disabled={isRefreshing}
-          variant="outline"
-          size="sm"
-          className="flex items-center gap-2"
-        >
-          <RefreshCw
-            className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
-          />
-          {isRefreshing ? "更新中..." : "刷新"}
-        </Button>
-      </div>
-    </div>
+    )}
+    <Button
+      onClick={onRefresh}
+      disabled={isRefreshing}
+      variant="outline"
+      size="sm"
+      className="flex items-center gap-2 flex-shrink-0"
+    >
+      <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+      {isRefreshing ? "更新中..." : "刷新"}
+    </Button>
   </div>
 );
 
@@ -380,7 +438,7 @@ const EmptyState = ({
   onRetry: () => void;
   isLoading: boolean;
 }) => (
-  <Card isLoading={isLoading}>
+  <Card>
     <CardContent className="pt-6">
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <Activity className="h-12 w-12 text-gray-400 mb-4" />
@@ -406,12 +464,14 @@ export default function DashboardPage() {
     isRefreshing,
     hasInitialized,
     updateState,
+    error,
     initialize,
     setDateRange,
     setInterval,
     setCourseFilter,
     refreshAllData,
     resetFilter,
+    clearError,
     getStatistics,
     fetchRevenueReport,
     fetchCourseOptions,
@@ -470,7 +530,13 @@ export default function DashboardPage() {
     setCourseFilter(
       localFilters.courseId === "all" ? undefined : localFilters.courseId
     );
-    await fetchRevenueReport(true);
+
+    try {
+      await fetchRevenueReport(true);
+    } catch (error) {
+      // 錯誤已在 fetchRevenueReport 中處理，這裡只是防止未捕獲的 Promise rejection
+      console.error("Failed to fetch revenue report:", error);
+    }
   }, [localFilters, setDateRange, setCourseFilter, fetchRevenueReport]);
 
   const handleIntervalChange = useCallback(
@@ -481,8 +547,9 @@ export default function DashboardPage() {
   );
 
   const handleReset = useCallback(() => {
+    clearError(); // 清空錯誤訊息
     resetFilter();
-  }, [resetFilter]);
+  }, [clearError, resetFilter]);
 
   const updateLocalFilter = useCallback(
     (key: keyof typeof localFilters, value: string) => {
@@ -577,12 +644,49 @@ export default function DashboardPage() {
     <>
       <div className="min-h-screen bg-gray-50/50 p-6">
         <div className="max-w-7xl mx-auto space-y-6">
-          <PageHeader
-            lastUpdated={updateState.lastUpdated ?? undefined}
-            isRefreshing={isRefreshing}
-            onRefresh={refreshAllData}
-          />
+          {/* 桌面版：原始佈局（標題和控制項在同一行） */}
+          <div className="hidden md:block">
+            <div className="flex items-center justify-between">
+              <PageTitle />
+              <div className="flex items-center gap-3">
+                {updateState.lastUpdated && (
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <Clock className="h-4 w-4" />
+                    <span>
+                      最後更新: {updateState.lastUpdated.toLocaleTimeString()}
+                    </span>
+                  </div>
+                )}
+                <Button
+                  onClick={refreshAllData}
+                  disabled={isRefreshing}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <RefreshCw
+                    className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+                  />
+                  {isRefreshing ? "更新中..." : "刷新"}
+                </Button>
+              </div>
+            </div>
+          </div>
 
+          {/* 手機版：分層佈局 */}
+          <div className="md:hidden space-y-4">
+            {/* 1. 標題和描述 */}
+            <PageTitle />
+
+            {/* 2. 最後更新和刷新按鈕 */}
+            <UpdateControls
+              lastUpdated={updateState.lastUpdated ?? undefined}
+              isRefreshing={isRefreshing}
+              onRefresh={refreshAllData}
+            />
+          </div>
+
+          {/* 3. 資料篩選區塊 */}
           <FilterForm
             startDate={localFilters.startDate}
             endDate={localFilters.endDate}
@@ -591,6 +695,7 @@ export default function DashboardPage() {
             courseOptions={courseOptions}
             isLoadingCourses={isLoadingCourseOptions}
             isLoading={isLoading}
+            error={error}
             onStartDateChange={(value) => updateLocalFilter("startDate", value)}
             onEndDateChange={(value) => updateLocalFilter("endDate", value)}
             onIntervalChange={handleIntervalChange}
