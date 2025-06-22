@@ -11,8 +11,8 @@ import topLeftDecor from "@/assets/homepage/top-left-course-card.png";
 import bottomRightDecor from "@/assets/homepage/right-down-course-card.png";
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
-/** 廣告燈箱 */
-import ShowAd from "@/components/common/ShowAd";
+/** 廣告燈箱、跑馬燈 */
+import AdManager from "./components/AdManager";
 
 export const HomePage: React.FC = () => {
   const location = useLocation();
@@ -28,11 +28,13 @@ export const HomePage: React.FC = () => {
 
   return (
     <>
-      {/* 廣告燈箱 */}
-      <ShowAd />
+      {/* 廣告燈箱、跑馬燈 */}
+      <AdManager />
+
       {/* Banner區塊 */}
       <BannerComponent />
       {/* 課程卡片區塊 */}
+
       <div
         id="course-section"
         className="py-24 course-card-section bg-slate-50"
