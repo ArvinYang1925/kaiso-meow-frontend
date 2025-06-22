@@ -36,7 +36,10 @@ const courseDetailSchema = z
       .string()
       .min(1, "課程介紹為必填項目")
       .refine((content) => {
-        // 移除 HTML 標籤並檢查是否有實際內容
+        // 檢查是否包含圖片
+        if (content.includes("<img")) return true;
+
+        // 移除 HTML 標籤並檢查是否有實際文字內容
         const textContent = content.replace(/<[^>]*>/g, "").trim();
         return textContent.length > 0;
       }, "課程介紹為必填項目"),
@@ -757,6 +760,8 @@ export default function CourseManagementDetailPage() {
                         }}
                         minHeight={window.innerWidth < 768 ? 200 : 200}
                         maxHeight={window.innerWidth < 768 ? 300 : 398}
+                        maxImageSize={0.05}
+                        maxContentSize={1}
                         className={`w-full max-w-full ${
                           errors.description ? "border-red-500" : ""
                         }`}
