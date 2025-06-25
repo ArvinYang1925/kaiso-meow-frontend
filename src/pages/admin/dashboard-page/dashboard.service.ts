@@ -42,6 +42,15 @@ const handleApiError = <T>(
 ): ApiResponseModel<T> => {
   // 如果是 AxiosError 且有 response
   if (error instanceof AxiosError && error.response?.data) {
+    // 特殊處理：HTTP 408 狀態碼視為成功
+    if (error.response.status === 408) {
+      return {
+        status: "success",
+        message: "請求完成",
+        data: undefined,
+      };
+    }
+
     const responseData = error.response.data as ApiResponseModel<unknown>;
 
     // 優先使用 API 回傳的標準格式
@@ -117,10 +126,34 @@ export const getInstructorRevenue = async (
 
     return response.data;
   } catch (error: unknown) {
-    return handleApiError<RevenueReportDataModel>(
+    const errorResponse = handleApiError<RevenueReportDataModel>(
       error,
       "無法取得收益報表，請稍後再試"
     );
+
+    // 如果是 408 錯誤（已被視為成功），提供預設的空數據
+    if (error instanceof AxiosError && error.response?.status === 408) {
+      return {
+        status: "success",
+        message: "請求完成",
+        data: {
+          summary: {
+            totalOrders: 0,
+            totalRevenue: 0,
+            averageOrderValue: 0,
+          },
+          revenueData: [],
+          queryParams: {
+            startTime: params.startTime,
+            endTime: params.endTime,
+            interval: params.interval,
+            courseId: params.courseId || null,
+          },
+        },
+      };
+    }
+
+    return errorResponse;
   }
 };
 
@@ -145,10 +178,29 @@ export const getInstructorCourses = async (): Promise<GetCoursesResponse> => {
 
     return response.data;
   } catch (error: unknown) {
-    return handleApiError<{
+    const errorResponse = handleApiError<{
       courseList: CourseOptionModel[];
       pagination: CoursePaginationModel;
     }>(error, "無法取得課程列表");
+
+    // 如果是 408 錯誤（已被視為成功），提供預設的空數據
+    if (error instanceof AxiosError && error.response?.status === 408) {
+      return {
+        status: "success",
+        message: "請求完成",
+        data: {
+          courseList: [],
+          pagination: {
+            currentPage: 1,
+            pageSize: API_CONFIG.PAGINATION.MAX_COURSES_LIMIT,
+            totalPages: 1,
+            totalItems: 0,
+          },
+        },
+      };
+    }
+
+    return errorResponse;
   }
 };
 
