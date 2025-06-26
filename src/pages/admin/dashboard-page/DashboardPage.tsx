@@ -452,6 +452,30 @@ const EmptyState = ({
   </Card>
 );
 
+// 圖表空狀態組件
+const ChartEmptyState = ({
+  title,
+  description,
+  icon: Icon,
+  suggestion,
+}: {
+  title: string;
+  description: string;
+  icon: React.ElementType;
+  suggestion?: string;
+}) => (
+  <div className="h-80 flex flex-col items-center justify-center text-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 px-2 md:px-4">
+    <Icon className="h-16 w-16 text-gray-300 mb-4" />
+    <h3 className="text-lg font-medium text-gray-600 mb-2 px-2">{title}</h3>
+    <p className="text-gray-500 mb-4 max-w-md px-2">{description}</p>
+    {suggestion && (
+      <div className="text-sm text-blue-600 bg-blue-50 px-4 py-2 rounded-lg border border-blue-200 mx-2">
+        💡 {suggestion}
+      </div>
+    )}
+  </div>
+);
+
 export default function DashboardPage() {
   const { ScreenLoading, withLoading } = useScreenLoading();
 
@@ -718,6 +742,26 @@ export default function DashboardPage() {
     });
   }, [revenueData]);
 
+  // 檢查是否有數據
+  const hasChartData = useMemo(() => {
+    return (
+      revenueData &&
+      revenueData.summary.totalOrders > 0 &&
+      processedChartData.length > 0
+    );
+  }, [revenueData, processedChartData]);
+
+  // 取得選中的課程名稱
+  const selectedCourseName = useMemo(() => {
+    if (localFilters.courseId === "all") {
+      return "全部課程 課程";
+    }
+    const selectedCourse = courseOptions.find(
+      (course) => course.id === localFilters.courseId
+    );
+    return selectedCourse ? `${selectedCourse.title} 課程` : "未知課程 課程";
+  }, [localFilters.courseId, courseOptions]);
+
   // 圓餅圖-課程分佈數據處理
   const courseDistributionData = useMemo(() => {
     if (!courseOptions || courseOptions.length === 0) {
@@ -978,87 +1022,98 @@ export default function DashboardPage() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="h-80">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart
-                          data={processedChartData}
-                          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                        >
-                          <defs>
-                            <linearGradient
-                              id="revenueGradient"
-                              x1="0"
-                              y1="0"
-                              x2="0"
-                              y2="1"
-                            >
-                              <stop
-                                offset="5%"
-                                stopColor={CHART_COLORS.sky400}
-                                stopOpacity={0.8}
-                              />
-                              <stop
-                                offset="95%"
-                                stopColor={CHART_COLORS.sky400}
-                                stopOpacity={0.1}
-                              />
-                            </linearGradient>
-                          </defs>
-                          <CartesianGrid
-                            strokeDasharray="3 3"
-                            className="stroke-gray-200"
-                          />
-                          <XAxis
-                            dataKey="date"
-                            className="text-xs"
-                            tick={{ fontSize: 12 }}
-                            axisLine={false}
-                            tickLine={false}
-                          />
-                          <YAxis
-                            className="text-xs"
-                            tick={{ fontSize: 12 }}
-                            axisLine={false}
-                            tickLine={false}
-                            tickFormatter={(value) => {
-                              const numValue = Number(value);
-                              return isNaN(numValue)
-                                ? "0"
-                                : `${Math.round(numValue / 1000)}K`;
-                            }}
-                          />
-                          <Tooltip
-                            content={({ active, payload, label }) => {
-                              if (active && payload && payload.length) {
-                                return (
-                                  <div className="bg-white p-3 border rounded-lg shadow-lg border-sky-200">
-                                    <p className="font-medium text-gray-800 mb-1">
-                                      日期: {label}
-                                    </p>
-                                    <p className="text-sky-600">
-                                      收益:{" "}
-                                      {formatCurrency(Number(payload[0].value))}
-                                    </p>
-                                  </div>
-                                );
-                              }
-                              return null;
-                            }}
-                          />
-                          <Area
-                            type="monotone"
-                            dataKey="revenue"
-                            name="收益"
-                            stroke={CHART_COLORS.sky400}
-                            fillOpacity={1}
-                            fill="url(#revenueGradient)"
-                            strokeWidth={2}
-                            dot={{ r: 4, fill: CHART_COLORS.sky400 }}
-                            activeDot={{ r: 6, fill: CHART_COLORS.sky400 }}
-                          />
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    </div>
+                    {hasChartData ? (
+                      <div className="h-80">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart
+                            data={processedChartData}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                          >
+                            <defs>
+                              <linearGradient
+                                id="revenueGradient"
+                                x1="0"
+                                y1="0"
+                                x2="0"
+                                y2="1"
+                              >
+                                <stop
+                                  offset="5%"
+                                  stopColor={CHART_COLORS.sky400}
+                                  stopOpacity={0.8}
+                                />
+                                <stop
+                                  offset="95%"
+                                  stopColor={CHART_COLORS.sky400}
+                                  stopOpacity={0.1}
+                                />
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid
+                              strokeDasharray="3 3"
+                              className="stroke-gray-200"
+                            />
+                            <XAxis
+                              dataKey="date"
+                              className="text-xs"
+                              tick={{ fontSize: 12 }}
+                              axisLine={false}
+                              tickLine={false}
+                            />
+                            <YAxis
+                              className="text-xs"
+                              tick={{ fontSize: 12 }}
+                              axisLine={false}
+                              tickLine={false}
+                              tickFormatter={(value) => {
+                                const numValue = Number(value);
+                                return isNaN(numValue)
+                                  ? "0"
+                                  : `${Math.round(numValue / 1000)}K`;
+                              }}
+                            />
+                            <Tooltip
+                              content={({ active, payload, label }) => {
+                                if (active && payload && payload.length) {
+                                  return (
+                                    <div className="bg-white p-3 border rounded-lg shadow-lg border-sky-200">
+                                      <p className="font-medium text-gray-800 mb-1">
+                                        日期: {label}
+                                      </p>
+                                      <p className="text-sky-600">
+                                        收益:{" "}
+                                        {formatCurrency(
+                                          Number(payload[0].value)
+                                        )}
+                                      </p>
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              }}
+                            />
+                            <Area
+                              type="monotone"
+                              dataKey="revenue"
+                              name="收益"
+                              stroke={CHART_COLORS.sky400}
+                              fillOpacity={1}
+                              fill="url(#revenueGradient)"
+                              strokeWidth={2}
+                              dot={{ r: 4, fill: CHART_COLORS.sky400 }}
+                              activeDot={{ r: 6, fill: CHART_COLORS.sky400 }}
+                            />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
+                    ) : (
+                      <ChartEmptyState
+                        icon={Activity}
+                        title="尚無收益數據"
+                        description={`${selectedCourseName} 在所選期間（${localFilters.startDate} 至 ${localFilters.endDate}）內暫無收益記錄`}
+                        suggestion="嘗試調整時間範圍或課程篩選條件，或開始推廣您的課程來產生第一筆收益！"
+                      />
+                    )}
                   </CardContent>
                 </Card>
 
@@ -1074,58 +1129,67 @@ export default function DashboardPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="h-80">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart
-                          data={processedChartData}
-                          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                        >
-                          <CartesianGrid
-                            strokeDasharray="3 3"
-                            className="stroke-gray-200"
-                          />
-                          <XAxis
-                            dataKey="date"
-                            className="text-xs"
-                            tick={{ fontSize: 12 }}
-                            axisLine={false}
-                            tickLine={false}
-                          />
-                          <YAxis
-                            className="text-xs"
-                            tick={{ fontSize: 12 }}
-                            axisLine={false}
-                            tickLine={false}
-                          />
-                          <Tooltip
-                            content={({ active, payload, label }) => {
-                              if (active && payload && payload.length) {
-                                return (
-                                  <div className="bg-white p-3 border rounded-lg shadow-lg border-sky-200">
-                                    <p className="font-medium text-gray-800 mb-1">
-                                      日期: {label}
-                                    </p>
-                                    <p className="text-sky-600">
-                                      訂單:{" "}
-                                      {formatNumber(Number(payload[0].value))}{" "}
-                                      筆
-                                    </p>
-                                  </div>
-                                );
-                              }
-                              return null;
-                            }}
-                          />
-                          <Bar
-                            dataKey="orders"
-                            fill={CHART_COLORS.sky400}
-                            stroke={CHART_COLORS.sky500}
-                            strokeWidth={1}
-                            radius={[4, 4, 0, 0]}
-                          />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
+                    {hasChartData ? (
+                      <div className="h-80">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={processedChartData}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                          >
+                            <CartesianGrid
+                              strokeDasharray="3 3"
+                              className="stroke-gray-200"
+                            />
+                            <XAxis
+                              dataKey="date"
+                              className="text-xs"
+                              tick={{ fontSize: 12 }}
+                              axisLine={false}
+                              tickLine={false}
+                            />
+                            <YAxis
+                              className="text-xs"
+                              tick={{ fontSize: 12 }}
+                              axisLine={false}
+                              tickLine={false}
+                            />
+                            <Tooltip
+                              content={({ active, payload, label }) => {
+                                if (active && payload && payload.length) {
+                                  return (
+                                    <div className="bg-white p-3 border rounded-lg shadow-lg border-sky-200">
+                                      <p className="font-medium text-gray-800 mb-1">
+                                        日期: {label}
+                                      </p>
+                                      <p className="text-sky-600">
+                                        訂單:{" "}
+                                        {formatNumber(Number(payload[0].value))}{" "}
+                                        筆
+                                      </p>
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              }}
+                            />
+                            <Bar
+                              dataKey="orders"
+                              fill={CHART_COLORS.sky400}
+                              stroke={CHART_COLORS.sky500}
+                              strokeWidth={1}
+                              radius={[4, 4, 0, 0]}
+                            />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    ) : (
+                      <ChartEmptyState
+                        icon={BarChart3}
+                        title="尚無訂單數據"
+                        description={`${selectedCourseName} 在所選期間（${localFilters.startDate} 至 ${localFilters.endDate}）內暫無訂單記錄`}
+                        suggestion="嘗試調整時間範圍或課程篩選條件，或加強課程行銷來獲得第一個訂單！"
+                      />
+                    )}
                   </CardContent>
                 </Card>
               </div>
