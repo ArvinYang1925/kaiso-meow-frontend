@@ -6,9 +6,9 @@ export function handleErrorMessageDialog(error: unknown) {
     const showCommonDialog = useDialogStore.getState().showCommonDialog;
 
     if (axios.isAxiosError(error) && error.response?.data) {
-        const { status, message } = error.response.data;
+        const { message } = error.response.data;
         showCommonDialog({
-            type: status,
+            type: "failed",
             message,
         });
     } else {
