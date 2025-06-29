@@ -10,10 +10,10 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useOrderStore } from "../order-page/store/orderStore";
 import { useDialogStore } from "@/stores/commonDialogStore";
-import axios from "axios";
 import DOMPurify from "dompurify";
 import { useScreenLoading } from "@/components/common/useScreenLoading";
 import "@/styles/course-detail.css";
+import { handleErrorMessageDialog } from "@/lib/helper";
 
 const CourseDetailPage = () => {
   const courseIntroRef = useRef<HTMLDivElement>(null);
@@ -67,24 +67,12 @@ const CourseDetailPage = () => {
         await createOrderPreview(reqData);
         navigate(`/order/${courseId}`);
       } catch (error) {
-        if (axios.isAxiosError(error) && error.response?.data) {
-          const { status, message } = error.response.data;
-          showCommonDialog({
-            title: status,
-            description: message,
-          });
-        } else {
-          // 非 Axios 的錯誤處理
-          showCommonDialog({
-            title: "Error",
-            description: "Something went wrong. Please try again later.",
-          });
-        }
+        handleErrorMessageDialog(error);
       }
     } else {
       showCommonDialog({
-        title: "failed",
-        description: "courseId 不可為空值！",
+        type: "failed",
+        message: "courseId 不可為空值！",
       });
     }
   };
@@ -106,12 +94,25 @@ const CourseDetailPage = () => {
                   <li>課程長度約 {courseDetail?.duration} 小時</li>
                 </ul>
               </div>
-              <Button
-                className="w-full bg-orange-600 hover:bg-orange-500"
-                onClick={handleCreatePreviewOrder}
-              >
-                立即購買
-              </Button>
+
+              {courseDetail?.isPurchased === true ? (
+                <Button
+                  className="w-full bg-orange-600 hover:bg-orange-500"
+                  // onClick={handleCreatePreviewOrder}
+                  onClick={() => {
+                    navigate(`/my-learning/${courseId}/section/first`);
+                  }}
+                >
+                  進入課程
+                </Button>
+              ) : (
+                <Button
+                  className="w-full bg-orange-600 hover:bg-orange-500"
+                  onClick={handleCreatePreviewOrder}
+                >
+                  立即購買
+                </Button>
+              )}
             </Card>
           </div>
 

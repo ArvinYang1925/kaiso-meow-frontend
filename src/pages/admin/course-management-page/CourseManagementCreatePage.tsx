@@ -381,8 +381,8 @@ export default function CoursesCreatePage() {
       }
 
       showCommonDialog({
-        title: "創建失敗",
-        description: errorMessage,
+        type: "failed",
+        message: errorMessage,
       });
     }
   };

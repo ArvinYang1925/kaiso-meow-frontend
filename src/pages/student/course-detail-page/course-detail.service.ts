@@ -26,6 +26,7 @@ export type CourseDetailResponse = {
   coverUrl: string;
   instructor: Instructor;
   sections: Section[];
+  isPurchased: boolean;
 };
 
 export const fetchCourseDetail = async (

@@ -7,7 +7,7 @@ import { useDialogStore } from "@/stores/commonDialogStore";
 import { Pagination } from "@/services/types";
 import { Order } from "./types";
 import { useScreenLoading } from "@/components/common/useScreenLoading";
-import axios from "axios";
+import { handleErrorMessageDialog } from "@/lib/helper";
 
 // 訂單狀態對應的中文說明
 const ORDER_STATUS_MAP = {
@@ -223,9 +223,8 @@ const OrderItem = ({
         <div className="border-t pt-2 sm:pt-3 flex justify-end">
           <Button
             onClick={() => onRepay(order.id)}
-            variant="default"
             size="sm"
-            className="w-full sm:w-auto text-sm"
+            className="w-full sm:w-auto text-sm bg-orange-500 hover:bg-orange-600"
           >
             重新付款
           </Button>
@@ -250,7 +249,7 @@ export default function OrderListPage() {
     { label: "價格", key: "orderPrice" },
     { label: "購買日期", key: "paidAt" },
     { label: "操作紀錄", key: "status" },
-    { label: "重新付款", key: "action" },
+    { label: "訂單操作", key: "action" },
   ];
 
   const handleRepay = async (orderId: string) => {
@@ -266,23 +265,12 @@ export default function OrderListPage() {
         form.submit();
       } else {
         showCommonDialog({
-          title: "發生錯誤",
-          description: "未取得綠界付款表單，請稍後再試。",
+          type: "failed",
+          message: "未取得綠界付款表單，請稍後再試。",
         });
       }
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { status, message } = error.response.data;
-        showCommonDialog({
-          title: status,
-          description: message,
-        });
-      } else {
-        showCommonDialog({
-          title: "Error",
-          description: "Something went wrong. Please try again later.",
-        });
-      }
+      handleErrorMessageDialog(error);
     }
   };
 
@@ -320,7 +308,7 @@ export default function OrderListPage() {
       {/* 全螢幕 Loading */}
       <ScreenLoading />
 
-      <div className="mt-32 px-8 w-full md:w-[1200px] mx-auto">
+      <div className="mt-16 px-8 w-full md:w-[1200px] mx-auto">
         <h1 className="font-semibold text-3xl mb-16">購買紀錄</h1>
 
         {shouldShowContent && (
@@ -352,8 +340,8 @@ export default function OrderListPage() {
                       {order.status === "待付款" && (
                         <Button
                           onClick={() => handleRepay(order.id)}
-                          variant="default"
                           size="sm"
+                          className="w-full sm:w-auto text-sm bg-orange-500 hover:bg-orange-600"
                         >
                           重新付款
                         </Button>

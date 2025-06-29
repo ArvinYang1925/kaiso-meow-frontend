@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useProfileStore } from "./profileStore";
 import { useDialogStore } from "@/stores/commonDialogStore";
 import ChangePasswordDialog from "./components/ChangePasswordDialog";
-import axios from "axios";
+import { handleErrorMessageDialog } from "@/lib/helper";
 
 export type FormData = {
   email: string;
@@ -35,22 +35,22 @@ export default function ProfilePage() {
   const validateProfile = () => {
     if (!profile.email.trim()) {
       showCommonDialog({
-        title: "驗證錯誤",
-        description: "Email 不可為空白。",
+        type: "failed",
+        message: "Email 不可為空白。",
       });
       return false;
     }
     if (!profile.name.trim()) {
       showCommonDialog({
-        title: "驗證錯誤",
-        description: "姓名 不可為空白。",
+        type: "failed",
+        message: "姓名不可為空白。",
       });
       return false;
     }
     if (profile.phoneNumber.trim() !== "" && profile.phoneNumber.length < 10) {
       showCommonDialog({
-        title: "驗證錯誤",
-        description: "電話號碼需為 10 位數字。",
+        type: "failed",
+        message: "電話號碼需為 10 位數字。",
       });
       return false;
     }
@@ -66,20 +66,13 @@ export default function ProfilePage() {
         name: profile.name,
         phoneNumber: profile.phoneNumber,
       };
-      const response = await updateProfile(data);
+      await updateProfile(data);
       showCommonDialog({
-        title: "儲存成功",
-        description: response.status,
+        type: "success",
       });
       setIsEditing(false);
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { status, message } = error.response.data;
-        showCommonDialog({
-          title: status,
-          description: message,
-        });
-      }
+      handleErrorMessageDialog(error);
     } finally {
       setIsLoading(false);
     }
@@ -87,8 +80,8 @@ export default function ProfilePage() {
 
   return (
     <>
-      <div className="w-full mx-auto px-8 mb-16">
-        <h1 className="text-start text-3xl mt-36 font-bold mb-8">個人資料</h1>
+      <div className="w-full md:w-[1200px] mx-auto px-8 mb-16">
+        <h1 className="text-start text-3xl mt-16 font-bold mb-8">個人資料</h1>
         <Card className="w-full p-6 border-none">
           <CardHeader></CardHeader>
           <CardContent className="space-y-4">
@@ -139,22 +132,25 @@ export default function ProfilePage() {
               <ChangePasswordDialog />
             </div>
 
-            <div className="flex justify-end space-x-2 pt-4 w-full">
+            <div className="w-full flex justify-end space-x-4 pt-4">
               {!isEditing ? (
-                <Button className="w-full" onClick={() => setIsEditing(true)}>
+                <Button
+                  className="w-full md:w-[25%] bg-orange-500 hover:bg-orange-600"
+                  onClick={() => setIsEditing(true)}
+                >
                   編輯
                 </Button>
               ) : (
                 <>
                   <Button
-                    className="w-full"
+                    className="w-full md:w-[25%]"
                     variant="outline"
                     onClick={() => setIsEditing(false)}
                   >
                     取消
                   </Button>
                   <Button
-                    className="w-full"
+                    className="w-full md:w-[25%] bg-orange-500 hover:bg-orange-600"
                     onClick={handleUpdateFormData}
                     disabled={isLoading}
                   >

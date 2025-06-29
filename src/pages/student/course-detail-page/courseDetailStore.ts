@@ -23,6 +23,7 @@ export const useCourseDetailStore = create<CourseDetailState & CourseDetailActio
             highlight: '',
             duration: 0,
             isPublished: false,
+            isPurchased: false,
             price: 0,
             isFree: false,
             coverUrl: '',

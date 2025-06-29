@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import "@/index.css";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -6,13 +6,14 @@ import { useAuthStore } from "@/stores/authStore";
 import { useDialogStore } from "@/stores/commonDialogStore";
 import { useForm } from "react-hook-form";
 import { FormValidateInput } from "@/components/common/FormValidateInput";
+import { handleErrorMessageDialog } from "@/lib/helper";
 
 type FormData = {
   email: string;
   password: string;
 };
 
-export const LoginForm: React.FC = () => {
+export const LoginForm = () => {
   const navigate = useNavigate();
   const { showCommonDialog } = useDialogStore();
   const {
@@ -38,17 +39,12 @@ export const LoginForm: React.FC = () => {
         navigate(getHomeRedirect());
       } else {
         showCommonDialog({
-          title: `${status}`,
-          description: `${message}`,
+          type: "failed",
+          message,
         });
       }
-    } catch (error: any) {
-      console.error("Login error:", error);
-      const { status, message } = error.response.data;
-      showCommonDialog({
-        title: `${status}`,
-        description: `${message}`,
-      });
+    } catch (error) {
+      handleErrorMessageDialog(error);
     }
   };
 

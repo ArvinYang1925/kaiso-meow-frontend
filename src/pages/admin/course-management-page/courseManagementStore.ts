@@ -141,8 +141,8 @@ const handleErrorMessage = (title: string, message?: string) => {
   const finalMessage = message || "操作失敗，請稍後再試。";
   const showCommonDialog = useDialogStore.getState().showCommonDialog;
   showCommonDialog({
-    title,
-    description: finalMessage,
+    type: "failed",
+    message: `${title}，${finalMessage}`
   });
 };
 
@@ -299,8 +299,8 @@ export const useCourseStore = create<CourseState & CourseActions>()(
         // 步驟1：套用搜尋過濾
         const filteredCourses = filter.search
           ? currentAllCourses.filter((course) =>
-              course.title.toLowerCase().includes(filter.search!.toLowerCase())
-            )
+            course.title.toLowerCase().includes(filter.search!.toLowerCase())
+          )
           : currentAllCourses;
 
         // 步驟2：固定排序（發布狀態 → 建立時間）
