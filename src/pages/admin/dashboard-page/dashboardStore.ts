@@ -138,8 +138,8 @@ const showSuccessToast = (title: string, description?: string): void => {
  */
 const showErrorDialog = (title: string, description?: string): void => {
   useDialogStore.getState().showCommonDialog({
-    title,
-    description: description || "",
+    type: "failed",
+    message: description || "",
   });
 };
 
@@ -148,8 +148,8 @@ const showErrorDialog = (title: string, description?: string): void => {
  */
 const showWarningDialog = (title: string, description?: string): void => {
   useDialogStore.getState().showCommonDialog({
-    title,
-    description: description || "",
+    type: "failed",
+    message: description || "",
   });
 };
 
@@ -831,7 +831,7 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
                 ? 100
                 : 0
               : ((secondHalfRevenue - firstHalfRevenue) / firstHalfRevenue) *
-                100;
+              100;
 
           ordersGrowthRate =
             firstHalfOrders === 0
@@ -859,7 +859,7 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
       const daysDiff =
         Math.ceil(
           (filter.endDate.getTime() - filter.startDate.getTime()) /
-            (1000 * 60 * 60 * 24)
+          (1000 * 60 * 60 * 24)
         ) + 1; // 加1是為了包含開始日期
       const averageDailyRevenue =
         daysDiff > 0 ? summary.totalRevenue / daysDiff : 0;
@@ -895,9 +895,9 @@ export const useRevenueStore = create<RevenueState & RevenueActions>()(
 
       return topDay
         ? {
-            date: topDay.intervalStart,
-            revenue: topDay.totalRevenue,
-          }
+          date: topDay.intervalStart,
+          revenue: topDay.totalRevenue,
+        }
         : null;
     },
 
