@@ -106,12 +106,25 @@ const CourseDetailPage = () => {
                   <li>課程長度約 {courseDetail?.duration} 小時</li>
                 </ul>
               </div>
-              <Button
-                className="w-full bg-orange-600 hover:bg-orange-500"
-                onClick={handleCreatePreviewOrder}
-              >
-                立即購買
-              </Button>
+
+              {courseDetail?.isPurchased === true ? (
+                <Button
+                  className="w-full bg-orange-600 hover:bg-orange-500"
+                  // onClick={handleCreatePreviewOrder}
+                  onClick={() => {
+                    navigate(`/my-learning/${courseId}/section/first`);
+                  }}
+                >
+                  進入課程
+                </Button>
+              ) : (
+                <Button
+                  className="w-full bg-orange-600 hover:bg-orange-500"
+                  onClick={handleCreatePreviewOrder}
+                >
+                  立即購買
+                </Button>
+              )}
             </Card>
           </div>
 
