@@ -34,7 +34,7 @@ const ScrollToTop: React.FC = () => {
     <a
       href="#"
       onClick={scrollToTop}
-      className="fixed bottom-8 right-8 z-50 hover:opacity-80 transition-opacity"
+      className="fixed bottom-10 right-8 z-50 hover:opacity-80 transition-opacity"
     >
       <img className="w-12 h-12" src={iconsToTop} alt="回到頂部" />
     </a>
