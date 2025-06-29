@@ -4,10 +4,11 @@ import { useDialogStore } from "@/stores/commonDialogStore";
 import { useForm } from "react-hook-form";
 import { resetPassword } from "./reset-password.service";
 import { useResetPasswordStore } from "./resetPasswordStore";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Toaster } from "@/components/ui/toaster";
 import { CommonDialog } from "@/components/common/CommonDialog";
+import { handleErrorMessageDialog } from "@/lib/helper";
 
 export type ResetPasswordFormData = {
   newPassword: string;
@@ -17,6 +18,7 @@ export type ResetPasswordFormData = {
 const ResetPasswordPage: React.FC = () => {
   const { isLoading, serverError, setServerError } = useResetPasswordStore();
   const { showCommonDialog } = useDialogStore();
+  const navigate = useNavigate();
 
   const {
     register,
@@ -33,8 +35,8 @@ const ResetPasswordPage: React.FC = () => {
 
     if (token == "") {
       showCommonDialog({
-        title: "請求失敗",
-        description: `token 不可為空`,
+        type: "failed",
+        message: `token 不可為空`,
       });
     }
 
@@ -45,23 +47,22 @@ const ResetPasswordPage: React.FC = () => {
 
     try {
       const result = await resetPassword(postData);
+      const { status, message } = result;
 
-      if (result.status === "success") {
+      if (status === "success") {
         showCommonDialog({
-          title: "請求成功",
-          description: `${result.message}`,
+          type: status,
+          message,
         });
+        navigate("/");
       } else {
-        // 顯示後端回傳錯誤（如有）
-        setServerError(result.message || "請求失敗，請再試一次");
+        showCommonDialog({
+          type: "failed",
+          message,
+        });
       }
-    } catch (error: any) {
-      console.error("error:", error);
-      const { status, message } = error.response.data;
-      showCommonDialog({
-        title: `${status}`,
-        description: `${message}`,
-      });
+    } catch (error) {
+      handleErrorMessageDialog(error);
     }
 
     reset();
