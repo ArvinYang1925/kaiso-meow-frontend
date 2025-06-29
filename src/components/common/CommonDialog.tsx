@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDialogStore } from "@/stores/commonDialogStore";
@@ -25,11 +25,12 @@ export function CommonDialog() {
 
   return (
     <Dialog open={isShowDialog} onOpenChange={setIsShowDialog}>
+      <DialogTitle></DialogTitle>
       <DialogContent className="text-center py-10">
         <div className="flex flex-col items-center gap-4">
           <Icon size={56} className={`${iconColor}`} />
           <h2 className="text-3xl font-semibold">{titleText}</h2>
-          {dialogContent.type === "failed" && (
+          {(dialogContent.message !== "" || dialogContent.message !== null) && (
             <p className="text-muted-foreground text-base">
               {dialogContent.message}
             </p>

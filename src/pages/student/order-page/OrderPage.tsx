@@ -67,8 +67,8 @@ const OrderPage = () => {
         const reqData = { couponCode, originalPrice: orderData.originalPrice };
         await applyCoupon(reqData);
         showCommonDialog({
-          title: "success",
-          description: "折扣碼套用成功",
+          type: "success",
+          message: "折扣碼套用成功",
         });
         setIsShowCouponErrorHint(false);
         setCouponErrorMsg("");
@@ -81,8 +81,8 @@ const OrderPage = () => {
       }
     } else {
       showCommonDialog({
-        title: "請確認資料格式",
-        description: "折扣碼或課程價格不得為空",
+        type: "failed",
+        message: "折扣碼或課程價格不得為空",
       });
     }
   };
@@ -94,8 +94,8 @@ const OrderPage = () => {
 
     if (!isValid) {
       showCommonDialog({
-        title: "表單資料填寫不完整",
-        description: "請確認表單資料已填寫完整！",
+        type: "failed",
+        message: "請確認表單資料已填寫完整！",
       });
       return;
     }
@@ -107,8 +107,8 @@ const OrderPage = () => {
 
     if (!courseId) {
       showCommonDialog({
-        title: "請確認資料格式",
-        description: "課程 id 或折扣碼 id 不得為空",
+        type: "failed",
+        message: "課程 id 或折扣碼 id 不得為空",
       });
       return;
     }
@@ -130,22 +130,22 @@ const OrderPage = () => {
         form.submit();
       } else {
         showCommonDialog({
-          title: "發生錯誤",
-          description: "未取得綠界付款表單，請稍後再試。",
+          type: "failed",
+          message: "未取得綠界付款表單，請稍後再試。",
         });
       }
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.data) {
         const { status, message } = error.response.data;
         showCommonDialog({
-          title: status,
-          description: message,
+          type: status,
+          message: message,
         });
       } else {
         // 非 Axios 的錯誤處理
         showCommonDialog({
-          title: "Error",
-          description: "Something went wrong. Please try again later.",
+          type: "failed",
+          message: "Something went wrong. Please try again later.",
         });
       }
     }
