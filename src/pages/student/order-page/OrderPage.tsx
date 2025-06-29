@@ -7,7 +7,7 @@ import { useOrderStore } from "./store/orderStore";
 import catAvatar from "@/assets/cat-avatar.jpg";
 import { useDialogStore } from "@/stores/commonDialogStore";
 import { useNavigate, useParams } from "react-router-dom";
-import axios, { isAxiosError } from "axios";
+import { isAxiosError } from "axios";
 import { OrderStatusBadge } from "./components/OrderStatusBadge";
 import LOGO from "@/components/common/LOGO";
 import {
@@ -16,6 +16,7 @@ import {
   formatPrice,
 } from "@/lib/priceHelper";
 import { useState } from "react";
+import { handleErrorMessageDialog } from "@/lib/helper";
 
 type FormData = {
   name: string;
@@ -135,19 +136,7 @@ const OrderPage = () => {
         });
       }
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { status, message } = error.response.data;
-        showCommonDialog({
-          type: status,
-          message: message,
-        });
-      } else {
-        // 非 Axios 的錯誤處理
-        showCommonDialog({
-          type: "failed",
-          message: "Something went wrong. Please try again later.",
-        });
-      }
+      handleErrorMessageDialog(error);
     }
   };
 

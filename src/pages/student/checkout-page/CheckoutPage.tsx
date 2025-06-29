@@ -12,8 +12,8 @@ import {
 } from "@/lib/priceHelper";
 import { Button } from "@/components/ui/button";
 import { CLIENT_ROUTES } from "@/app/route-path";
-import axios from "axios";
 import { useDialogStore } from "@/stores/commonDialogStore";
+import { handleErrorMessageDialog } from "@/lib/helper";
 
 const CheckoutPage = () => {
   const { orderId } = useParams();
@@ -50,19 +50,7 @@ const CheckoutPage = () => {
 
       await createOrderPreview(reqData);
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { message } = error.response.data;
-        showCommonDialog({
-          type: "failed",
-          message,
-        });
-      } else {
-        // 非 Axios 的錯誤處理
-        showCommonDialog({
-          type: "failed",
-          message: "Something went wrong. Please try again later.",
-        });
-      }
+      handleErrorMessageDialog(error);
     }
   };
 
@@ -85,18 +73,7 @@ const CheckoutPage = () => {
         });
       }
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { message } = error.response.data;
-        showCommonDialog({
-          type: "failed",
-          message,
-        });
-      } else {
-        showCommonDialog({
-          type: "failed",
-          message: "Something went wrong. Please try again later.",
-        });
-      }
+      handleErrorMessageDialog(error);
     }
   };
 

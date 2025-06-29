@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useProfileStore } from "./profileStore";
 import { useDialogStore } from "@/stores/commonDialogStore";
 import ChangePasswordDialog from "./components/ChangePasswordDialog";
-import axios from "axios";
+import { handleErrorMessageDialog } from "@/lib/helper";
 
 export type FormData = {
   email: string;
@@ -72,13 +72,7 @@ export default function ProfilePage() {
       });
       setIsEditing(false);
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { status, message } = error.response.data;
-        showCommonDialog({
-          type: status,
-          message: message,
-        });
-      }
+      handleErrorMessageDialog(error);
     } finally {
       setIsLoading(false);
     }
@@ -140,7 +134,10 @@ export default function ProfilePage() {
 
             <div className="w-full flex justify-end space-x-4 pt-4">
               {!isEditing ? (
-                <Button className="w-full md:w-[25%] bg-orange-500 hover:bg-orange-600" onClick={() => setIsEditing(true)}>
+                <Button
+                  className="w-full md:w-[25%] bg-orange-500 hover:bg-orange-600"
+                  onClick={() => setIsEditing(true)}
+                >
                   編輯
                 </Button>
               ) : (

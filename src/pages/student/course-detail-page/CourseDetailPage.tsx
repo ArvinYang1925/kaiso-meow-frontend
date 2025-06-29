@@ -10,10 +10,10 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useOrderStore } from "../order-page/store/orderStore";
 import { useDialogStore } from "@/stores/commonDialogStore";
-import axios from "axios";
 import DOMPurify from "dompurify";
 import { useScreenLoading } from "@/components/common/useScreenLoading";
 import "@/styles/course-detail.css";
+import { handleErrorMessageDialog } from "@/lib/helper";
 
 const CourseDetailPage = () => {
   const courseIntroRef = useRef<HTMLDivElement>(null);
@@ -67,19 +67,7 @@ const CourseDetailPage = () => {
         await createOrderPreview(reqData);
         navigate(`/order/${courseId}`);
       } catch (error) {
-        if (axios.isAxiosError(error) && error.response?.data) {
-          const { message } = error.response.data;
-          showCommonDialog({
-            type: "failed",
-            message,
-          });
-        } else {
-          // 非 Axios 的錯誤處理
-          showCommonDialog({
-            type: "failed",
-            message: "Something went wrong. Please try again later.",
-          });
-        }
+        handleErrorMessageDialog(error);
       }
     } else {
       showCommonDialog({

@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { NewsletterFormData } from "../services/home-page.service";
 import { useHomePageStore } from "../store/homePageStore";
 import { useDialogStore } from "@/stores/commonDialogStore";
+import { handleErrorMessageDialog } from "@/lib/helper";
 
 const NewsletterComponent: React.FC = () => {
   const {
@@ -21,19 +22,14 @@ const NewsletterComponent: React.FC = () => {
   const onSubmit = async (data: NewsletterFormData) => {
     try {
       const result = await createNewsletter(data);
-      const { status, message } = result;
+      const { message } = result;
 
       showCommonDialog({
-        title: `${status}`,
-        description: `${message}`,
+        type: "success",
+        message,
       });
-    } catch (error: any) {
-      console.error("subscribe error:", error);
-      const { status, message } = error.response.data;
-      showCommonDialog({
-        title: `${status}`,
-        description: `${message}`,
-      });
+    } catch (error) {
+      handleErrorMessageDialog(error);
     }
   };
 
@@ -56,7 +52,9 @@ const NewsletterComponent: React.FC = () => {
               <h1 className="font-medium text-[24px] md:text-[48px]">
                 免費加入 12000+ 人訂閱的
               </h1>
-              <h1 className="font-medium text-[24px] md:text-[48px]">「程式喵月報」</h1>
+              <h1 className="font-medium text-[24px] md:text-[48px]">
+                「程式喵月報」
+              </h1>
             </div>
 
             <p>每個月，寄送ㄧ則簡潔有力的喵報給你，</p>

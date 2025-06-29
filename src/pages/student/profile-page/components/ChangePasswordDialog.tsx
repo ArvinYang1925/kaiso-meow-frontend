@@ -14,7 +14,7 @@ import { useForm } from "react-hook-form";
 import { PasswordModel } from "../types";
 import { updatePassword } from "../profile.service";
 import { useDialogStore } from "@/stores/commonDialogStore";
-import axios from "axios";
+import { handleErrorMessageDialog } from "@/lib/helper";
 
 export default function ChangePasswordDialog() {
   const {
@@ -40,13 +40,7 @@ export default function ChangePasswordDialog() {
         message: "密碼變更成功",
       });
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        showCommonDialog({
-          type: "failed",
-          message: error.response?.data.message,
-        });
-        return;
-      }
+      handleErrorMessageDialog(error);
     }
     reset();
   };
@@ -119,7 +113,11 @@ export default function ChangePasswordDialog() {
                 取消
               </Button>
             </DialogClose>
-            <Button type="submit" disabled={isLoading} className="bg-orange-500 hover:bg-orange-600">
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="bg-orange-500 hover:bg-orange-600"
+            >
               設定密碼
             </Button>
           </DialogFooter>

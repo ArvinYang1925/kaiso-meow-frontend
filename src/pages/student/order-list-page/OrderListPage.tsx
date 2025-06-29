@@ -7,7 +7,7 @@ import { useDialogStore } from "@/stores/commonDialogStore";
 import { Pagination } from "@/services/types";
 import { Order } from "./types";
 import { useScreenLoading } from "@/components/common/useScreenLoading";
-import axios from "axios";
+import { handleErrorMessageDialog } from "@/lib/helper";
 
 // 訂單狀態對應的中文說明
 const ORDER_STATUS_MAP = {
@@ -270,18 +270,7 @@ export default function OrderListPage() {
         });
       }
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { message } = error.response.data;
-        showCommonDialog({
-          type: "failed",
-          message: message,
-        });
-      } else {
-        showCommonDialog({
-          type: "failed",
-          message: "Something went wrong. Please try again later.",
-        });
-      }
+      handleErrorMessageDialog(error);
     }
   };
 
