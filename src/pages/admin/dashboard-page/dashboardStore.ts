@@ -137,6 +137,7 @@ const showSuccessToast = (title: string, description?: string): void => {
  * 顯示錯誤訊息
  */
 const showErrorDialog = (title: string, description?: string): void => {
+  console.log(title)
   useDialogStore.getState().showCommonDialog({
     type: "failed",
     message: description || "",
@@ -147,6 +148,7 @@ const showErrorDialog = (title: string, description?: string): void => {
  * 顯示警告訊息
  */
 const showWarningDialog = (title: string, description?: string): void => {
+  console.log(title)
   useDialogStore.getState().showCommonDialog({
     type: "failed",
     message: description || "",
