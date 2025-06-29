@@ -248,8 +248,8 @@ export default function CouponListPage() {
     const response = await deleteCouponList(id);
     const { status, message } = response;
     showCommonDialog({
-      title: `${status}`,
-      description: `${message}`,
+      type: status,
+      message,
     });
 
     // 重新載入資料時也使用 withLoading
