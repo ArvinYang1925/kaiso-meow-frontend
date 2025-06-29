@@ -10,6 +10,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { FormValidateInput } from "@/components/common/FormValidateInput";
 import { useCouponListStore } from "../couponListStore";
 import { useEffect } from "react";
+import axios from "axios";
 
 export const CreateCouponModal = () => {
   const {
@@ -39,22 +40,25 @@ export const CreateCouponModal = () => {
       const { status, message } = response;
 
       showCommonDialog({
-        title: `${status}`,
-        description: `${message}`,
+        type: status,
+        message,
         onClose: () => {
           fetchCouponList(1, 10);
         },
       });
       setIsShowModal(false);
-    } catch (error: unknown) {
-      if (error && typeof error === "object" && "response" in error) {
-        const errorResponse = error as {
-          response: { data: { status: string; message: string } };
-        };
-        const { status, message } = errorResponse.response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.data) {
+        const { message } = error.response.data;
         showCommonDialog({
-          title: `${status}`,
-          description: `${message}`,
+          type: "failed",
+          message,
+        });
+      } else {
+        // 非 Axios 的錯誤處理
+        showCommonDialog({
+          type: "failed",
+          message: "Something went wrong. Please try again later.",
         });
       }
     }
