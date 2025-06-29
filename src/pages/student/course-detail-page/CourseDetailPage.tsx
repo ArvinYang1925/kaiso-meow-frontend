@@ -68,23 +68,23 @@ const CourseDetailPage = () => {
         navigate(`/order/${courseId}`);
       } catch (error) {
         if (axios.isAxiosError(error) && error.response?.data) {
-          const { status, message } = error.response.data;
+          const { message } = error.response.data;
           showCommonDialog({
-            title: status,
-            description: message,
+            type: "failed",
+            message,
           });
         } else {
           // 非 Axios 的錯誤處理
           showCommonDialog({
-            title: "Error",
-            description: "Something went wrong. Please try again later.",
+            type: "failed",
+            message: "Something went wrong. Please try again later.",
           });
         }
       }
     } else {
       showCommonDialog({
-        title: "failed",
-        description: "courseId 不可為空值！",
+        type: "failed",
+        message: "courseId 不可為空值！",
       });
     }
   };
