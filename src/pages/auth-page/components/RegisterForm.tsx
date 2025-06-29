@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useDialogStore } from "@/stores/commonDialogStore";
 import { Button } from "@/components/ui/button";
 import { FormValidateInput } from "@/components/common/FormValidateInput";
-import { useState } from "react";
+import { handleErrorMessageDialog } from "@/lib/helper";
 
 export const RegisterForm: React.FC = () => {
   const {
@@ -18,36 +18,31 @@ export const RegisterForm: React.FC = () => {
   const { isLoading, getHomeRedirect, register: registerUser } = useAuthStore();
   const navigate = useNavigate();
   const { showCommonDialog } = useDialogStore();
-  const [serverError, setServerError] = useState("");
 
   const onSubmit = async (data: RegisterFormData) => {
-    setServerError(""); // 清除前次錯誤訊息
     if (data.password !== data.confirmPassword) {
       return;
     }
 
     try {
       const result = await registerUser(data);
+      const { message } = result;
+
       if (result.success) {
         navigate(getHomeRedirect());
       } else {
-        // 顯示後端回傳錯誤（如有）
-        setServerError(result.message || "帳號或密碼錯誤，請再試一次");
+        showCommonDialog({
+          type: "failed",
+          message,
+        });
       }
     } catch (error) {
-      showCommonDialog({
-        title: "註冊失敗",
-        description: "請稍後再試",
-      });
-      console.error("Register error:", error);
+      handleErrorMessageDialog(error);
     }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {/* <h2 className="text-center text-3xl font-extrabold text-gray-900 mb-6">
-        加入會員
-      </h2> */}
 
       <FormValidateInput
         id="name"
@@ -105,11 +100,6 @@ export const RegisterForm: React.FC = () => {
         }}
         error={errors.confirmPassword}
       />
-
-      {/* API 回傳錯誤訊息 */}
-      {serverError && (
-        <div className="text-red-500 text-sm text-center">{serverError}</div>
-      )}
 
       <Button
         type="submit"
