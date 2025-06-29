@@ -131,20 +131,18 @@ export const useAuthStore = create<AuthState & AuthActions>()(
 
       try {
         const response = await sendPasswordForgotLetter(formData);
-
-        set((state) => {
-          state.isLoading = false;
-        });
-
         return response;
       } catch (error: any) {
         const errorMsg = error.response?.data?.message || "密碼重設信發送失敗";
         set((state) => {
           state.errorMsg = errorMsg;
-          state.isLoading = false;
         });
 
         return { status: "failed", message: errorMsg };
+      } finally {
+        set((state) => {
+          state.isLoading = false;
+        });
       }
     },
 
