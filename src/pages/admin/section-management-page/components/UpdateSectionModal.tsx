@@ -26,8 +26,8 @@ const UpdateSectionModal = () => {
     if (!courseId) return;
     if (sectionTitle == "") {
       showCommonDialog({
-        title: "更新失敗",
-        description: "章節標題不得為空",
+        type: "failed",
+        message: "章節標題不得為空",
       });
       return;
     }
@@ -41,8 +41,7 @@ const UpdateSectionModal = () => {
     try {
       await updateSection(section.id, reqData);
       showCommonDialog({
-        title: "更新成功",
-        description: "",
+        type: "success",
       });
       setIsShowUpdateSectionModal(false);
       fetchSectionList(courseId);

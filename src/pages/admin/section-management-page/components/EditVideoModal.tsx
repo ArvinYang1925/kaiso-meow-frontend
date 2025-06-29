@@ -26,8 +26,8 @@ const EditVideoModal = () => {
     try {
       await deleteVideo(sectionId);
       showCommonDialog({
-        title: "刪除成功",
-        description: "影片已刪除",
+        type: "success",
+        message: "影片已刪除",
       });
       fetchSectionList(courseId);
     } catch (error) {

@@ -25,8 +25,8 @@ const CreateSectionModal = () => {
     if (!courseId) return;
     if (sectionTitle == "") {
       showCommonDialog({
-        title: "新增失敗",
-        description: "章節標題不得為空",
+        type: "failed",
+        message: "章節標題不得為空",
       });
       return;
     }
@@ -40,8 +40,7 @@ const CreateSectionModal = () => {
     try {
       await createSection(courseId, reqData);
       showCommonDialog({
-        title: "新增成功",
-        description: "",
+        type: "success"
       });
       setIsShowCreateSectionModal(false);
       fetchSectionList(courseId);
