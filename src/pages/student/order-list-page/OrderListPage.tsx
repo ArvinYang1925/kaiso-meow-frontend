@@ -320,7 +320,7 @@ export default function OrderListPage() {
       {/* 全螢幕 Loading */}
       <ScreenLoading />
 
-      <div className="mt-32 px-8 w-full md:w-[1200px] mx-auto">
+      <div className="mt-16 px-8 w-full md:w-[1200px] mx-auto">
         <h1 className="font-semibold text-3xl mb-16">購買紀錄</h1>
 
         {shouldShowContent && (

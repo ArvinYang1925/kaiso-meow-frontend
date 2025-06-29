@@ -87,8 +87,8 @@ export default function ProfilePage() {
 
   return (
     <>
-      <div className="w-full mx-auto px-8 mb-16">
-        <h1 className="text-start text-3xl mt-36 font-bold mb-8">個人資料</h1>
+      <div className="w-full md:w-[1200px] mx-auto px-8 mb-16">
+        <h1 className="text-start text-3xl mt-16 font-bold mb-8">個人資料</h1>
         <Card className="w-full p-6 border-none">
           <CardHeader></CardHeader>
           <CardContent className="space-y-4">
