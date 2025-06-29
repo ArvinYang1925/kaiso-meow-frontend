@@ -233,8 +233,8 @@ export default function InstructorInfoPage() {
       const errorMessage =
         error instanceof Error ? error.message : "更新失敗，請稍後再試";
       showCommonDialog({
-        title: "更新失敗",
-        description: errorMessage,
+        type: "failed",
+        message: errorMessage,
       });
     }
   };
