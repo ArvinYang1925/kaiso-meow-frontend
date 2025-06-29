@@ -22,7 +22,6 @@ import { useDialogStore } from "@/stores/commonDialogStore";
 import UploadVideoModal from "./components/UploadVideoModal";
 import EditVideoModal from "./components/EditVideoModal";
 import { Switch } from "@/components/ui/switch";
-import axios from "axios";
 import { VideoStatusModal } from "./components/VideoStatusModal";
 import AiSectionGeneratorModal from "./components/AiSectionGeneratorModal";
 import { useScreenLoading } from "@/components/common/useScreenLoading";
@@ -74,8 +73,8 @@ export default function SectionManagementPage() {
       await updateSectionPublishedStatus(sectionId, reqData);
       fetchSectionList(courseId);
       showCommonDialog({
-        title: "章節狀態",
-        description: reqData.isPublished ? "已發布" : "已取消發布",
+        type: "success",
+        message: reqData.isPublished ? "已發布" : "已取消發布",
       });
     } catch (error) {
       handleErrorMessageDialog(error);
@@ -88,8 +87,8 @@ export default function SectionManagementPage() {
     try {
       await deleteSection(sectionId);
       showCommonDialog({
-        title: "章節狀態",
-        description: "章節已刪除",
+        type: "success",
+        message: "章節已刪除",
       });
       fetchSectionList(courseId);
     } catch (error) {
@@ -103,19 +102,14 @@ export default function SectionManagementPage() {
     try {
       await updateSectionOrder(courseId, data);
       showCommonDialog({
-        title: "章節狀態",
-        description: "章節順序已變更",
+        type: "success",
+        message: "章節順序已變更",
       });
     } catch (error) {
       console.error("Drag end error:", error);
       //先還原更新順序
       setSectionList(mutableItems);
-      if (error instanceof axios.AxiosError) {
-        showCommonDialog({
-          title: "章節狀態",
-          description: `${error?.response?.data.message}`,
-        });
-      }
+      handleErrorMessageDialog(error);
     }
   };
 
@@ -125,8 +119,8 @@ export default function SectionManagementPage() {
       const response = await fetchVideoStatus(sectionId);
       const { uploadStatus, videoUrl } = response || {};
       showCommonDialog({
-        title: `影片轉檔狀態：${uploadStatus ?? ""}`,
-        description: `${videoUrl ?? ""}`,
+        type: "success",
+        message: `影片轉檔狀態：${uploadStatus ?? ""}\n${videoUrl ?? ""}`,
       });
     } catch (error) {
       handleErrorMessageDialog(error);

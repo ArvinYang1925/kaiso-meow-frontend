@@ -3,8 +3,8 @@ import { immer } from "zustand/middleware/immer";
 
 
 type CommonDialogContent = {
-    title: string;
-    description: string;
+    type: string;
+    message?: string;
     onClose?: () => void; // 關閉按鈕的回調函數
     onConfirm?: () => void; // 確認按鈕的回調函數
 };
@@ -23,7 +23,7 @@ interface CommonDialogAction {
 export const useDialogStore = create<CommonDialogState & CommonDialogAction>()(
     immer((set, get) => ({
         isShowDialog: false,
-        dialogContent: { title: "", description: "" },
+        dialogContent: { type: "", message: "" },
         setIsShowDialog: (open) =>
             set((state) => {
                 state.isShowDialog = open;

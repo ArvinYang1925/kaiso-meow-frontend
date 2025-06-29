@@ -57,7 +57,7 @@ const HeroComponent: React.FC<{ isLoading?: boolean }> = ({ isLoading = false })
                 className="rounded-lg w-full self-center"
               />
               <div className="text-content text-white flex flex-col justify-center justify-center space-y-6">
-                <h1 className="text-5xl font-black">
+                <h1 className="text-5xl font-black leading-snug">
                   {courseDetail?.title ?? ""}
                 </h1>
                 <h2>

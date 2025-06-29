@@ -61,8 +61,8 @@ export default function PasswordPage() {
       }
     } catch (error) {
       showCommonDialog({
-        title: "密碼變更失敗",
-        description: error instanceof Error ? error.message : "密碼變更失敗",
+        type: "failed",
+        message: error instanceof Error ? error.message : "密碼變更失敗",
       });
     }
   };

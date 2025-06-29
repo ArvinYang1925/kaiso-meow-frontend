@@ -30,8 +30,8 @@ export const usePasswordStore = create<PasswordState & PasswordAction>()(
         // 驗證新密碼和確認密碼是否一致
         if (data.newPassword !== data.confirmNewPassword) {
           useDialogStore.getState().showCommonDialog({
-            title: "密碼變更失敗",
-            description: "兩次輸入的密碼不一致",
+            type: "failed",
+            message: "兩次輸入的密碼不一致",
           });
           return false;
         }
@@ -41,14 +41,14 @@ export const usePasswordStore = create<PasswordState & PasswordAction>()(
 
         if (response.status === "success") {
           useDialogStore.getState().showCommonDialog({
-            title: "密碼變更成功",
-            description: "您的密碼已成功更新",
+            type: "success",
+            message: "您的密碼已成功更新",
           });
           return true;
         } else {
           useDialogStore.getState().showCommonDialog({
-            title: "密碼變更失敗",
-            description: response.message || "密碼變更失敗",
+            type: "failed",
+            message: response.message || "密碼變更失敗",
           });
           return false;
         }
@@ -63,8 +63,8 @@ export const usePasswordStore = create<PasswordState & PasswordAction>()(
             error.response?.status === 400
           ) {
             useDialogStore.getState().showCommonDialog({
-              title: "密碼變更失敗",
-              description: errorData?.message || "請確認輸入的密碼是否正確",
+              type: "failed",
+              message: errorData?.message || "請確認輸入的密碼是否正確",
             });
             return false;
           }
@@ -79,8 +79,8 @@ export const usePasswordStore = create<PasswordState & PasswordAction>()(
         }
 
         useDialogStore.getState().showCommonDialog({
-          title: "密碼變更失敗",
-          description: errorMessage,
+          type: "failed",
+          message: errorMessage,
         });
 
         return false;

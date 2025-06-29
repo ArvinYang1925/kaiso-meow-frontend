@@ -618,8 +618,8 @@ export default function CourseManagementDetailPage() {
         }
 
         showCommonDialog({
-          title: "更新失敗",
-          description: errorMessage,
+          type: "failed",
+          message: errorMessage,
         });
       }
     });

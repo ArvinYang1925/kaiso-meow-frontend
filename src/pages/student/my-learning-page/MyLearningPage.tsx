@@ -46,8 +46,8 @@ const MyLearningPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto py-8 min-h-[60vh]">
-        <h1 className="text-2xl font-bold mb-8">我的學習</h1>
+      <div className="w-full md:w-[1200px] px-8 mx-auto mt-16 pb-8 min-h-[60vh]">
+        <h1 className="text-3xl font-bold mb-16">我的學習</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
           {Array.from({ length: 6 }).map((_, i) => (
             <MyLearningCourseCard
@@ -67,8 +67,8 @@ const MyLearningPage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="container mx-auto py-8 min-h-[60vh]">
-        <h1 className="text-2xl font-bold mb-8">我的學習</h1>
+      <div className="w-full md:w-[1200px] px-8 mx-auto mt-16 pb-8 min-h-[60vh]">
+        <h1 className="text-3xl font-bold mb-16">我的學習</h1>
         <div className="text-center py-12">
           <h2 className="text-xl font-semibold text-red-600 mb-2">載入失敗</h2>
           <p className="text-gray-600 mb-4">{error}</p>
@@ -84,8 +84,8 @@ const MyLearningPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto py-8 min-h-[60vh]">
-      <h1 className="text-2xl font-bold mb-8">我的學習</h1>
+    <div className="w-full md:w-[1200px] px-8 mx-auto mt-16 pb-8 min-h-[60vh]">
+      <h1 className="text-3xl font-bold mb-16">我的學習</h1>
 
       {courses.length === 0 ? (
         <div className="text-center py-12">

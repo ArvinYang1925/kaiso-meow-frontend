@@ -1,9 +1,8 @@
 import { FormValidateInput } from "@/components/common/FormValidateInput";
 import { Button } from "@/components/ui/button";
-import { sendPasswordForgotLetter } from "@/services/auth.service";
+import { handleErrorMessageDialog } from "@/lib/helper";
 import { useAuthStore } from "@/stores/authStore";
 import { useDialogStore } from "@/stores/commonDialogStore";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 type FormData = {
@@ -11,9 +10,8 @@ type FormData = {
 };
 
 export const PasswordForgottenForm: React.FC = () => {
-  const { isLoading, setIsShowPasswordForgotForm } = useAuthStore();
-
-  const [serverError, setServerError] = useState(""); //可以整合
+  const { isLoading, setIsShowPasswordForgotForm, sendPasswordForgotLetter } =
+    useAuthStore();
   const { showCommonDialog } = useDialogStore();
 
   const {
@@ -23,27 +21,23 @@ export const PasswordForgottenForm: React.FC = () => {
   } = useForm<FormData>();
 
   const onSubmit = async (data: FormData) => {
-    setServerError(""); // 清除前次錯誤訊息
-
     try {
       const result = await sendPasswordForgotLetter(data);
+      const { message, status } = result;
 
-      if (result.status === "success") {
+      if (status === "success") {
         showCommonDialog({
-          title: "請求成功",
-          description: `${result.message}`,
+          type: "success",
+          message,
         });
       } else {
-        // 顯示後端回傳錯誤（如有）
-        setServerError(result.message || "請求失敗，請再試一次");
+        showCommonDialog({
+          type: "failed",
+          message,
+        });
       }
-    } catch (error: any) {
-      console.error("error:", error);
-      const { status, message } = error.response.data;
-      showCommonDialog({
-        title: `${status}`,
-        description: `${message}`,
-      });
+    } catch (error) {
+      handleErrorMessageDialog(error);
     }
   };
 
@@ -83,11 +77,6 @@ export const PasswordForgottenForm: React.FC = () => {
           }}
           error={errors.email}
         />
-
-        {/* API 回傳錯誤訊息 */}
-        {serverError && (
-          <div className="text-red-500 text-sm text-center">{serverError}</div>
-        )}
 
         <Button
           type="submit"
