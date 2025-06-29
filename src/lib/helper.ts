@@ -8,13 +8,13 @@ export function handleErrorMessageDialog(error: unknown) {
     if (axios.isAxiosError(error) && error.response?.data) {
         const { status, message } = error.response.data;
         showCommonDialog({
-            title: status,
-            description: message,
+            type: status,
+            message,
         });
     } else {
         showCommonDialog({
-            title: '錯誤',
-            description: '發生未知錯誤，請稍後再試。',
+            type: "failed",
+            message: '發生未知錯誤，請稍後再試。',
         });
     }
 }
