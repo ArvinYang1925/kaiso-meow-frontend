@@ -20,8 +20,8 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
   const { showCommonDialog } = useDialogStore();
   const { checkoutEcpay } = useOrderListStore();
-  const { orderData, courseData, couponData, fetchOrder,createOrderPreview } = useOrderStore();
-  
+  const { orderData, courseData, couponData, fetchOrder, createOrderPreview } =
+    useOrderStore();
 
   useEffect(() => {
     if (orderId) {
@@ -39,40 +39,38 @@ const CheckoutPage = () => {
     navigate(`/my-learning/${courseData.id}/section/first`);
   };
 
-  // 重新下單: 跳轉到訂單預覽頁面 
-  const handleRebuy = async() => {
+  // 重新下單: 跳轉到訂單預覽頁面
+  const handleRebuy = async () => {
     try {
-      
-
-      navigate(`/order/${courseData.id}`); 
+      navigate(`/order/${courseData.id}`);
       const reqData = {
         courseId: courseData.id,
         couponId: "",
       };
-      
+
       await createOrderPreview(reqData);
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.data) {
-        const { status, message } = error.response.data;
+        const { message } = error.response.data;
         showCommonDialog({
-          title: status,
-          description: message,
+          type: "failed",
+          message,
         });
       } else {
         // 非 Axios 的錯誤處理
         showCommonDialog({
-          title: "Error",
-          description: "Something went wrong. Please try again later.",
+          type: "failed",
+          message: "Something went wrong. Please try again later.",
         });
       }
     }
   };
-  
+
   // 重新付款 : 跳轉到綠界付款頁面
   const handleRepay = async (orderId: string) => {
     try {
       const response = await checkoutEcpay(orderId);
-      
+
       const wrapper = document.createElement("div");
       wrapper.innerHTML = response;
       const form = wrapper.querySelector("form");
@@ -82,48 +80,47 @@ const CheckoutPage = () => {
         form.submit();
       } else {
         showCommonDialog({
-          title: "發生錯誤",
-          description: "未取得綠界付款表單，請稍後再試。",
+          type: "failed",
+          message: "未取得綠界付款表單，請稍後再試。",
         });
       }
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.data) {
-        const { status, message } = error.response.data;
+        const { message } = error.response.data;
         showCommonDialog({
-          title: status,
-          description: message,
+          type: "failed",
+          message,
         });
       } else {
         showCommonDialog({
-          title: "Error",
-          description: "Something went wrong. Please try again later.",
+          type: "failed",
+          message: "Something went wrong. Please try again later.",
         });
       }
     }
   };
 
-  
   // 處理根據訂單狀態渲染不同的按鈕
   const renderActionButtons = () => {
     // 左邊的按鈕 - 固定是回到課程頁面
     const leftButton = (
-      <Button 
-        variant="default" 
+      <Button
+        variant="default"
         className="h-9 text-sm bg-gray-600 hover:bg-gray-700 w-full md:w-[30%] text-white"
         onClick={handleBackToHome}
       >
         繼續購買
       </Button>
     );
-    
+
     // 右邊的按鈕 - 根據訂單狀態變化
     let rightButton;
-    
+
     switch (orderData.status) {
-      case 'paid':
+      case "paid":
         rightButton = (
-          <Button 
-            variant="default" 
+          <Button
+            variant="default"
             className="h-9 text-sm bg-orange-600 hover:bg-orange-700 w-full md:w-[30%] text-white"
             onClick={handleStartWatching}
           >
@@ -131,10 +128,10 @@ const CheckoutPage = () => {
           </Button>
         );
         break;
-      case 'failed':
+      case "failed":
         rightButton = (
-          <Button 
-            variant="default" 
+          <Button
+            variant="default"
             className="px-4 py-2 h-9 text-sm bg-orange-500 hover:bg-orange-600 w-full md:w-[30%] text-white"
             onClick={handleRebuy}
           >
@@ -142,10 +139,10 @@ const CheckoutPage = () => {
           </Button>
         );
         break;
-      case 'pending':
+      case "pending":
         rightButton = (
-          <Button 
-            variant="default" 
+          <Button
+            variant="default"
             className="px-4 py-2 h-9 text-sm bg-orange-500 hover:bg-orange-600 w-full md:w-[30%] text-white"
             onClick={() => handleRepay(orderData.id)}
           >
@@ -154,7 +151,7 @@ const CheckoutPage = () => {
         );
         break;
     }
-    
+
     return (
       <div className="flex justify-end gap-2 mt-2">
         {leftButton}
@@ -175,7 +172,11 @@ const CheckoutPage = () => {
           </CardHeader>
           <CardContent className="border-b">
             <div className="grid grid-cols-2 gap-4 p-4 md:py-6">
-              <img src= {courseData.cover_url} className="rounded-xl" alt="課程縮圖" />
+              <img
+                src={courseData.cover_url}
+                className="rounded-xl"
+                alt="課程縮圖"
+              />
               <div className="text">
                 <h2 className="font-medium text-xl md:text-2xl mb-4">
                   {courseData.title}
