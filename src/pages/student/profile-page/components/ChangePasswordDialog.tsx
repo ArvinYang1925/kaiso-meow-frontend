@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Dialog,
   DialogTrigger,
@@ -15,6 +14,7 @@ import { useForm } from "react-hook-form";
 import { PasswordModel } from "../types";
 import { updatePassword } from "../profile.service";
 import { useDialogStore } from "@/stores/commonDialogStore";
+import axios from "axios";
 
 export default function ChangePasswordDialog() {
   const {
@@ -25,38 +25,29 @@ export default function ChangePasswordDialog() {
     formState: { errors },
   } = useForm<PasswordModel>();
 
-  const [serverError, setServerError] = useState("");
-  const { isLoading, isShowDialog, setIsShowDialog } =
-    useProfileStore();
+  const { isLoading, isShowDialog, setIsShowDialog } = useProfileStore();
   const { showCommonDialog } = useDialogStore();
 
   const onSubmit = async (data: PasswordModel) => {
-    setServerError(""); // 清除前次錯誤訊息
-
     if (data.newPassword !== data.confirmNewPassword) {
       return;
     }
 
     try {
-      const result = await updatePassword(data);
-      if (result.status === "success") {
-        showCommonDialog({
-          title: "密碼更新成功",
-          description: "",
-        });
-      } else {
-        // 顯示後端回傳錯誤（如有）
-        setServerError(result.message || "請求發生錯誤，請再試一次");
-      }
-    } catch (error) {
+      await updatePassword(data);
       showCommonDialog({
-        title: "密碼變更失敗",
-        description: "請稍後再試",
+        type: "success",
+        message: "密碼變更成功",
       });
-      console.error("error:", error);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        showCommonDialog({
+          type: "failed",
+          message: error.response?.data.message,
+        });
+        return;
+      }
     }
-
-    // resetStore();
     reset();
   };
 
@@ -122,19 +113,13 @@ export default function ChangePasswordDialog() {
             </div>
           </div>
 
-          {/* API 回傳錯誤訊息 */}
-          {serverError && (
-            <div className="text-red-500 text-sm text-center">
-              {serverError}
-            </div>
-          )}
-          <DialogFooter>
+          <DialogFooter className="flex justify-end">
             <DialogClose asChild>
               <Button variant="ghost" onClick={() => setIsShowDialog(false)}>
                 取消
               </Button>
             </DialogClose>
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading} className="bg-orange-500 hover:bg-orange-600">
               設定密碼
             </Button>
           </DialogFooter>

@@ -35,22 +35,22 @@ export default function ProfilePage() {
   const validateProfile = () => {
     if (!profile.email.trim()) {
       showCommonDialog({
-        title: "驗證錯誤",
-        description: "Email 不可為空白。",
+        type: "failed",
+        message: "Email 不可為空白。",
       });
       return false;
     }
     if (!profile.name.trim()) {
       showCommonDialog({
-        title: "驗證錯誤",
-        description: "姓名 不可為空白。",
+        type: "failed",
+        message: "姓名不可為空白。",
       });
       return false;
     }
     if (profile.phoneNumber.trim() !== "" && profile.phoneNumber.length < 10) {
       showCommonDialog({
-        title: "驗證錯誤",
-        description: "電話號碼需為 10 位數字。",
+        type: "failed",
+        message: "電話號碼需為 10 位數字。",
       });
       return false;
     }
@@ -66,18 +66,17 @@ export default function ProfilePage() {
         name: profile.name,
         phoneNumber: profile.phoneNumber,
       };
-      const response = await updateProfile(data);
+      await updateProfile(data);
       showCommonDialog({
-        title: "儲存成功",
-        description: response.status,
+        type: "success",
       });
       setIsEditing(false);
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.data) {
         const { status, message } = error.response.data;
         showCommonDialog({
-          title: status,
-          description: message,
+          type: status,
+          message: message,
         });
       }
     } finally {
@@ -139,22 +138,22 @@ export default function ProfilePage() {
               <ChangePasswordDialog />
             </div>
 
-            <div className="flex justify-end space-x-2 pt-4 w-full">
+            <div className="w-full flex justify-end space-x-4 pt-4">
               {!isEditing ? (
-                <Button className="w-full" onClick={() => setIsEditing(true)}>
+                <Button className="w-full md:w-[25%] bg-orange-500 hover:bg-orange-600" onClick={() => setIsEditing(true)}>
                   編輯
                 </Button>
               ) : (
                 <>
                   <Button
-                    className="w-full"
+                    className="w-full md:w-[25%]"
                     variant="outline"
                     onClick={() => setIsEditing(false)}
                   >
                     取消
                   </Button>
                   <Button
-                    className="w-full"
+                    className="w-full md:w-[25%] bg-orange-500 hover:bg-orange-600"
                     onClick={handleUpdateFormData}
                     disabled={isLoading}
                   >
