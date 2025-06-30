@@ -10,6 +10,7 @@ const EditVideoModal = () => {
   const {
     isShowEditVideoModal,
     section,
+    isLoading,
     setIsShowEditVideoModal,
     setVideoFileName,
     deleteVideo,
@@ -25,6 +26,7 @@ const EditVideoModal = () => {
     if (!courseId) return;
     try {
       await deleteVideo(sectionId);
+      setIsShowEditVideoModal(false);
       showCommonDialog({
         type: "success",
         message: "影片已刪除",
@@ -62,8 +64,9 @@ const EditVideoModal = () => {
               className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700 disabled:opacity-50"
               onClick={() => handleDeleteVideo(section.id)}
               type="button"
+              disabled={isLoading}
             >
-              刪除此章節影片
+              {isLoading ? "刪除中..." : "刪除此章節影片"}
             </button>
           </div>
         </div>
