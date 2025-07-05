@@ -57,6 +57,12 @@ const routeConfigs: Record<string, RouteConfig> = {
   coupons: {
     path: ADMIN_ROUTES.COUPONS,
     title: ROUTE_TITLES[ADMIN_ROUTES.COUPONS],
+    children: {
+      "ai-generator": {
+        path: ADMIN_ROUTES.AI_COUPONS_GENERATOR,
+        title: ROUTE_TITLES[ADMIN_ROUTES.AI_COUPONS_GENERATOR],
+      },
+    },
   },
   me: {
     path: ADMIN_ROUTES.ME,
@@ -136,6 +142,48 @@ export const useBreadcrumbStore = create<BreadcrumbState>((set) => ({
     },
   ],
   setBreadcrumbs: async (pathname: string, params: Params) => {
+    // 如果是 AI 折扣碼產生器頁面
+    if (pathname === ADMIN_ROUTES.AI_COUPONS_GENERATOR) {
+      set({
+        items: [
+          {
+            path: ADMIN_ROUTES.HOME,
+            title: "管理後台",
+          },
+          {
+            path: ADMIN_ROUTES.COUPONS,
+            title: "折扣碼列表",
+          },
+          {
+            path: ADMIN_ROUTES.AI_COUPONS_GENERATOR,
+            title: "智慧建立折扣碼計劃",
+          },
+        ],
+      });
+      return;
+    }
+
+    // 如果是 AI 折扣碼審查頁面
+    if (pathname === ADMIN_ROUTES.AI_COUPONS_REVIEW) {
+      set({
+        items: [
+          {
+            path: ADMIN_ROUTES.HOME,
+            title: "管理後台",
+          },
+          {
+            path: ADMIN_ROUTES.COUPONS,
+            title: "折扣碼列表",
+          },
+          {
+            path: ADMIN_ROUTES.AI_COUPONS_REVIEW,
+            title: "促銷策略說明與折扣碼審查",
+          },
+        ],
+      });
+      return;
+    }
+
     // 如果是變更密碼頁面
     if (pathname === ADMIN_ROUTES.CHANGE_PASSWORD) {
       set({
