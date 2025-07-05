@@ -9,8 +9,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { FormValidateInput } from "@/components/common/FormValidateInput";
 import { useCouponListStore } from "../couponListStore";
-import { useEffect } from "react";
-import { handleErrorMessageDialog } from "@/lib/helper";
+import { useEffect, useState } from "react";
 
 export const CreateCouponModal = () => {
   const {
@@ -19,11 +18,28 @@ export const CreateCouponModal = () => {
     formState: { errors },
     control,
     reset,
-  } = useForm<CreateCouponModel>({
+    clearErrors,
+    watch,
+  } = useForm<{
+    couponName: string;
+    type: string;
+    code: string;
+    value: number;
+    startsAt: Date;
+    expiresAt: Date;
+  }>({
     defaultValues: {
-      type: "", // type 欄位的預設值
+      type: "",
+      couponName: "",
+      value: 0,
+      startsAt: new Date(),
+      expiresAt: new Date(),
+      code: "",
     },
   });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const watchedType = watch("type");
 
   const options = [
     { label: "固定金額", value: "fixed" },
@@ -34,21 +50,162 @@ export const CreateCouponModal = () => {
   const { showCommonDialog } = useDialogStore();
   const { fetchCouponList } = useCouponListStore();
 
-  const onSubmit = async (couponData: CreateCouponModel) => {
+  // 根據折扣類型設定驗證規則
+  const getValueValidationRules = () => {
+    const baseRules = {
+      required: "請輸入折抵數值",
+      valueAsNumber: true,
+      min: { value: 1, message: "折抵數值必須大於 0" },
+      validate: (value: number) => {
+        // 動態檢查當前選擇的折扣類型
+        const currentType = watch("type");
+
+        if (currentType === "percentage") {
+          if (value < 1 || value > 99) {
+            return "百分比折扣值必須介於 1% 到 99% 之間";
+          }
+        } else if (currentType === "fixed") {
+          if (value < 1) {
+            return "固定金額必須大於 0";
+          }
+        }
+        return true;
+      },
+    };
+
+    // 只對百分比類型設定上限
+    if (watchedType === "percentage") {
+      return {
+        ...baseRules,
+        max: { value: 99, message: "百分比折扣值必須介於 1% 到 99% 之間" },
+      };
+    }
+
+    // 固定金額類型：只檢查最小值，沒有上限
+    return baseRules;
+  };
+
+  const onSubmit = async (formData: {
+    couponName: string;
+    type: string;
+    code: string;
+    value: number;
+    startsAt: Date;
+    expiresAt: Date;
+  }) => {
     try {
+      setIsSubmitting(true);
+
+      // 檢查日期是否有效
+      if (!formData.startsAt || !formData.expiresAt) {
+        showCommonDialog({
+          type: "error",
+          message: "請選擇有效的開始和結束日期",
+        });
+        return;
+      }
+
+      // 檢查結束日期是否在開始日期之後或相等
+      if (formData.expiresAt < formData.startsAt) {
+        showCommonDialog({
+          type: "error",
+          message: "結束日期不能早於開始日期",
+        });
+        return;
+      }
+
+      // 驗證必填欄位
+      if (!formData.couponName.trim()) {
+        showCommonDialog({
+          type: "error",
+          message: "請輸入折扣碼名稱",
+        });
+        return;
+      }
+
+      if (!formData.code.trim()) {
+        showCommonDialog({
+          type: "error",
+          message: "請輸入折扣碼",
+        });
+        return;
+      }
+
+      if (!formData.type) {
+        showCommonDialog({
+          type: "error",
+          message: "請選擇折扣類型",
+        });
+        return;
+      }
+
+      if (!formData.value || formData.value <= 0) {
+        showCommonDialog({
+          type: "error",
+          message: "請輸入有效的折抵數值",
+        });
+        return;
+      }
+
+      // 根據不同類型進行數值驗證
+      if (formData.type === "percentage") {
+        if (formData.value < 1 || formData.value > 99) {
+          showCommonDialog({
+            type: "error",
+            message: "百分比折扣值必須介於 1% 到 99% 之間",
+          });
+          return;
+        }
+      } else if (formData.type === "fixed") {
+        if (formData.value < 1) {
+          showCommonDialog({
+            type: "error",
+            message: "固定金額必須大於 0",
+          });
+          return;
+        }
+        // 固定金額沒有上限限制
+      }
+
+      // 直接傳送 Date 物件
+      const couponData: CreateCouponModel = {
+        couponName: formData.couponName.trim(),
+        type: formData.type,
+        code: formData.code.trim(),
+        value: Number(formData.value),
+        startsAt: formData.startsAt,
+        expiresAt: formData.expiresAt,
+      };
+
       const response = await createCouponList(couponData);
-      const { status, message } = response;
+
+      if (response.status === "success") {
+        showCommonDialog({
+          type: "success",
+          message: response.message || "新增折扣碼成功",
+          onClose: () => {
+            fetchCouponList(1, 10);
+            setIsShowModal(false);
+          },
+        });
+      } else {
+        showCommonDialog({
+          type: "error",
+          message: response.message || "新增折扣碼失敗",
+        });
+      }
+    } catch (error) {
+      let errorMessage = "新增折扣碼時發生錯誤";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
 
       showCommonDialog({
-        type: status,
-        message,
-        onClose: () => {
-          fetchCouponList(1, 10);
-        },
+        type: "error",
+        message: errorMessage,
       });
-      setIsShowModal(false);
-    } catch (error) {
-      handleErrorMessageDialog(error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -64,15 +221,26 @@ export const CreateCouponModal = () => {
         type: "",
         code: "",
       });
+      clearErrors();
     }
-  }, [isShowModal, reset]);
+  }, [isShowModal, reset, clearErrors]);
+
+  // 動態生成提示文字
+  const getValueHint = () => {
+    if (watchedType === "percentage") {
+      return "百分比折扣值必須介於 1% 到 99% 之間";
+    } else if (watchedType === "fixed") {
+      return "固定金額折扣，例如：50 表示折扣 50 元";
+    }
+    return "請先選擇折扣類型";
+  };
 
   return (
     <Modal
       isOpen={isShowModal}
       onClose={() => setIsShowModal(false)}
       title="新增折扣碼"
-      size="lg" // md | lg | full
+      size="lg"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid gap-4 py-4">
@@ -90,7 +258,7 @@ export const CreateCouponModal = () => {
             />
           </div>
 
-          <div className="">
+          <div className="space-y-2">
             <FormValidateInput
               id="code"
               label="折扣碼"
@@ -151,12 +319,11 @@ export const CreateCouponModal = () => {
               type="number"
               placeholder="請輸入折抵數值"
               register={register}
-              rules={{
-                required: "請輸入折抵數值",
-                valueAsNumber: true,
-              }}
+              rules={getValueValidationRules()}
               error={errors.value}
             />
+            {/* 動態提示文字 */}
+            <p className="text-xs text-gray-500">{getValueHint()}</p>
           </div>
 
           <div className="space-y-2">
@@ -219,9 +386,12 @@ export const CreateCouponModal = () => {
           >
             取消
           </Button>
-          {/* <Button className="bg-blue-500 hover:bg-blue-600" type="submit"></Button> */}
-          <Button className="bg-orange-600 hover:bg-orange-700" type="submit">
-            儲存折扣碼
+          <Button
+            className="bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "處理中..." : "儲存折扣碼"}
           </Button>
         </div>
       </form>
