@@ -36,6 +36,10 @@ import StudentListPage from "@/pages/admin/student-list-page/StudentListPage";
 import InstructorOrderListPage from "@/pages/admin/instructor-order-page/InstructorOrderListPage";
 /** 後台折扣碼列表頁面 */
 import CouponListPage from "@/pages/admin/coupon-list-page/CouponListPage";
+/** AI 折扣碼產生器頁面 */
+import AICouponsGeneratorPage from "@/pages/admin/coupon-list-page/AICouponsGeneratorPage";
+/** AI 折扣碼審查頁面 */
+import AICouponsReviewPage from "@/pages/admin/coupon-list-page/AICouponsReviewPage";
 /** 前台課程詳細頁面 */
 import CourseDetailPage from "@/pages/student/course-detail-page/CourseDetailPage";
 /** 前台訂單詳細頁面 */
@@ -206,6 +210,14 @@ function App() {
             element={<InstructorOrderListPage />}
           />
           <Route path={ADMIN_ROUTES.COUPONS} element={<CouponListPage />} />
+          <Route
+            path={ADMIN_ROUTES.AI_COUPONS_GENERATOR}
+            element={<AICouponsGeneratorPage />}
+          />
+          <Route
+            path={ADMIN_ROUTES.AI_COUPONS_REVIEW}
+            element={<AICouponsReviewPage />}
+          />
           {/* 課程管理相關路由 */}
           <Route
             path={ADMIN_ROUTES.COURSES}
