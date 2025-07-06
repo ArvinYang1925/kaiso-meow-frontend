@@ -5,6 +5,7 @@ import {
   // TableHead,
   TableHeader,
   TableRow,
+  TableCell,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { ReactNode } from "react";
@@ -36,7 +37,7 @@ export function TableWithPagination<T>({
 
   return (
     <div className="space-y-4">
-      <Table className="h-[24rem]">
+      <Table>
         <TableHeader>
           <TableRow className="text-nowrap">{columns}</TableRow>
         </TableHeader>
@@ -53,9 +54,9 @@ export function TableWithPagination<T>({
             ))
           ) : data.length === 0 ? (
             <tr>
-              <td
+              <TableCell
                 colSpan={columnCount}
-                className="text-center p-6 text-gray-400 italic bg-gray-50 border rounded-md"
+                className="text-center p-6 text-gray-400 italic bg-gray-50 border rounded-md h-auto"
               >
                 <div className="flex flex-col items-center space-y-2">
                   <svg
@@ -73,7 +74,7 @@ export function TableWithPagination<T>({
                   </svg>
                   <span>目前尚無資料</span>
                 </div>
-              </td>
+              </TableCell>
             </tr>
           ) : (
             data.map((item, index) => (
