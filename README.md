@@ -242,10 +242,9 @@ VITE_API_BASE_URL=<API 基礎 URL>
 - 負責範圍：
   - `學生前台`
     - 訂單支付
-  - `圖片壓縮、PR模板置`
 - 主要開發頁面：
   - `學生前台`
-    - 綠界回傳頁面、課程詳細資訊編輯器回傳樣式調整
+    - 綠界回傳頁面、課程詳細資訊樣式調整
 - GitHub: [Janet 的 GitHub](https://github.com/CHING-WENLAI1031)
 
 ---
