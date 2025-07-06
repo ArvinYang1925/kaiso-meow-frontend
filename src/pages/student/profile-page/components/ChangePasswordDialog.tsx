@@ -109,14 +109,14 @@ export default function ChangePasswordDialog() {
 
           <DialogFooter className="flex justify-end">
             <DialogClose asChild>
-              <Button variant="ghost" onClick={() => setIsShowDialog(false)}>
+              <Button variant="ghost" className="border border-slate-200" onClick={() => setIsShowDialog(false)}>
                 取消
               </Button>
             </DialogClose>
             <Button
               type="submit"
               disabled={isLoading}
-              className="bg-orange-500 hover:bg-orange-600"
+              className="bg-orange-500 hover:bg-orange-600 mb-2"
             >
               設定密碼
             </Button>
