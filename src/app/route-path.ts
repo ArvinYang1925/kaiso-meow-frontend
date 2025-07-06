@@ -48,6 +48,10 @@ export const ADMIN_ROUTES = Object.freeze({
   CHANGE_PASSWORD: "/admin/me/change-password",
   /** 優惠券 */
   COUPONS: "/admin/coupons",
+  /** AI 折扣碼產生器 */
+  AI_COUPONS_GENERATOR: "/admin/ai-coupons-generator",
+  /** AI 折扣碼審查 */
+  AI_COUPONS_REVIEW: "/admin/ai-coupons-review",
 });
 
 /** 公共權限頁面 */

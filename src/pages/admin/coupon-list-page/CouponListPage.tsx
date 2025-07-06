@@ -1,16 +1,28 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { TableCell, TableHead } from "@/components/ui/table";
 import { TableWithPagination } from "@/components/common/TableWithPagination";
 import { useCouponListStore } from "./couponListStore";
 import { Button } from "@/components/ui/button";
-import { useDialogStore } from "@/stores/commonDialogStore";
 import { useCommonModalStore } from "@/stores/commonModalStore";
+import { useNavigate } from "react-router-dom";
+import { ADMIN_ROUTES } from "@/app/route-path";
 import { CreateCouponModal } from "./components/CreateCouponModal";
 import { getInteger } from "@/lib/priceHelper";
 import { Plus, Trash2 } from "lucide-react";
 import { useScreenLoading } from "@/components/common/useScreenLoading";
 import { Coupon } from "./types";
 import { Pagination } from "@/services/types";
+import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 // 折扣類型對應的中文說明
 const COUPON_TYPE_MAP = {
@@ -157,7 +169,7 @@ const CouponCard = ({
   onDelete: (id: string) => void;
 }) => {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+    <div className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow border-gray-200">
       {/* 第一行：折扣碼名稱和類型 */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1 min-w-0 mr-3">
@@ -205,7 +217,7 @@ const CouponCard = ({
       </div>
 
       {/* 第四行：操作按鈕 */}
-      <div className="border-t pt-3 flex justify-end">
+      <div className="border-t pt-3 flex justify-end items-center">
         <Button
           size="sm"
           onClick={() => onDelete(coupon.id)}
@@ -220,6 +232,13 @@ const CouponCard = ({
 };
 
 export default function CouponListPage() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  // 確認對話框狀態
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [couponToDelete, setCouponToDelete] = useState<string | null>(null);
+
   const {
     couponList,
     pagination,
@@ -231,7 +250,6 @@ export default function CouponListPage() {
   // 全螢幕 Loading
   const { ScreenLoading, withLoading } = useScreenLoading();
 
-  const { showCommonDialog } = useDialogStore();
   const { setIsShowModal } = useCommonModalStore();
 
   const tableColumn = [
@@ -244,18 +262,41 @@ export default function CouponListPage() {
     { label: "操作", key: "action" },
   ];
 
-  const handleDeleteCoupon = async (id: string) => {
-    const response = await deleteCouponList(id);
+  // 觸發單個刪除確認對話框
+  const handleDeleteCouponClick = (id: string) => {
+    setCouponToDelete(id);
+    setDeleteConfirmOpen(true);
+  };
+
+  // 執行單個刪除
+  const executeDeleteCoupon = async () => {
+    if (!couponToDelete) return;
+
+    const response = await deleteCouponList(couponToDelete);
     const { status, message } = response;
-    showCommonDialog({
-      type: status,
-      message,
-    });
+
+    if (status === "success") {
+      toast({
+        variant: "success",
+        title: "刪除成功",
+        description: message,
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "刪除失敗",
+        description: message,
+      });
+    }
 
     // 重新載入資料時也使用 withLoading
     await withLoading(async () => {
       await fetchCouponList(1, 10);
     });
+
+    // 關閉對話框並清除狀態
+    setDeleteConfirmOpen(false);
+    setCouponToDelete(null);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -277,14 +318,24 @@ export default function CouponListPage() {
       {/* 調整容器寬度以顯示漢堡選單 */}
       <div className="mt-8 px-4 sm:px-6 w-full max-w-full mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4">
-          <h1 className="font-semibold text-xl sm:text-2xl">折扣碼列表</h1>
-          <Button
-            className="bg-orange-600 hover:bg-orange-700 text-white w-full sm:w-auto text-sm sm:text-base flex items-center justify-center"
-            onClick={() => setIsShowModal(true)}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            新增折扣碼
-          </Button>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <h1 className="font-semibold text-xl sm:text-2xl">折扣碼列表</h1>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <Button
+              className="bg-blue-600 hover:bg-blue-800 text-white w-full sm:w-auto text-sm sm:text-base flex items-center justify-center order-2 sm:order-1"
+              onClick={() => navigate(ADMIN_ROUTES.AI_COUPONS_GENERATOR)}
+            >
+              智慧新增促銷計劃
+            </Button>
+            <Button
+              className="bg-blue-600 hover:bg-blue-800 text-white w-full sm:w-auto text-sm sm:text-base flex items-center justify-center order-1 sm:order-2"
+              onClick={() => setIsShowModal(true)}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              新增折扣碼
+            </Button>
+          </div>
         </div>
 
         <main className="mb-8">
@@ -338,7 +389,7 @@ export default function CouponListPage() {
                           <Button
                             size="sm"
                             className="bg-red-500 hover:bg-red-600"
-                            onClick={() => handleDeleteCoupon(coupon.id)}
+                            onClick={() => handleDeleteCouponClick(coupon.id)}
                           >
                             刪除
                           </Button>
@@ -359,7 +410,7 @@ export default function CouponListPage() {
                 <CouponCard
                   key={coupon.id}
                   coupon={coupon}
-                  onDelete={handleDeleteCoupon}
+                  onDelete={handleDeleteCouponClick}
                 />
               ))}
             </div>
@@ -376,6 +427,28 @@ export default function CouponListPage() {
       </div>
 
       <CreateCouponModal />
+
+      {/* 單個刪除確認對話框 */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>確認刪除折扣碼</AlertDialogTitle>
+            <AlertDialogDescription>
+              您確定要刪除這個折扣碼嗎？此操作無法撤銷。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={executeDeleteCoupon}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            >
+              確認刪除
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* 全螢幕 Loading */}
       <ScreenLoading />
     </>
