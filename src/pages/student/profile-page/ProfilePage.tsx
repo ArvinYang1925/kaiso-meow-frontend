@@ -80,7 +80,7 @@ export default function ProfilePage() {
 
   return (
     <>
-      <div className="w-full md:w-[1200px] mx-auto px-8 mb-16">
+      <div className="w-full md:w-[760px] mx-auto px-8 mb-16">
         <h1 className="text-start text-3xl mt-16 font-bold mb-8">個人資料</h1>
         <Card className="w-full p-6 border-none">
           <CardHeader></CardHeader>
@@ -132,10 +132,10 @@ export default function ProfilePage() {
               <ChangePasswordDialog />
             </div>
 
-            <div className="w-full flex justify-end space-x-4 pt-4">
+            <div className="flex gap-2">
               {!isEditing ? (
                 <Button
-                  className="w-full md:w-[25%] bg-orange-500 hover:bg-orange-600"
+                  className="w-full bg-orange-500 hover:bg-orange-600"
                   onClick={() => setIsEditing(true)}
                 >
                   編輯
@@ -143,14 +143,14 @@ export default function ProfilePage() {
               ) : (
                 <>
                   <Button
-                    className="w-full md:w-[25%]"
+                    className="w-full"
                     variant="outline"
                     onClick={() => setIsEditing(false)}
                   >
                     取消
                   </Button>
                   <Button
-                    className="w-full md:w-[25%] bg-orange-500 hover:bg-orange-600"
+                    className="w-full bg-orange-500 hover:bg-orange-600"
                     onClick={handleUpdateFormData}
                     disabled={isLoading}
                   >

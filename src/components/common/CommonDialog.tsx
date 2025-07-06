@@ -26,7 +26,7 @@ export function CommonDialog() {
   return (
     <Dialog open={isShowDialog} onOpenChange={setIsShowDialog}>
       <DialogTitle></DialogTitle>
-      <DialogContent className="text-center py-10">
+      <DialogContent className="text-center py-10 px-4 sm:px-8 max-w-[95vw] sm:max-w-lg rounded-lg">
         <div className="flex flex-col items-center gap-4">
           <Icon size={56} className={`${iconColor}`} />
           <h2 className="text-3xl font-semibold">{titleText}</h2>
@@ -39,7 +39,7 @@ export function CommonDialog() {
         <DialogFooter className="mt-4 flex justify-center">
           <Button
             onClick={handleClose}
-            className="bg-orange-500 hover:bg-orange-600 w-[200px]"
+            className="bg-orange-500 hover:bg-orange-600 w-full md:w-[200px]"
           >
             關閉
           </Button>

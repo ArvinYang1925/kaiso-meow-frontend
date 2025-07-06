@@ -15,6 +15,7 @@ import { PasswordModel } from "../types";
 import { updatePassword } from "../profile.service";
 import { useDialogStore } from "@/stores/commonDialogStore";
 import { handleErrorMessageDialog } from "@/lib/helper";
+import { useNavigate } from "react-router-dom";
 
 export default function ChangePasswordDialog() {
   const {
@@ -27,6 +28,7 @@ export default function ChangePasswordDialog() {
 
   const { isLoading, isShowDialog, setIsShowDialog } = useProfileStore();
   const { showCommonDialog } = useDialogStore();
+  const navigate = useNavigate();
 
   const onSubmit = async (data: PasswordModel) => {
     if (data.newPassword !== data.confirmNewPassword) {
@@ -39,6 +41,8 @@ export default function ChangePasswordDialog() {
         type: "success",
         message: "密碼變更成功",
       });
+      setIsShowDialog(false);
+      navigate("/");
     } catch (error) {
       handleErrorMessageDialog(error);
     }
@@ -109,14 +113,18 @@ export default function ChangePasswordDialog() {
 
           <DialogFooter className="flex justify-end">
             <DialogClose asChild>
-              <Button variant="ghost" onClick={() => setIsShowDialog(false)}>
+              <Button
+                variant="ghost"
+                className="border border-slate-200"
+                onClick={() => setIsShowDialog(false)}
+              >
                 取消
               </Button>
             </DialogClose>
             <Button
               type="submit"
               disabled={isLoading}
-              className="bg-orange-500 hover:bg-orange-600"
+              className="bg-orange-500 hover:bg-orange-600 mb-2"
             >
               設定密碼
             </Button>
